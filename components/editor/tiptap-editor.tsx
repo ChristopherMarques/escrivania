@@ -1,41 +1,44 @@
-"use client"
+"use client";
 
-import { useEditor, EditorContent } from "@tiptap/react"
-import StarterKit from "@tiptap/starter-kit"
-import Highlight from "@tiptap/extension-highlight"
-import TaskList from "@tiptap/extension-task-list"
-import TaskItem from "@tiptap/extension-task-item"
-import CharacterCount from "@tiptap/extension-character-count"
-import Placeholder from "@tiptap/extension-placeholder"
-import { Extension } from "@tiptap/core"
-import { Plugin, PluginKey } from "@tiptap/pm/state"
-import { Decoration, DecorationSet } from "@tiptap/pm/view"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
-import {
-  Bold,
-  Italic,
-  Strikethrough,
-  Highlighter,
-  List,
-  ListOrdered,
-  Quote,
-  Undo,
-  Redo,
-  Type,
-  Hash,
-} from "lucide-react"
-import { useState, useCallback, useEffect } from "react"
-import type { ICharacter, ILocation } from "@/lib/types"
+import { useEditor } from "@tiptap/react";
+import * as React from "react";
+
+// --- Tiptap Core Extensions ---
+import { Extension } from "@tiptap/core";
+import CharacterCount from "@tiptap/extension-character-count";
+import Color from "@tiptap/extension-color";
+import { Highlight } from "@tiptap/extension-highlight";
+import { Image } from "@tiptap/extension-image";
+import { TaskItem, TaskList } from "@tiptap/extension-list";
+import Placeholder from "@tiptap/extension-placeholder";
+import { Subscript } from "@tiptap/extension-subscript";
+import { Superscript } from "@tiptap/extension-superscript";
+import { TextAlign } from "@tiptap/extension-text-align";
+import { Typography } from "@tiptap/extension-typography";
+import Underline from "@tiptap/extension-underline";
+import { Selection } from "@tiptap/extensions";
+import { Plugin, PluginKey } from "@tiptap/pm/state";
+import { Decoration, DecorationSet } from "@tiptap/pm/view";
+import { StarterKit } from "@tiptap/starter-kit";
+
+// --- Tiptap Node ---
+import { HorizontalRule } from "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension";
+import { ImageUploadNode } from "@/components/tiptap-node/image-upload-node/image-upload-node-extension";
+
+// --- Utils ---
+import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils";
+import { cn } from "@/lib/utils";
+
+// --- Components ---
+import { EditorContentWrapper } from "./editor-content-wrapper";
+import { WriterStatsPanel } from "./writer-stats-panel";
+import { WriterToolbarContent } from "./writer-toolbar-content";
 
 interface TiptapEditorProps {
-  content: any
-  onChange: (content: any) => void
-  characters?: ICharacter[]
-  locations?: ILocation[]
-  placeholder?: string
-  className?: string
+  content: any;
+  onChange: (content: any) => void;
+  placeholder?: string;
+  className?: string;
 }
 
 // Custom Mention extension for @characters and #locations
@@ -48,65 +51,87 @@ const MentionExtension = Extension.create({
         key: new PluginKey("mention"),
         props: {
           decorations: (state) => {
-            const decorations: Decoration[] = []
-            const doc = state.doc
+            const decorations: Decoration[] = [];
+            const doc = state.doc;
 
             doc.descendants((node, pos) => {
               if (node.isText) {
-                const text = node.text || ""
+                const text = node.text || "";
 
                 // Match @mentions for characters
-                const characterMatches = text.matchAll(/@(\w+)/g)
+                const characterMatches = text.matchAll(/@(\w+)/g);
                 for (const match of characterMatches) {
-                  const start = pos + (match.index || 0)
-                  const end = start + match[0].length
+                  const start = pos + (match.index || 0);
+                  const end = start + match[0].length;
                   decorations.push(
                     Decoration.inline(start, end, {
-                      class: "mention-character bg-purple-100 text-purple-700 px-1 rounded cursor-pointer",
+                      class:
+                        "mention-character bg-purple-100 text-purple-700 px-1 rounded cursor-pointer",
                       "data-mention-type": "character",
                       "data-mention-name": match[1],
-                    }),
-                  )
+                    })
+                  );
                 }
 
                 // Match #mentions for locations
-                const locationMatches = text.matchAll(/#(\w+)/g)
+                const locationMatches = text.matchAll(/#(\w+)/g);
                 for (const match of locationMatches) {
-                  const start = pos + (match.index || 0)
-                  const end = start + match[0].length
+                  const start = pos + (match.index || 0);
+                  const end = start + match[0].length;
                   decorations.push(
                     Decoration.inline(start, end, {
-                      class: "mention-location bg-blue-100 text-blue-700 px-1 rounded cursor-pointer",
+                      class:
+                        "mention-location bg-blue-100 text-blue-700 px-1 rounded cursor-pointer",
                       "data-mention-type": "location",
                       "data-mention-name": match[1],
-                    }),
-                  )
+                    })
+                  );
                 }
               }
-            })
+            });
 
-            return DecorationSet.create(doc, decorations)
+            return DecorationSet.create(doc, decorations);
           },
         },
       }),
-    ]
+    ];
   },
-})
+});
 
 export function TiptapEditor({
   content,
   onChange,
-  characters = [],
-  locations = [],
   placeholder = "Comece a escrever sua história aqui...",
   className = "",
 }: TiptapEditorProps) {
-  const [wordCount, setWordCount] = useState(0)
-  const [characterCount, setCharacterCount] = useState(0)
+  const [wordCount, setWordCount] = React.useState(0);
+  const [characterCount, setCharacterCount] = React.useState(0);
+  const [readingTime, setReadingTime] = React.useState(0);
+  const [paragraphCount, setParagraphCount] = React.useState(0);
+  const [writingGoal, setWritingGoal] = React.useState(500); // Meta de palavras
+  const [sessionStartTime] = React.useState(Date.now());
+  const [sessionWordCount, setSessionWordCount] = React.useState(0);
 
   const editor = useEditor({
+    immediatelyRender: false,
+    shouldRerenderOnTransaction: false,
+    editorProps: {
+      attributes: {
+        autocomplete: "off",
+        autocorrect: "off",
+        autocapitalize: "off",
+        "aria-label":
+          "Área principal de conteúdo, comece a digitar para inserir texto.",
+        class: `enhanced-writer-editor ${className}`,
+      },
+    },
     extensions: [
       StarterKit.configure({
+        horizontalRule: false,
+        link: {
+          openOnClick: false,
+          enableClickSelection: true,
+        },
         bulletList: {
           keepMarks: true,
           keepAttributes: false,
@@ -116,232 +141,135 @@ export function TiptapEditor({
           keepAttributes: false,
         },
       }),
+      HorizontalRule,
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
+      TaskList,
+      TaskItem.configure({ nested: true }),
       Highlight.configure({
         multicolor: true,
         HTMLAttributes: {
           class: "highlight",
         },
       }),
-      TaskList,
-      TaskItem.configure({
-        nested: true,
-      }),
+      Image,
+      Typography,
+      Superscript,
+      Subscript,
+      Selection,
+      Color,
       CharacterCount,
       Placeholder.configure({
         placeholder,
         emptyEditorClass: "is-editor-empty",
       }),
+      Underline,
+      ImageUploadNode.configure({
+        accept: "image/*",
+        maxSize: MAX_FILE_SIZE,
+        limit: 3,
+        upload: handleImageUpload,
+        onError: (error) => console.error("Upload failed:", error),
+      }),
       MentionExtension,
     ],
     content,
     onUpdate: ({ editor }) => {
-      const json = editor.getJSON()
-      onChange(json)
+      const json = editor.getJSON();
+      onChange(json);
 
       // Update counts
-      const stats = editor.storage.characterCount
-      setWordCount(stats.words())
-      setCharacterCount(stats.characters())
-    },
-    editorProps: {
-      attributes: {
-        class: `prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[500px] ${className}`,
-      },
-    },
-  })
+      const stats = editor.storage.characterCount;
+      const words = stats.words();
+      const characters = stats.characters();
 
-  useEffect(() => {
+      setWordCount(words);
+      setCharacterCount(characters);
+
+      // Calculate reading time (average 200 words per minute)
+      setReadingTime(Math.ceil(words / 200));
+
+      // Count paragraphs
+      const text = editor.getText();
+      const paragraphs = text
+        .split("\n\n")
+        .filter((p) => p.trim().length > 0).length;
+      setParagraphCount(paragraphs);
+    },
+  });
+
+  React.useEffect(() => {
     if (editor && content !== editor.getJSON()) {
-      editor.commands.setContent(content)
+      editor.commands.setContent(content);
     }
-  }, [content, editor])
+  }, [content, editor]);
 
-  const toggleHighlight = useCallback(
+  // Calculate writing session stats
+  const sessionDuration = Math.floor((Date.now() - sessionStartTime) / 60000); // minutes
+  const wordsPerMinute =
+    sessionDuration > 0 ? Math.round(sessionWordCount / sessionDuration) : 0;
+  const goalProgress = Math.round((wordCount / writingGoal) * 100);
+
+  // Update session word count when content changes
+  React.useEffect(() => {
+    if (wordCount > sessionWordCount) {
+      setSessionWordCount(wordCount);
+    }
+  }, [wordCount, sessionWordCount]);
+
+  const toggleHighlight = React.useCallback(
     (color: string) => {
-      if (!editor) return
+      if (!editor) return;
 
       if (editor.isActive("highlight", { color })) {
-        editor.chain().focus().unsetHighlight().run()
+        editor.chain().focus().unsetHighlight().run();
       } else {
-        editor.chain().focus().setHighlight({ color }).run()
+        editor.chain().focus().setHighlight({ color }).run();
       }
     },
-    [editor],
-  )
+    [editor]
+  );
 
   if (!editor) {
-    return null
+    return null;
   }
 
   return (
-    <div className="w-full">
-      {/* Fixed Toolbar */}
-      <div className="border-b border-gray-200 bg-white/50 backdrop-blur-sm p-3 mb-4 rounded-t-lg">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().undo().run()}
-              disabled={!editor.can().undo()}
-              className="h-8 w-8 p-0"
-            >
-              <Undo className="w-4 h-4" />
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().redo().run()}
-              disabled={!editor.can().redo()}
-              className="h-8 w-8 p-0"
-            >
-              <Redo className="w-4 h-4" />
-            </Button>
-
-            <Separator orientation="vertical" className="h-6 mx-2" />
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleBold().run()}
-              className={`h-8 w-8 p-0 ${editor.isActive("bold") ? "bg-purple-100 text-purple-700" : ""}`}
-            >
-              <Bold className="w-4 h-4" />
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleItalic().run()}
-              className={`h-8 w-8 p-0 ${editor.isActive("italic") ? "bg-purple-100 text-purple-700" : ""}`}
-            >
-              <Italic className="w-4 h-4" />
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleStrike().run()}
-              className={`h-8 w-8 p-0 ${editor.isActive("strike") ? "bg-purple-100 text-purple-700" : ""}`}
-            >
-              <Strikethrough className="w-4 h-4" />
-            </Button>
-
-            <Separator orientation="vertical" className="h-6 mx-2" />
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => toggleHighlight("yellow")}
-              className={`h-8 w-8 p-0 ${editor.isActive("highlight", { color: "yellow" }) ? "bg-yellow-100 text-yellow-700" : ""}`}
-            >
-              <Highlighter className="w-4 h-4" />
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => toggleHighlight("pink")}
-              className={`h-8 w-8 p-0 ${editor.isActive("highlight", { color: "pink" }) ? "bg-pink-100 text-pink-700" : ""}`}
-            >
-              <Highlighter className="w-4 h-4" />
-            </Button>
-
-            <Separator orientation="vertical" className="h-6 mx-2" />
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleBulletList().run()}
-              className={`h-8 w-8 p-0 ${editor.isActive("bulletList") ? "bg-purple-100 text-purple-700" : ""}`}
-            >
-              <List className="w-4 h-4" />
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleOrderedList().run()}
-              className={`h-8 w-8 p-0 ${editor.isActive("orderedList") ? "bg-purple-100 text-purple-700" : ""}`}
-            >
-              <ListOrdered className="w-4 h-4" />
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleTaskList().run()}
-              className={`h-8 w-8 p-0 ${editor.isActive("taskList") ? "bg-purple-100 text-purple-700" : ""}`}
-            >
-              <Hash className="w-4 h-4" />
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleBlockquote().run()}
-              className={`h-8 w-8 p-0 ${editor.isActive("blockquote") ? "bg-purple-100 text-purple-700" : ""}`}
-            >
-              <Quote className="w-4 h-4" />
-            </Button>
-          </div>
-
-          <div className="flex items-center space-x-4 text-sm text-gray-500">
-            <div className="flex items-center space-x-2">
-              <Type className="w-4 h-4" />
-              <span>{wordCount} palavras</span>
-            </div>
-            <Badge variant="outline" className="text-xs">
-              {characterCount} caracteres
-            </Badge>
-          </div>
-        </div>
-
-        {/* Mention Helper */}
-        <div className="mt-2 text-xs text-gray-500 flex items-center space-x-4">
-          <span>💡 Digite @ para mencionar personagens</span>
-          <span>💡 Digite # para mencionar locais</span>
-        </div>
+    <div
+      className={cn(
+        "flex flex-col w-full h-full min-h-[600px] max-h-screen",
+        "bg-background rounded-lg  dark:bg-gray-900",
+        "overflow-hidden",
+        className
+      )}
+    >
+      {/* Toolbar */}
+      <div className="flex-shrink-0">
+        <WriterToolbarContent
+          editor={editor}
+          wordCount={wordCount}
+          characterCount={characterCount}
+          readingTime={readingTime}
+        />
       </div>
 
       {/* Editor Content */}
-      <div className="bg-white/70 backdrop-blur-sm border border-white/30 rounded-b-lg focus-within:border-purple-300 transition-colors">
-        <EditorContent editor={editor} className="p-6 min-h-[500px] prose prose-gray max-w-none focus:outline-none" />
+      <div className="flex-1 overflow-hidden">
+        <EditorContentWrapper editor={editor} />
       </div>
 
-      {/* Character and Location Lists for Reference */}
-      {(characters.length > 0 || locations.length > 0) && (
-        <div className="mt-4 p-4 bg-gray-50/50 rounded-lg">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            {characters.length > 0 && (
-              <div>
-                <h4 className="font-medium text-gray-700 mb-2">Personagens disponíveis:</h4>
-                <div className="flex flex-wrap gap-1">
-                  {characters.map((char) => (
-                    <Badge key={char.id} variant="outline" className="text-xs cursor-pointer hover:bg-purple-50">
-                      @{char.name.replace(/\s+/g, "")}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {locations.length > 0 && (
-              <div>
-                <h4 className="font-medium text-gray-700 mb-2">Locais disponíveis:</h4>
-                <div className="flex flex-wrap gap-1">
-                  {locations.map((loc) => (
-                    <Badge key={loc.id} variant="outline" className="text-xs cursor-pointer hover:bg-blue-50">
-                      #{loc.name.replace(/\s+/g, "")}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Stats Panel */}
+      <div className="flex-shrink-0">
+        <WriterStatsPanel
+          wordCount={wordCount}
+          characterCount={characterCount}
+          readingTime={readingTime}
+          writingGoal={writingGoal}
+          sessionWordCount={sessionWordCount}
+          sessionDuration={sessionDuration}
+          wordsPerMinute={wordsPerMinute}
+          goalProgress={goalProgress}
+        />
+      </div>
     </div>
-  )
+  );
 }

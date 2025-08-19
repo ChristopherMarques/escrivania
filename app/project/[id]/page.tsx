@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, use } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -21,7 +21,8 @@ import { SplitScreenManager } from "@/components/split-screen/split-screen-manag
 import { MobileNavigation } from "@/components/mobile/mobile-navigation"
 import { MobileBottomBar } from "@/components/mobile/mobile-bottom-bar"
 
-export default function ProjectEditor({ params }: { params: { id: string } }) {
+export default function ProjectEditor({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params)
   const router = useRouter()
   const { getProject } = useProjects()
   const { settings, toggleFocusMode } = useSettings()
@@ -43,11 +44,11 @@ export default function ProjectEditor({ params }: { params: { id: string } }) {
   const [isFocusModeOpen, setIsFocusModeOpen] = useState(false)
   const [isSplitScreenOpen, setIsSplitScreenOpen] = useState(false)
 
-  const projectSummary = getProject(params.id)
+  const projectSummary = getProject(resolvedParams.id)
 
   useEffect(() => {
-    actions.loadProject(params.id)
-  }, [params.id])
+    actions.loadProject(resolvedParams.id)
+  }, [resolvedParams.id])
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -394,7 +395,8 @@ export default function ProjectEditor({ params }: { params: { id: string } }) {
           <CharacterSheet
             character={currentCharacter}
             allCharacters={project.characters}
-            onUpdate={(updates) => actions.updateCharacter(currentCharacter.id, updates)}
+            onUpdate={(updatedCharacter) => actions.updateCharacter(updatedCharacter)}
+            onDelete={(characterId) => actions.deleteCharacter(characterId)}
           />
         </div>
       </div>
@@ -427,7 +429,8 @@ export default function ProjectEditor({ params }: { params: { id: string } }) {
         <div className="flex-1 overflow-hidden">
           <LocationSheet
             location={currentLocation}
-            onUpdate={(updates) => actions.updateLocation(currentLocation.id, updates)}
+            onUpdate={(updatedLocation) => actions.updateLocation(updatedLocation)}
+            onDelete={(locationId) => actions.deleteLocation(locationId)}
           />
         </div>
       </div>
@@ -534,7 +537,7 @@ export default function ProjectEditor({ params }: { params: { id: string } }) {
           <div className="flex-1 flex overflow-hidden">
             <div className="hidden md:flex w-80 border-r border-white/20 bg-white/40 backdrop-blur-sm flex-col">
               <div className="p-4">
-                <p className="text-sm text-gray-600">Navigation panel content...</p>
+                <p className="text-sm text-gray-600">Conteúdo do painel de navegação...</p>
               </div>
             </div>
 
@@ -561,7 +564,7 @@ export default function ProjectEditor({ params }: { params: { id: string } }) {
 
             <div className="hidden md:flex w-80 border-l border-white/20 bg-white/40 backdrop-blur-sm">
               <div className="p-4">
-                <p className="text-sm text-gray-600">Metadata panel content...</p>
+                <p className="text-sm text-gray-600">Conteúdo do painel de metadados...</p>
               </div>
             </div>
           </div>

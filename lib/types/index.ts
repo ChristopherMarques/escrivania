@@ -87,8 +87,46 @@ export interface IProject {
     }
     viewMode?: "writing" | "corkboard" | "outliner"
   }
+  structure: ProjectStructure
+  writingGoals: WritingGoals
   createdAt: string
   updatedAt: string
+}
+
+export interface ProjectStructure {
+  chapters: Chapter[]
+}
+
+export interface Chapter {
+  id: string
+  title: string
+  synopsis: string
+  notes: string
+  scenes: Scene[]
+  order: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface Scene {
+  id: string
+  title: string
+  synopsis: string
+  notes: string
+  content: any
+  wordCount: number
+  status: SceneStatus
+  order: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+export type SceneStatus = 'draft' | 'in-progress' | 'completed' | 'needs-revision'
+
+export interface WritingGoals {
+  dailyWordTarget: number
+  projectWordTarget: number
+  sessionWordTarget: number
 }
 
 export interface IProjectSummary {
