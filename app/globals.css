@@ -1,5 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "../styles/_variables.scss";
+@import "../styles/_keyframe-animations.scss";
+@import "../components/tiptap-node/paragraph-node/paragraph-node.scss";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -119,7 +122,8 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --font-sans: var(--font-inter);
   --font-serif: var(--font-poppins);
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
 }
 
 /* Added glassmorphism utilities and custom styles */

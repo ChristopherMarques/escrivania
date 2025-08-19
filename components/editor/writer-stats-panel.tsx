@@ -1,0 +1,129 @@
+"use client";
+
+import { Clock, FileText, Hash, Target, Timer, TrendingUp } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+interface WriterStatsPanelProps {
+  wordCount: number;
+  characterCount: number;
+  readingTime: number;
+  writingGoal: number;
+  sessionWordCount: number;
+  sessionDuration: number;
+  wordsPerMinute: number;
+  goalProgress: number;
+  className?: string;
+}
+
+export function WriterStatsPanel({
+  wordCount,
+  characterCount,
+  readingTime,
+  writingGoal,
+  sessionWordCount,
+  sessionDuration,
+  wordsPerMinute,
+  goalProgress,
+  className,
+}: WriterStatsPanelProps) {
+  const stats = [
+    {
+      icon: FileText,
+      value: wordCount,
+      label: "Palavras",
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
+    },
+    {
+      icon: Target,
+      value: `${goalProgress}%`,
+      label: `Meta (${writingGoal})`,
+      color: "text-green-600",
+      bgColor: "bg-green-50",
+      showProgress: true,
+      progress: Math.min(goalProgress, 100),
+    },
+    {
+      icon: Clock,
+      value: readingTime,
+      label: "Min. leitura",
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
+    },
+    {
+      icon: TrendingUp,
+      value: wordsPerMinute,
+      label: "Palavras/min",
+      color: "text-orange-600",
+      bgColor: "bg-orange-50",
+    },
+    {
+      icon: Timer,
+      value: sessionDuration,
+      label: "Min. sessão",
+      color: "text-indigo-600",
+      bgColor: "bg-indigo-50",
+    },
+    {
+      icon: Hash,
+      value: characterCount,
+      label: "Caracteres",
+      color: "text-gray-600",
+      bgColor: "bg-gray-50",
+    },
+  ];
+
+  return (
+    <div
+      className={cn(
+        "bg-gray-50 border-t border-gray-200 p-4",
+        "dark:bg-gray-800 dark:border-gray-700",
+        className
+      )}
+    >
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        {stats.map((stat, index) => {
+          const Icon = stat.icon;
+          return (
+            <div
+              key={index}
+              className={cn(
+                "flex items-center gap-2 p-3 rounded-lg border transition-all duration-200",
+                "hover:border-gray-300 hover:shadow-sm hover:scale-105",
+                "dark:border-gray-600 dark:hover:border-gray-500",
+                "bg-white dark:bg-gray-700",
+                "cursor-default"
+              )}
+            >
+              <div
+                className={cn(
+                  "flex items-center justify-center w-7 h-7 rounded-md flex-shrink-0",
+                  stat.bgColor,
+                  "dark:bg-opacity-20"
+                )}
+              >
+                <Icon className={cn("w-3.5 h-3.5", stat.color)} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                  {stat.value}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  {stat.label}
+                </div>
+                {stat.showProgress && (
+                  <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1 dark:bg-gray-600">
+                    <div
+                      className="bg-gradient-to-r from-green-500 to-emerald-500 h-1.5 rounded-full transition-all duration-500 ease-out"
+                      style={{ width: `${Math.min(stat.progress, 100)}%` }}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
