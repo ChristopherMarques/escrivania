@@ -21,6 +21,25 @@ import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
 import { StarterKit } from "@tiptap/starter-kit";
 
+// --- New Extensions ---
+import { Blockquote } from "@tiptap/extension-blockquote";
+import { Code } from "@tiptap/extension-code";
+import { CodeBlock } from "@tiptap/extension-code-block";
+import DropCursor from "@tiptap/extension-dropcursor";
+import { Focus } from "@tiptap/extension-focus";
+import { HardBreak } from "@tiptap/extension-hard-break";
+import { Link } from "@tiptap/extension-link";
+import { Mention } from "@tiptap/extension-mention";
+import {
+  Table,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from "@tiptap/extension-table";
+import { Youtube } from "@tiptap/extension-youtube";
+import { TextStyleKit } from "@tiptap/extension-text-style";
+// History extension removed - using StarterKit's built-in history
+
 // --- Tiptap Node ---
 import { HorizontalRule } from "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension";
 import { ImageUploadNode } from "@/components/tiptap-node/image-upload-node/image-upload-node-extension";
@@ -128,10 +147,11 @@ export function TiptapEditor({
     extensions: [
       StarterKit.configure({
         horizontalRule: false,
-        link: {
-          openOnClick: false,
-          enableClickSelection: true,
-        },
+        link: false, // Disabled to use custom Link extension
+        blockquote: false, // Disabled to use custom Blockquote extension
+        codeBlock: false, // Disabled to use custom CodeBlock extension
+        hardBreak: false, // Disabled to use custom HardBreak extension
+        history: true, // Keep StarterKit history instead of custom extension
         bulletList: {
           keepMarks: true,
           keepAttributes: false,
@@ -141,6 +161,7 @@ export function TiptapEditor({
           keepAttributes: false,
         },
       }),
+      // Core Extensions
       HorizontalRule,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       TaskList,
@@ -170,6 +191,95 @@ export function TiptapEditor({
         upload: handleImageUpload,
         onError: (error) => console.error("Upload failed:", error),
       }),
+      // New Extensions - Marks
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: "text-blue-600 underline cursor-pointer",
+        },
+      }),
+      Code.configure({
+        HTMLAttributes: {
+          class:
+            "bg-gray-100 text-gray-800 px-1 py-0.5 rounded text-sm font-mono",
+        },
+      }),
+      // New Extensions - Nodes
+      Blockquote.configure({
+        HTMLAttributes: {
+          class: "border-l-4 border-gray-300 pl-4 italic text-gray-700",
+        },
+      }),
+      CodeBlock.configure({
+        HTMLAttributes: {
+          class:
+            "bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto",
+        },
+      }),
+      HardBreak,
+      Mention.configure({
+        HTMLAttributes: {
+          class:
+            "mention bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm",
+        },
+        suggestion: {
+          items: ({ query }) => {
+            return [
+              "Protagonist",
+              "Antagonist",
+              "Supporting Character",
+              "Love Interest",
+              "Mentor",
+              "Sidekick",
+            ]
+              .filter((item) =>
+                item.toLowerCase().startsWith(query.toLowerCase())
+              )
+              .slice(0, 5);
+          },
+        },
+      }),
+      Table.configure({
+        resizable: true,
+        HTMLAttributes: {
+          class: "border-collapse border border-gray-300 w-full",
+        },
+      }),
+      TableRow.configure({
+        HTMLAttributes: {
+          class: "border border-gray-300",
+        },
+      }),
+      TableHeader.configure({
+        HTMLAttributes: {
+          class: "border border-gray-300 bg-gray-50 font-semibold p-2",
+        },
+      }),
+      TableCell.configure({
+        HTMLAttributes: {
+          class: "border border-gray-300 p-2",
+        },
+      }),
+      Youtube.configure({
+        width: 640,
+        height: 480,
+        HTMLAttributes: {
+          class: "youtube-embed rounded-lg",
+        },
+      }),
+      // New Extensions - Functionality
+      DropCursor.configure({
+        color: "#3b82f6",
+        width: 2,
+      }),
+      Focus.configure({
+        className: "has-focus",
+        mode: "all",
+      }),
+      // History extension removed - using StarterKit's built-in history
+      // Text Style Extensions
+      TextStyleKit,
+      // Custom Extensions
       MentionExtension,
     ],
     content,
