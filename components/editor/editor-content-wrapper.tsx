@@ -2,6 +2,7 @@
 
 import { EditorContent, Editor } from "@tiptap/react";
 import { cn } from "@/lib/utils";
+import { useDeviceInfo } from "@/hooks/use-mobile";
 
 interface EditorContentWrapperProps {
   editor: Editor | null;
@@ -12,6 +13,24 @@ export function EditorContentWrapper({
   editor,
   className,
 }: EditorContentWrapperProps) {
+  const deviceInfo = useDeviceInfo();
+  
+  const getResponsiveClasses = () => {
+    if (deviceInfo.isMobile) {
+      return "prose-sm px-3 py-4 min-h-[350px]";
+    }
+    if (deviceInfo.isTablet) {
+      return "prose px-4 py-6 min-h-[450px]";
+    }
+    if (deviceInfo.isMacbook) {
+      return "prose-lg px-5 py-6 min-h-[500px]"; // Otimizado para MacBook Pro M1
+    }
+    if (deviceInfo.isNotebook) {
+      return "prose-lg px-6 py-7 min-h-[550px]";
+    }
+    return "prose-xl px-8 py-8 min-h-[600px]"; // Desktop grandes
+  };
+  
   return (
     <div
       className={cn(
@@ -23,8 +42,8 @@ export function EditorContentWrapper({
       <EditorContent
         editor={editor}
         className={cn(
-          "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl",
-          "max-w-none mx-auto px-6 py-8",
+          getResponsiveClasses(),
+          "max-w-none mx-auto",
           "dark:prose-invert",
           "prose-headings:font-bold prose-headings:tracking-tight",
           "prose-h1:text-3xl prose-h1:mb-6 prose-h1:mt-8",
@@ -44,8 +63,7 @@ export function EditorContentWrapper({
           "prose-li:mb-1 prose-li:leading-relaxed",
           "prose-a:text-blue-600 dark:prose-a:text-blue-400",
           "prose-a:no-underline hover:prose-a:underline",
-          "focus:outline-none",
-          "min-h-[500px]"
+          "focus:outline-none"
         )}
       />
     </div>

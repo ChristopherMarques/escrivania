@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Check, ChevronDown, Plus, X, Tag, User } from "lucide-react"
 import type { IScene, ICharacter } from "@/lib/types"
+import { useDeviceInfo } from "@/hooks/use-mobile"
 
 interface StatusBadgeProps {
   status: IScene["status"]
@@ -164,6 +165,7 @@ interface TagBadgesProps {
 }
 
 export function TagBadges({ tags, onTagsChange, onTagFilter, allTags = [], className = "" }: TagBadgesProps) {
+  const deviceInfo = useDeviceInfo()
   const [isAddingTag, setIsAddingTag] = useState(false)
   const [newTag, setNewTag] = useState("")
 
@@ -194,15 +196,57 @@ export function TagBadges({ tags, onTagsChange, onTagFilter, allTags = [], class
     onTagsChange(tags.filter((tag) => tag !== tagToRemove))
   }
 
+  const getResponsiveClasses = () => {
+    if (deviceInfo.isMobile) {
+      return {
+        container: "flex flex-wrap gap-1 items-center",
+        badge: "text-xs px-2 py-1 touch-manipulation flex items-center space-x-1",
+        icon: "w-2.5 h-2.5",
+        removeButton: "h-3 w-3 p-0 hover:bg-black/10 ml-1",
+        removeIcon: "w-1.5 h-1.5",
+        input: "h-5 w-16 text-xs bg-white/50 border-gray-200",
+        addButton: "h-5 w-5 p-0",
+        addIcon: "w-2.5 h-2.5",
+        addBadge: "text-xs px-2 py-1 touch-manipulation"
+      }
+    } else if (deviceInfo.isTablet) {
+      return {
+        container: "flex flex-wrap gap-1.5 items-center",
+        badge: "text-sm px-2.5 py-1 touch-manipulation flex items-center space-x-1",
+        icon: "w-3 h-3",
+        removeButton: "h-4 w-4 p-0 hover:bg-black/10 ml-1",
+        removeIcon: "w-2 h-2",
+        input: "h-6 w-20 text-xs bg-white/50 border-gray-200",
+        addButton: "h-6 w-6 p-0",
+        addIcon: "w-3 h-3",
+        addBadge: "text-sm px-2.5 py-1 touch-manipulation"
+      }
+    } else {
+      return {
+        container: "flex flex-wrap gap-1 items-center",
+        badge: "text-sm px-2 py-1 flex items-center space-x-1",
+        icon: "w-3 h-3",
+        removeButton: "h-4 w-4 p-0 hover:bg-black/10 ml-1",
+        removeIcon: "w-2 h-2",
+        input: "h-6 w-20 text-xs bg-white/50 border-gray-200",
+        addButton: "h-6 w-6 p-0",
+        addIcon: "w-3 h-3",
+        addBadge: "text-sm px-2 py-1"
+      }
+    }
+  }
+
+  const classes = getResponsiveClasses()
+
   return (
-    <div className={`flex flex-wrap gap-1 items-center ${className}`}>
+    <div className={`${classes.container} ${className}`}>
       {tags.map((tag) => (
         <Badge
           key={tag}
-          className={`${getTagColor(tag)} cursor-pointer transition-colors flex items-center space-x-1`}
+          className={`${getTagColor(tag)} cursor-pointer transition-colors ${classes.badge}`}
           onClick={() => onTagFilter?.(tag)}
         >
-          <Tag className="w-3 h-3" />
+          <Tag className={classes.icon} />
           <span>{tag}</span>
           <Button
             variant="ghost"
@@ -211,9 +255,9 @@ export function TagBadges({ tags, onTagsChange, onTagFilter, allTags = [], class
               e.stopPropagation()
               removeTag(tag)
             }}
-            className="h-4 w-4 p-0 hover:bg-black/10 ml-1"
+            className={classes.removeButton}
           >
-            <X className="w-2 h-2" />
+            <X className={classes.removeIcon} />
           </Button>
         </Badge>
       ))}
@@ -231,11 +275,11 @@ export function TagBadges({ tags, onTagsChange, onTagFilter, allTags = [], class
               }
             }}
             placeholder="Nova tag..."
-            className="h-6 w-20 text-xs bg-white/50 border-gray-200"
+            className={classes.input}
             autoFocus
           />
-          <Button variant="ghost" size="sm" onClick={addTag} className="h-6 w-6 p-0">
-            <Check className="w-3 h-3" />
+          <Button variant="ghost" size="sm" onClick={addTag} className={classes.addButton}>
+            <Check className={classes.addIcon} />
           </Button>
         </div>
       ) : (
@@ -243,9 +287,9 @@ export function TagBadges({ tags, onTagsChange, onTagFilter, allTags = [], class
           <PopoverTrigger asChild>
             <Badge
               variant="outline"
-              className="cursor-pointer hover:bg-gray-50 border-dashed flex items-center space-x-1"
+              className={`cursor-pointer hover:bg-gray-50 border-dashed flex items-center space-x-1 ${classes.addBadge}`}
             >
-              <Plus className="w-3 h-3" />
+              <Plus className={classes.addIcon} />
               <span>Tag</span>
             </Badge>
           </PopoverTrigger>
@@ -314,6 +358,8 @@ interface FilterTagsProps {
 }
 
 export function FilterTags({ allTags, activeTags, onTagToggle, onClearFilters, className = "" }: FilterTagsProps) {
+  const deviceInfo = useDeviceInfo()
+  
   const tagColors = [
     "bg-red-100 text-red-700 hover:bg-red-200",
     "bg-blue-100 text-blue-700 hover:bg-blue-200",
@@ -330,30 +376,66 @@ export function FilterTags({ allTags, activeTags, onTagToggle, onClearFilters, c
     return tagColors[index % tagColors.length]
   }
 
+  const getResponsiveClasses = () => {
+    if (deviceInfo.isMobile) {
+      return {
+        container: "space-y-2",
+        header: "flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0",
+        label: "text-xs font-medium text-gray-700",
+        button: "text-xs h-6 w-full sm:w-auto",
+        tagsContainer: "flex flex-wrap gap-1",
+        badge: "text-xs px-2 py-1 touch-manipulation",
+        icon: "w-2.5 h-2.5 mr-1"
+      }
+    } else if (deviceInfo.isTablet) {
+      return {
+        container: "space-y-2",
+        header: "flex items-center justify-between",
+        label: "text-sm font-medium text-gray-700",
+        button: "text-xs h-6",
+        tagsContainer: "flex flex-wrap gap-1.5",
+        badge: "text-sm px-2.5 py-1 touch-manipulation",
+        icon: "w-3 h-3 mr-1"
+      }
+    } else {
+      return {
+        container: "space-y-2",
+        header: "flex items-center justify-between",
+        label: "text-sm font-medium text-gray-700",
+        button: "text-xs h-6",
+        tagsContainer: "flex flex-wrap gap-1",
+        badge: "text-sm px-2 py-1",
+        icon: "w-3 h-3 mr-1"
+      }
+    }
+  }
+
   if (allTags.length === 0) return null
 
+  const classes = getResponsiveClasses()
+
   return (
-    <div className={`space-y-2 ${className}`}>
-      <div className="flex items-center justify-between">
-        <Label className="text-sm font-medium text-gray-700">Filtrar por Tags</Label>
+    <div className={`${classes.container} ${className}`}>
+      <div className={classes.header}>
+        <Label className={classes.label}>Filtrar por Tags</Label>
         {activeTags.length > 0 && (
-          <Button variant="ghost" size="sm" onClick={onClearFilters} className="text-xs h-6">
+          <Button variant="ghost" size="sm" onClick={onClearFilters} className={classes.button}>
             Limpar Filtros
           </Button>
         )}
       </div>
-      <div className="flex flex-wrap gap-1">
+      <div className={classes.tagsContainer}>
         {allTags.map((tag) => {
           const isActive = activeTags.includes(tag)
           return (
             <Badge
               key={tag}
-              className={`cursor-pointer transition-all ${
+              className={`cursor-pointer transition-all ${classes.badge} ${
                 isActive ? `${getTagColor(tag)} ring-2 ring-purple-300` : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
               onClick={() => onTagToggle(tag)}
             >
-              <Tag className="w-3 h-3 mr-1" />
+              <Tag className={classes.icon} />
               {tag}
             </Badge>
           )

@@ -53,11 +53,17 @@ import { EditorContentWrapper } from "./editor-content-wrapper";
 import { WriterStatsPanel } from "./writer-stats-panel";
 import { WriterToolbarContent } from "./writer-toolbar-content";
 
+// --- Hooks ---
+import { useDeviceInfo } from "@/hooks/use-mobile";
+
 interface TiptapEditorProps {
   content: any;
   onChange: (content: any) => void;
   placeholder?: string;
   className?: string;
+  characters?: any[];
+  locations?: any[];
+  readOnly?: boolean;
 }
 
 // Custom Mention extension for @characters and #locations
@@ -122,7 +128,11 @@ export function TiptapEditor({
   onChange,
   placeholder = "Comece a escrever sua história aqui...",
   className = "",
+  characters = [],
+  locations = [],
+  readOnly = false,
 }: TiptapEditorProps) {
+  const deviceInfo = useDeviceInfo();
   const [wordCount, setWordCount] = React.useState(0);
   const [characterCount, setCharacterCount] = React.useState(0);
   const [readingTime, setReadingTime] = React.useState(0);
@@ -134,6 +144,7 @@ export function TiptapEditor({
   const editor = useEditor({
     immediatelyRender: false,
     shouldRerenderOnTransaction: false,
+    editable: !readOnly,
     editorProps: {
       attributes: {
         autocomplete: "off",
@@ -141,7 +152,7 @@ export function TiptapEditor({
         autocapitalize: "off",
         "aria-label":
           "Área principal de conteúdo, comece a digitar para inserir texto.",
-        class: `enhanced-writer-editor ${className}`,
+        class: `enhanced-writer-editor ${className} ${deviceInfo.isMobile ? 'mobile-editor' : deviceInfo.isTablet ? 'tablet-editor' : 'desktop-editor'}`,
       },
     },
     extensions: [
@@ -151,7 +162,7 @@ export function TiptapEditor({
         blockquote: false, // Disabled to use custom Blockquote extension
         codeBlock: false, // Disabled to use custom CodeBlock extension
         hardBreak: false, // Disabled to use custom HardBreak extension
-        history: true, // Keep StarterKit history instead of custom extension
+        // history is enabled by default in StarterKit
         bulletList: {
           keepMarks: true,
           keepAttributes: false,
@@ -261,8 +272,16 @@ export function TiptapEditor({
         },
       }),
       Youtube.configure({
-        width: 640,
-        height: 480,
+        width: deviceInfo.isMobile ? 320 : 
+               deviceInfo.isTablet ? 480 : 
+               deviceInfo.isMacbook ? 560 : // Otimizado para MacBook Pro M1 13"
+               deviceInfo.isNotebook ? 640 : 
+               720, // Desktop grandes
+        height: deviceInfo.isMobile ? 240 : 
+                deviceInfo.isTablet ? 360 : 
+                deviceInfo.isMacbook ? 315 : // Proporção 16:9 para MacBook Pro M1
+                deviceInfo.isNotebook ? 480 : 
+                540, // Desktop grandes
         HTMLAttributes: {
           class: "youtube-embed rounded-lg",
         },
@@ -343,43 +362,81 @@ export function TiptapEditor({
     return null;
   }
 
+  const getMinHeight = () => {
+    if (deviceInfo.isMobile) return "min-h-[400px]";
+    if (deviceInfo.isTablet) return "min-h-[500px]";
+    if (deviceInfo.isMacbook) return "min-h-[550px]"; // Otimizado para MacBook Pro M1 13"
+    if (deviceInfo.isNotebook) return "min-h-[580px]";
+    return "min-h-[650px]"; // Desktop grandes
+  };
+
+  const getToolbarVisibility = () => {
+    if (readOnly) return false;
+    if (deviceInfo.isMobile) return false; // Hide toolbar on mobile for cleaner interface
+    return true; // Show toolbar on tablet, notebook, macbook and desktop
+  };
+
+  const getStatsVisibility = () => {
+    if (readOnly) return false;
+    if (deviceInfo.isMobile) return false; // Hide stats on mobile
+    if (deviceInfo.isTablet) return false; // Hide stats on tablet
+    return true; // Show stats on notebook, macbook and desktop
+  };
+
   return (
     <div
       className={cn(
-        "flex flex-col w-full h-full min-h-[600px] max-h-screen",
-        "bg-background rounded-lg  dark:bg-gray-900",
+        "flex flex-col w-full h-full max-h-screen",
+        getMinHeight(),
+        "bg-background rounded-lg dark:bg-gray-900",
         "overflow-hidden",
+        deviceInfo.isMobile && "text-sm",
+        deviceInfo.isTablet && "text-base",
+        deviceInfo.isMacbook && "text-base", // Tamanho de texto otimizado para MacBook Pro M1
+        deviceInfo.isNotebook && "text-base",
+        deviceInfo.isDesktop && "text-lg",
         className
       )}
     >
-      {/* Toolbar */}
-      <div className="flex-shrink-0">
-        <WriterToolbarContent
-          editor={editor}
-          wordCount={wordCount}
-          characterCount={characterCount}
-          readingTime={readingTime}
-        />
-      </div>
+      {/* Toolbar - Hidden on mobile and read-only mode */}
+      {getToolbarVisibility() && (
+        <div className="flex-shrink-0">
+          <WriterToolbarContent
+            editor={editor}
+            wordCount={wordCount}
+            characterCount={characterCount}
+            readingTime={readingTime}
+          />
+        </div>
+      )}
 
       {/* Editor Content */}
-      <div className="flex-1 overflow-hidden">
+      <div className={cn(
+        "flex-1 overflow-hidden",
+        deviceInfo.isMobile && "p-2",
+        deviceInfo.isTablet && "p-3",
+        deviceInfo.isMacbook && "p-4", // Padding otimizado para MacBook Pro M1
+        deviceInfo.isNotebook && "p-4",
+        deviceInfo.isDesktop && "p-6" // Mais espaço em desktops grandes
+      )}>
         <EditorContentWrapper editor={editor} />
       </div>
 
-      {/* Stats Panel */}
-      <div className="flex-shrink-0">
-        <WriterStatsPanel
-          wordCount={wordCount}
-          characterCount={characterCount}
-          readingTime={readingTime}
-          writingGoal={writingGoal}
-          sessionWordCount={sessionWordCount}
-          sessionDuration={sessionDuration}
-          wordsPerMinute={wordsPerMinute}
-          goalProgress={goalProgress}
-        />
-      </div>
+      {/* Stats Panel - Hidden on mobile/tablet and read-only mode */}
+      {getStatsVisibility() && (
+        <div className="flex-shrink-0">
+          <WriterStatsPanel
+            wordCount={wordCount}
+            characterCount={characterCount}
+            readingTime={readingTime}
+            writingGoal={writingGoal}
+            sessionWordCount={sessionWordCount}
+            sessionDuration={sessionDuration}
+            wordsPerMinute={wordsPerMinute}
+            goalProgress={goalProgress}
+          />
+        </div>
+      )}
     </div>
   );
 }

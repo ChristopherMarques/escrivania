@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Maximize, SplitSquareHorizontal, FileText, Grid3X3, List } from "lucide-react"
+import { useDeviceInfo } from "@/hooks/use-mobile"
 
 interface MobileBottomBarProps {
   viewMode: string
@@ -18,51 +19,97 @@ export function MobileBottomBar({
   onSplitScreen,
   showWritingActions = false,
 }: MobileBottomBarProps) {
+  const deviceInfo = useDeviceInfo()
+
+  // Only show on mobile and tablet devices
+  if (!deviceInfo.isMobile && !deviceInfo.isTablet) {
+    return null
+  }
+
+  const getBottomBarClasses = () => {
+    const baseClasses = "fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm border-t border-white/30"
+    if (deviceInfo.isMobile) {
+      return `${baseClasses} p-2 pb-safe`
+    }
+    return `${baseClasses} p-3`
+  }
+
+  const getButtonClasses = () => {
+    if (deviceInfo.isMobile) {
+      return "flex-1 mx-0.5 h-10 text-xs px-2"
+    }
+    return "flex-1 mx-1 h-11 text-sm px-3"
+  }
+
+  const getIconSize = () => {
+    return deviceInfo.isMobile ? "w-4 h-4" : "w-5 h-5"
+  }
+
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm border-t border-white/30 p-2">
-      <div className="flex items-center justify-around">
+    <div className={getBottomBarClasses()}>
+      <div className="flex items-center justify-around gap-1">
         {/* View Mode Buttons */}
         <Button
           variant={viewMode === "writing" ? "default" : "ghost"}
-          size="sm"
+          size={deviceInfo.isMobile ? "sm" : "default"}
           onClick={() => onViewModeChange("writing")}
-          className="flex-1 mx-1"
+          className={getButtonClasses()}
         >
-          <FileText className="w-4 h-4 mr-1" />
-          <span className="text-xs">Escrita</span>
+          <FileText className={`${getIconSize()} ${deviceInfo.isMobile ? 'mr-1' : 'mr-2'}`} />
+          <span className={deviceInfo.isMobile ? "text-xs" : "text-sm"}>
+            {deviceInfo.isMobile ? "Escrita" : "Escrita"}
+          </span>
         </Button>
 
         <Button
           variant={viewMode === "corkboard" ? "default" : "ghost"}
-          size="sm"
+          size={deviceInfo.isMobile ? "sm" : "default"}
           onClick={() => onViewModeChange("corkboard")}
-          className="flex-1 mx-1"
+          className={getButtonClasses()}
         >
-          <Grid3X3 className="w-4 h-4 mr-1" />
-          <span className="text-xs">Cortiça</span>
+          <Grid3X3 className={`${getIconSize()} ${deviceInfo.isMobile ? 'mr-1' : 'mr-2'}`} />
+          <span className={deviceInfo.isMobile ? "text-xs" : "text-sm"}>
+            {deviceInfo.isMobile ? "Cortiça" : "Cortiça"}
+          </span>
         </Button>
 
         <Button
           variant={viewMode === "outliner" ? "default" : "ghost"}
-          size="sm"
+          size={deviceInfo.isMobile ? "sm" : "default"}
           onClick={() => onViewModeChange("outliner")}
-          className="flex-1 mx-1"
+          className={getButtonClasses()}
         >
-          <List className="w-4 h-4 mr-1" />
-          <span className="text-xs">Estrutura</span>
+          <List className={`${getIconSize()} ${deviceInfo.isMobile ? 'mr-1' : 'mr-2'}`} />
+          <span className={deviceInfo.isMobile ? "text-xs" : "text-sm"}>
+            {deviceInfo.isMobile ? "Estrutura" : "Estrutura"}
+          </span>
         </Button>
 
         {/* Writing Mode Actions */}
         {showWritingActions && (
           <>
-            <Button variant="ghost" size="sm" onClick={onFocusMode} className="flex-1 mx-1">
-              <Maximize className="w-4 h-4 mr-1" />
-              <span className="text-xs">Foco</span>
+            <Button 
+              variant="ghost" 
+              size={deviceInfo.isMobile ? "sm" : "default"} 
+              onClick={onFocusMode} 
+              className={getButtonClasses()}
+            >
+              <Maximize className={`${getIconSize()} ${deviceInfo.isMobile ? 'mr-1' : 'mr-2'}`} />
+              <span className={deviceInfo.isMobile ? "text-xs" : "text-sm"}>
+                {deviceInfo.isMobile ? "Foco" : "Foco"}
+              </span>
             </Button>
 
-            <Button variant="ghost" size="sm" onClick={onSplitScreen} className="flex-1 mx-1">
-              <SplitSquareHorizontal className="w-4 h-4 mr-1" />
-              <span className="text-xs">Dividir</span>
+            <Button 
+              variant="ghost" 
+              size={deviceInfo.isMobile ? "sm" : "default"} 
+              onClick={onSplitScreen} 
+              className={getButtonClasses()}
+            >
+              <SplitSquareHorizontal className={`${getIconSize()} ${deviceInfo.isMobile ? 'mr-1' : 'mr-2'}`} />
+              <span className={deviceInfo.isMobile ? "text-xs" : "text-sm"}>
+                {deviceInfo.isMobile ? "Dividir" : "Dividir"}
+              </span>
             </Button>
           </>
         )}

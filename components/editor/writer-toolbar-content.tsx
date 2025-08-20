@@ -335,9 +335,9 @@ export function WriterToolbarContent({
         className
       )}
     >
-      {/* Toolbar Buttons */}
+      {/* Toolbar Buttons - Now with flex-wrap for natural line breaking */}
       <div className="flex items-center gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 w-full sm:w-auto">
-        <div className="flex items-center gap-2 flex-nowrap">
+        <div className="flex items-center gap-2 flex-wrap">
           {renderButtonGroup(formatButtons, "format")}
           <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 flex-shrink-0" />
           

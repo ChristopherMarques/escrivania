@@ -20,6 +20,7 @@ import { FocusModeOverlay } from "@/components/focus-mode/focus-mode-overlay"
 import { SplitScreenManager } from "@/components/split-screen/split-screen-manager"
 import { MobileNavigation } from "@/components/mobile/mobile-navigation"
 import { MobileBottomBar } from "@/components/mobile/mobile-bottom-bar"
+import { useDeviceInfo } from "@/hooks/use-mobile"
 
 export default function ProjectEditor({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
@@ -28,6 +29,7 @@ export default function ProjectEditor({ params }: { params: Promise<{ id: string
   const { settings, toggleFocusMode } = useSettings()
   const { project, selectedItem, viewMode, loading, currentScene, currentCharacter, currentLocation, actions } =
     useProject()
+  const deviceInfo = useDeviceInfo()
 
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
   const [isAddChapterOpen, setIsAddChapterOpen] = useState(false)
@@ -187,10 +189,22 @@ export default function ProjectEditor({ params }: { params: Promise<{ id: string
   const renderCorkboardView = () => {
     const filteredScenes = getFilteredScenes()
 
+    const getGridClasses = () => {
+      if (deviceInfo.isMobile) {
+        return "grid grid-cols-1 gap-3"
+      } else if (deviceInfo.isTablet) {
+        return "grid grid-cols-2 gap-4"
+      } else if (deviceInfo.isNotebook) {
+        return "grid grid-cols-2 lg:grid-cols-3 gap-4"
+      } else {
+        return "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+      }
+    }
+
     return (
-      <div className="p-3 md:p-6 space-y-4 pb-20 md:pb-4">
+      <div className={`${deviceInfo.isMobile ? 'p-3 pb-20' : deviceInfo.isTablet ? 'p-4 pb-6' : 'p-6 pb-4'} space-y-4`}>
         {/* Filter Controls */}
-        <div className="bg-white/50 backdrop-blur-sm border border-white/30 rounded-lg p-3 md:p-4">
+        <div className={`bg-white/50 backdrop-blur-sm border border-white/30 rounded-lg ${deviceInfo.isMobile ? 'p-3' : 'p-4'}`}>
           <FilterTags
             allTags={getAllTags()}
             activeTags={activeTagFilters}
@@ -199,7 +213,7 @@ export default function ProjectEditor({ params }: { params: Promise<{ id: string
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+        <div className={getGridClasses()}>
           {filteredScenes.map((scene) => {
             const povCharacter = scene.povCharacterId ? getCharacterById(scene.povCharacterId) : null
 
@@ -462,9 +476,9 @@ export default function ProjectEditor({ params }: { params: Promise<{ id: string
       <div className="h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 flex flex-col">
         {/* Header with view mode toggle */}
         <header className="border-b border-white/20 bg-white/60 backdrop-blur-xl flex-shrink-0">
-          <div className="px-3 md:px-6 py-3 md:py-4">
+          <div className={`${deviceInfo.isMobile ? 'px-3 py-3' : deviceInfo.isTablet ? 'px-4 py-3' : 'px-6 py-4'}`}>
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 md:space-x-4">
+              <div className={`flex items-center ${deviceInfo.isMobile ? 'space-x-2' : 'space-x-4'}`}>
                 <MobileNavigation
                   project={project}
                   selectedItem={selectedItem}
@@ -478,53 +492,64 @@ export default function ProjectEditor({ params }: { params: Promise<{ id: string
                   onAddLocation={handleAddLocation}
                 />
 
-                <Button variant="ghost" size="sm" onClick={() => router.push("/")}>
-                  ← Dashboard
-                </Button>
-                <h1 className="text-lg md:text-xl font-semibold text-gray-800 truncate">{project?.title}</h1>
-              </div>
-
-              <div className="hidden md:flex items-center space-x-4">
-                {viewMode === "writing" && currentScene && (
-                  <>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setIsFocusModeOpen(true)}
-                      className="bg-white/50 backdrop-blur-sm border-white/30"
-                    >
-                      <Maximize className="w-4 h-4 mr-2" />
-                      Modo Foco
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setIsSplitScreenOpen(true)}
-                      className="bg-white/50 backdrop-blur-sm border-white/30"
-                    >
-                      <SplitSquareHorizontal className="w-4 h-4 mr-2" />
-                      Tela Dividida
-                    </Button>
-                  </>
-                )}
-
-                <ToggleGroup
-                  type="single"
-                  value={viewMode}
-                  onValueChange={(value) => value && actions.setViewMode(value as any)}
-                  className="bg-white/50 backdrop-blur-sm border border-white/30"
+                <Button 
+                  variant="ghost" 
+                  size={deviceInfo.isMobile ? "sm" : "default"} 
+                  onClick={() => router.push("/")}
                 >
-                  <ToggleGroupItem value="writing" className="data-[state=on]:bg-purple-100">
-                    📝 Escrita
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="corkboard" className="data-[state=on]:bg-purple-100">
-                    📇 Cortiça
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="outliner" className="data-[state=on]:bg-purple-100">
-                    📊 Estrutura
-                  </ToggleGroupItem>
-                </ToggleGroup>
+                  ← {deviceInfo.isMobile ? '' : 'Dashboard'}
+                </Button>
+                <h1 className={`${deviceInfo.isMobile ? 'text-base' : deviceInfo.isTablet ? 'text-lg' : 'text-xl'} font-semibold text-gray-800 truncate`}>
+                  {deviceInfo.isMobile && project?.title && project.title.length > 15 
+                    ? `${project.title.substring(0, 15)}...` 
+                    : project?.title
+                  }
+                </h1>
               </div>
+
+              {!deviceInfo.isMobile && !deviceInfo.isTablet && (
+                <div className="flex items-center space-x-4">
+                  {viewMode === "writing" && currentScene && (
+                    <>
+                      <Button
+                        variant="outline"
+                        size={deviceInfo.isNotebook ? "sm" : "default"}
+                        onClick={() => setIsFocusModeOpen(true)}
+                        className="bg-white/50 backdrop-blur-sm border-white/30"
+                      >
+                        <Maximize className="w-4 h-4 mr-2" />
+                        {deviceInfo.isNotebook ? 'Foco' : 'Modo Foco'}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size={deviceInfo.isNotebook ? "sm" : "default"}
+                        onClick={() => setIsSplitScreenOpen(true)}
+                        className="bg-white/50 backdrop-blur-sm border-white/30"
+                      >
+                        <SplitSquareHorizontal className="w-4 h-4 mr-2" />
+                        {deviceInfo.isNotebook ? 'Dividir' : 'Tela Dividida'}
+                      </Button>
+                    </>
+                  )}
+
+                  <ToggleGroup
+                    type="single"
+                    value={viewMode}
+                    onValueChange={(value) => value && actions.setViewMode(value as any)}
+                    className="bg-white/50 backdrop-blur-sm border border-white/30"
+                  >
+                    <ToggleGroupItem value="writing" className="data-[state=on]:bg-purple-100">
+                      📝 {deviceInfo.isNotebook ? 'Escrita' : 'Escrita'}
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="corkboard" className="data-[state=on]:bg-purple-100">
+                      📇 {deviceInfo.isNotebook ? 'Cortiça' : 'Cortiça'}
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="outliner" className="data-[state=on]:bg-purple-100">
+                      📊 {deviceInfo.isNotebook ? 'Estrutura' : 'Estrutura'}
+                    </ToggleGroupItem>
+                  </ToggleGroup>
+                </div>
+              )}
             </div>
           </div>
         </header>
@@ -535,15 +560,18 @@ export default function ProjectEditor({ params }: { params: Promise<{ id: string
 
         {viewMode === "writing" && (
           <div className="flex-1 flex overflow-hidden">
-            <div className="hidden md:flex w-80 border-r border-white/20 bg-white/40 backdrop-blur-sm flex-col">
-              <div className="p-4">
-                <p className="text-sm text-gray-600">Conteúdo do painel de navegação...</p>
+            {/* Left Panel - Navigation (hidden on mobile/tablet) */}
+            {!deviceInfo.isMobile && !deviceInfo.isTablet && (
+              <div className={`${deviceInfo.isNotebook ? 'w-64' : 'w-80'} border-r border-white/20 bg-white/40 backdrop-blur-sm flex-col flex`}>
+                <div className="p-4">
+                  <p className="text-sm text-gray-600">Conteúdo do painel de navegação...</p>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Center Panel - Editor */}
             <div className="flex-1 flex flex-col">
-              <div className="flex-1 p-3 md:p-6 pb-20 md:pb-6">
+              <div className={`flex-1 ${deviceInfo.isMobile ? 'p-3 pb-20' : deviceInfo.isTablet ? 'p-4 pb-6' : 'p-6 pb-6'}`}>
                 {currentScene ? (
                   <TiptapEditor
                     content={currentScene.content}
@@ -554,19 +582,22 @@ export default function ProjectEditor({ params }: { params: Promise<{ id: string
                 ) : (
                   <div className="h-full flex items-center justify-center text-gray-500">
                     <div className="text-center">
-                      <FileText className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 text-gray-300" />
-                      <p className="text-sm md:text-base">Selecione uma cena para começar a escrever</p>
+                      <FileText className={`${deviceInfo.isMobile ? 'w-12 h-12' : 'w-16 h-16'} mx-auto mb-4 text-gray-300`} />
+                      <p className={`${deviceInfo.isMobile ? 'text-sm' : 'text-base'}`}>Selecione uma cena para começar a escrever</p>
                     </div>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="hidden md:flex w-80 border-l border-white/20 bg-white/40 backdrop-blur-sm">
-              <div className="p-4">
-                <p className="text-sm text-gray-600">Conteúdo do painel de metadados...</p>
+            {/* Right Panel - Metadata (hidden on mobile/tablet/notebook) */}
+            {deviceInfo.isMacbook || deviceInfo.isDesktop ? (
+              <div className={`${deviceInfo.isMacbook ? 'w-64' : 'w-80'} border-l border-white/20 bg-white/40 backdrop-blur-sm flex`}>
+                <div className="p-4">
+                  <p className="text-sm text-gray-600">Conteúdo do painel de metadados...</p>
+                </div>
               </div>
-            </div>
+            ) : null}
           </div>
         )}
 
