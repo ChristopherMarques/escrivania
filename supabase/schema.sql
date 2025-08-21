@@ -3,7 +3,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Users table (Better Auth will handle this, but we define it for reference)
 CREATE TABLE IF NOT EXISTS users (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id TEXT PRIMARY KEY,
   email VARCHAR(255) UNIQUE NOT NULL,
   name VARCHAR(255),
   avatar_url TEXT,
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS projects (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   title VARCHAR(255) NOT NULL,
   description TEXT,
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -73,32 +73,34 @@ CREATE INDEX IF NOT EXISTS idx_characters_project_id ON characters(project_id);
 CREATE INDEX IF NOT EXISTS idx_synopses_project_id ON synopses(project_id);
 
 -- Enable Row Level Security (RLS)
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
+-- Temporariamente desabilitando RLS para users até integrar Better Auth com Supabase
+-- ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+-- Temporariamente desabilitando RLS para projects até integrar Better Auth com Supabase
+-- ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE chapters ENABLE ROW LEVEL SECURITY;
 ALTER TABLE scenes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE characters ENABLE ROW LEVEL SECURITY;
 ALTER TABLE synopses ENABLE ROW LEVEL SECURITY;
 
--- RLS Policies for users
-CREATE POLICY "Users can view own profile" ON users
-  FOR SELECT USING (auth.uid() = id);
+-- RLS Policies for users (temporariamente comentadas)
+-- CREATE POLICY "Users can view own profile" ON users
+--   FOR SELECT USING (auth.uid()::text = id);
 
-CREATE POLICY "Users can update own profile" ON users
-  FOR UPDATE USING (auth.uid() = id);
+-- CREATE POLICY "Users can update own profile" ON users
+--   FOR UPDATE USING (auth.uid()::text = id);
 
--- RLS Policies for projects
-CREATE POLICY "Users can view own projects" ON projects
-  FOR SELECT USING (auth.uid() = user_id);
+-- RLS Policies for projects (temporariamente comentadas)
+-- CREATE POLICY "Users can view own projects" ON projects
+--   FOR SELECT USING (auth.uid()::text = user_id);
 
-CREATE POLICY "Users can insert own projects" ON projects
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
+-- CREATE POLICY "Users can insert own projects" ON projects
+--   FOR INSERT WITH CHECK (auth.uid()::text = user_id);
 
-CREATE POLICY "Users can update own projects" ON projects
-  FOR UPDATE USING (auth.uid() = user_id);
+-- CREATE POLICY "Users can update own projects" ON projects
+--   FOR UPDATE USING (auth.uid()::text = user_id);
 
-CREATE POLICY "Users can delete own projects" ON projects
-  FOR DELETE USING (auth.uid() = user_id);
+-- CREATE POLICY "Users can delete own projects" ON projects
+--   FOR DELETE USING (auth.uid()::text = user_id);
 
 -- RLS Policies for chapters
 CREATE POLICY "Users can view chapters of own projects" ON chapters
@@ -106,7 +108,7 @@ CREATE POLICY "Users can view chapters of own projects" ON chapters
     EXISTS (
       SELECT 1 FROM projects 
       WHERE projects.id = chapters.project_id 
-      AND projects.user_id = auth.uid()
+      AND projects.user_id = auth.uid()::text
     )
   );
 
@@ -115,7 +117,7 @@ CREATE POLICY "Users can insert chapters in own projects" ON chapters
     EXISTS (
       SELECT 1 FROM projects 
       WHERE projects.id = chapters.project_id 
-      AND projects.user_id = auth.uid()
+      AND projects.user_id = auth.uid()::text
     )
   );
 
@@ -124,7 +126,7 @@ CREATE POLICY "Users can update chapters of own projects" ON chapters
     EXISTS (
       SELECT 1 FROM projects 
       WHERE projects.id = chapters.project_id 
-      AND projects.user_id = auth.uid()
+      AND projects.user_id = auth.uid()::text
     )
   );
 
@@ -133,7 +135,7 @@ CREATE POLICY "Users can delete chapters of own projects" ON chapters
     EXISTS (
       SELECT 1 FROM projects 
       WHERE projects.id = chapters.project_id 
-      AND projects.user_id = auth.uid()
+      AND projects.user_id = auth.uid()::text
     )
   );
 
@@ -144,7 +146,7 @@ CREATE POLICY "Users can view scenes of own projects" ON scenes
       SELECT 1 FROM chapters 
       JOIN projects ON projects.id = chapters.project_id
       WHERE chapters.id = scenes.chapter_id 
-      AND projects.user_id = auth.uid()
+      AND projects.user_id = auth.uid()::text
     )
   );
 
@@ -154,7 +156,7 @@ CREATE POLICY "Users can insert scenes in own projects" ON scenes
       SELECT 1 FROM chapters 
       JOIN projects ON projects.id = chapters.project_id
       WHERE chapters.id = scenes.chapter_id 
-      AND projects.user_id = auth.uid()
+      AND projects.user_id = auth.uid()::text
     )
   );
 
@@ -164,7 +166,7 @@ CREATE POLICY "Users can update scenes of own projects" ON scenes
       SELECT 1 FROM chapters 
       JOIN projects ON projects.id = chapters.project_id
       WHERE chapters.id = scenes.chapter_id 
-      AND projects.user_id = auth.uid()
+      AND projects.user_id = auth.uid()::text
     )
   );
 
@@ -174,7 +176,7 @@ CREATE POLICY "Users can delete scenes of own projects" ON scenes
       SELECT 1 FROM chapters 
       JOIN projects ON projects.id = chapters.project_id
       WHERE chapters.id = scenes.chapter_id 
-      AND projects.user_id = auth.uid()
+      AND projects.user_id = auth.uid()::text
     )
   );
 
@@ -184,7 +186,7 @@ CREATE POLICY "Users can view characters of own projects" ON characters
     EXISTS (
       SELECT 1 FROM projects 
       WHERE projects.id = characters.project_id 
-      AND projects.user_id = auth.uid()
+      AND projects.user_id = auth.uid()::text
     )
   );
 
@@ -193,7 +195,7 @@ CREATE POLICY "Users can insert characters in own projects" ON characters
     EXISTS (
       SELECT 1 FROM projects 
       WHERE projects.id = characters.project_id 
-      AND projects.user_id = auth.uid()
+      AND projects.user_id = auth.uid()::text
     )
   );
 
@@ -202,7 +204,7 @@ CREATE POLICY "Users can update characters of own projects" ON characters
     EXISTS (
       SELECT 1 FROM projects 
       WHERE projects.id = characters.project_id 
-      AND projects.user_id = auth.uid()
+      AND projects.user_id = auth.uid()::text
     )
   );
 
@@ -211,7 +213,7 @@ CREATE POLICY "Users can delete characters of own projects" ON characters
     EXISTS (
       SELECT 1 FROM projects 
       WHERE projects.id = characters.project_id 
-      AND projects.user_id = auth.uid()
+      AND projects.user_id = auth.uid()::text
     )
   );
 
@@ -221,7 +223,7 @@ CREATE POLICY "Users can view synopses of own projects" ON synopses
     EXISTS (
       SELECT 1 FROM projects 
       WHERE projects.id = synopses.project_id 
-      AND projects.user_id = auth.uid()
+      AND projects.user_id = auth.uid()::text
     )
   );
 
@@ -230,7 +232,7 @@ CREATE POLICY "Users can insert synopses in own projects" ON synopses
     EXISTS (
       SELECT 1 FROM projects 
       WHERE projects.id = synopses.project_id 
-      AND projects.user_id = auth.uid()
+      AND projects.user_id = auth.uid()::text
     )
   );
 
@@ -239,7 +241,7 @@ CREATE POLICY "Users can update synopses of own projects" ON synopses
     EXISTS (
       SELECT 1 FROM projects 
       WHERE projects.id = synopses.project_id 
-      AND projects.user_id = auth.uid()
+      AND projects.user_id = auth.uid()::text
     )
   );
 
@@ -248,7 +250,7 @@ CREATE POLICY "Users can delete synopses of own projects" ON synopses
     EXISTS (
       SELECT 1 FROM projects 
       WHERE projects.id = synopses.project_id 
-      AND projects.user_id = auth.uid()
+      AND projects.user_id = auth.uid()::text
     )
   );
 

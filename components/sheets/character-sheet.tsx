@@ -32,12 +32,12 @@ interface CharacterSheetProps {
 const archetypes = ["Herói", "Mentor", "Guardião", "Arauto", "Metamorfo", "Sombra", "Trapaceiro", "Aliado"]
 
 const relationshipTypes = [
-  { value: "ally", label: "Aliado", icon: Shield, color: "bg-green-100 text-green-700" },
-  { value: "enemy", label: "Inimigo", icon: Sword, color: "bg-red-100 text-red-700" },
-  { value: "romantic", label: "Romântico", icon: Heart, color: "bg-pink-100 text-pink-700" },
-  { value: "family", label: "Família", icon: Users, color: "bg-blue-100 text-blue-700" },
-  { value: "mentor", label: "Mentor", icon: Crown, color: "bg-purple-100 text-purple-700" },
-  { value: "rival", label: "Rival", icon: Target, color: "bg-orange-100 text-orange-700" },
+  { value: "ally", label: "Aliado", icon: Shield, color: "bg-escrivania-blue-100 text-escrivania-blue-700" },
+  { value: "enemy", label: "Inimigo", icon: Sword, color: "bg-destructive/20 text-destructive" },
+  { value: "romantic", label: "Romântico", icon: Heart, color: "bg-escrivania-purple-100 text-escrivania-purple-700" },
+  { value: "family", label: "Família", icon: Users, color: "bg-escrivania-blue-200 text-escrivania-blue-800" },
+  { value: "mentor", label: "Mentor", icon: Crown, color: "bg-escrivania-purple-200 text-escrivania-purple-800" },
+  { value: "rival", label: "Rival", icon: Target, color: "bg-escrivania-purple-300 text-escrivania-purple-900" },
 ]
 
 export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }: CharacterSheetProps) {
@@ -100,7 +100,7 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
         <div className="flex items-start space-x-4">
           <Avatar className="w-16 h-16 ring-2 ring-purple-200">
             <AvatarImage src={character.avatarUrl || "/placeholder.svg"} />
-            <AvatarFallback className="bg-gradient-to-br from-purple-100 to-blue-100 text-purple-700 text-lg">
+            <AvatarFallback className="bg-gradient-escrivania text-escrivania-purple-700 text-lg">
               {character.name.charAt(0)}
             </AvatarFallback>
           </Avatar>
@@ -117,7 +117,7 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
                 variant="outline"
                 size="sm"
                 onClick={() => onDelete(character.id)}
-                className="text-red-600 hover:bg-red-50"
+                className="text-destructive hover:bg-destructive/10"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>
@@ -126,7 +126,7 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
             <Input
               value={character.role}
               onChange={(e) => updateCharacter({ role: e.target.value })}
-              className="text-sm text-gray-600 bg-transparent border-none p-0 h-auto focus-visible:ring-0"
+              className="text-sm text-muted-foreground bg-transparent border-none p-0 h-auto focus-visible:ring-0"
               placeholder="Papel na história"
             />
 
@@ -134,7 +134,7 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
               value={character.description || ""}
               onChange={(e) => updateCharacter({ description: e.target.value })}
               placeholder="Descrição breve do personagem..."
-              className="mt-2 bg-white/50 border-gray-200 focus:border-purple-300 min-h-[60px]"
+              className="mt-2 bg-background/50 border-border focus:border-escrivania-purple-300 min-h-[60px]"
             />
           </div>
         </div>

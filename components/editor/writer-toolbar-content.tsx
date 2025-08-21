@@ -274,12 +274,12 @@ export function WriterToolbarContent({
   // Background colors available
   const backgroundColors = [
     { value: "transparent", label: "Sem cor", color: "transparent" },
-    { value: "#fef3c7", label: "Amarelo claro", color: "#fef3c7" },
-    { value: "#dbeafe", label: "Azul claro", color: "#dbeafe" },
-    { value: "#dcfce7", label: "Verde claro", color: "#dcfce7" },
-    { value: "#fce7f3", label: "Rosa claro", color: "#fce7f3" },
-    { value: "#f3e8ff", label: "Roxo claro", color: "#f3e8ff" },
-    { value: "#fed7d7", label: "Vermelho claro", color: "#fed7d7" },
+    { value: "oklch(0.95 0.05 90)", label: "Amarelo claro", color: "oklch(0.95 0.05 90)" },
+  { value: "oklch(0.95 0.05 200)", label: "Azul claro", color: "oklch(0.95 0.05 200)" },
+  { value: "oklch(0.95 0.05 140)", label: "Verde claro", color: "oklch(0.95 0.05 140)" },
+  { value: "oklch(0.95 0.05 320)", label: "Rosa claro", color: "oklch(0.95 0.05 320)" },
+  { value: "oklch(0.95 0.05 270)", label: "Roxo claro", color: "oklch(0.95 0.05 270)" },
+  { value: "oklch(0.95 0.05 20)", label: "Vermelho claro", color: "oklch(0.95 0.05 20)" },
   ];
 
   const historyButtons = [
