@@ -35,10 +35,10 @@ interface OutlinerViewProps {
 }
 
 const sceneStatusOptions: { value: SceneStatus; label: string; color: string }[] = [
-  { value: 'draft', label: 'Rascunho', color: 'bg-gray-500' },
-  { value: 'in-progress', label: 'Em Progresso', color: 'bg-yellow-500' },
-  { value: 'completed', label: 'Concluído', color: 'bg-green-500' },
-  { value: 'needs-revision', label: 'Precisa Revisão', color: 'bg-red-500' },
+  { value: 'draft', label: 'Rascunho', color: 'bg-muted' },
+  { value: 'in-progress', label: 'Em Progresso', color: 'bg-escrivania-purple-200' },
+  { value: 'completed', label: 'Concluído', color: 'bg-escrivania-blue-200' },
+  { value: 'needs-revision', label: 'Precisa Revisão', color: 'bg-destructive/20' },
 ];
 
 interface EditableCellProps {
@@ -111,11 +111,11 @@ function EditableCell({ value, onSave, multiline = false, placeholder }: Editabl
 
   return (
     <div 
-      className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 p-1 rounded min-h-[24px] flex items-center"
+      className="cursor-pointer hover:bg-muted/50 p-1 rounded min-h-[24px] flex items-center"
       onClick={() => setIsEditing(true)}
     >
-      <span className="text-xs text-gray-700 dark:text-gray-300">
-        {value || <span className="text-gray-400 italic">{placeholder}</span>}
+      <span className="text-xs text-muted-foreground">
+        {value || <span className="text-muted-foreground/60 italic">{placeholder}</span>}
       </span>
     </div>
   );
@@ -134,7 +134,7 @@ function ChapterRow({ chapter, isExpanded, onToggleExpanded, onUpdate, onSceneCr
   const totalWords = chapter.scenes?.reduce((sum, scene) => sum + (scene.wordCount || 0), 0) || 0;
 
   return (
-    <TableRow className="bg-blue-50 dark:bg-blue-900/20 border-b-2">
+    <TableRow className="bg-escrivania-blue-50 border-b-2">
       <TableCell className="font-medium">
         <div className="flex items-center gap-2">
           <Button

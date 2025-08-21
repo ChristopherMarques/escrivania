@@ -91,7 +91,7 @@ const MentionExtension = Extension.create({
                   decorations.push(
                     Decoration.inline(start, end, {
                       class:
-                        "mention-character bg-purple-100 text-purple-700 px-1 rounded cursor-pointer",
+                        "mention-character bg-escrivania-purple-100 text-escrivania-purple-700 px-1 rounded cursor-pointer",
                       "data-mention-type": "character",
                       "data-mention-name": match[1],
                     })
@@ -106,7 +106,7 @@ const MentionExtension = Extension.create({
                   decorations.push(
                     Decoration.inline(start, end, {
                       class:
-                        "mention-location bg-blue-100 text-blue-700 px-1 rounded cursor-pointer",
+                        "mention-location bg-escrivania-blue-100 text-escrivania-blue-700 px-1 rounded cursor-pointer",
                       "data-mention-type": "location",
                       "data-mention-name": match[1],
                     })
@@ -206,32 +206,32 @@ export function TiptapEditor({
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: "text-blue-600 underline cursor-pointer",
+          class: "text-escrivania-blue-600 underline cursor-pointer",
         },
       }),
       Code.configure({
         HTMLAttributes: {
           class:
-            "bg-gray-100 text-gray-800 px-1 py-0.5 rounded text-sm font-mono",
+            "bg-muted text-muted-foreground px-1 py-0.5 rounded text-sm font-mono",
         },
       }),
       // New Extensions - Nodes
       Blockquote.configure({
         HTMLAttributes: {
-          class: "border-l-4 border-gray-300 pl-4 italic text-gray-700",
+          class: "border-l-4 border-border pl-4 italic text-muted-foreground",
         },
       }),
       CodeBlock.configure({
         HTMLAttributes: {
           class:
-            "bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto",
+            "bg-secondary text-secondary-foreground p-4 rounded-lg font-mono text-sm overflow-x-auto",
         },
       }),
       HardBreak,
       Mention.configure({
         HTMLAttributes: {
           class:
-            "mention bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm",
+            "mention bg-escrivania-blue-100 text-escrivania-blue-800 px-2 py-1 rounded-full text-sm",
         },
         suggestion: {
           items: ({ query }) => {
@@ -253,17 +253,17 @@ export function TiptapEditor({
       Table.configure({
         resizable: true,
         HTMLAttributes: {
-          class: "border-collapse border border-gray-300 w-full",
+          class: "border-collapse border border-border w-full",
         },
       }),
       TableRow.configure({
         HTMLAttributes: {
-          class: "border border-gray-300",
+          class: "border border-border",
         },
       }),
       TableHeader.configure({
         HTMLAttributes: {
-          class: "border border-gray-300 bg-gray-50 font-semibold p-2",
+          class: "border border-border bg-muted font-semibold p-2",
         },
       }),
       TableCell.configure({
@@ -288,7 +288,7 @@ export function TiptapEditor({
       }),
       // New Extensions - Functionality
       DropCursor.configure({
-        color: "#3b82f6",
+        color: "oklch(0.75 0.15 200)", // Usando a cor azul do projeto
         width: 2,
       }),
       Focus.configure({

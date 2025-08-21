@@ -23,15 +23,15 @@ export function StatusBadge({ status, onStatusChange, className = "" }: StatusBa
   const getStatusConfig = (status: IScene["status"]) => {
     switch (status) {
       case "idea":
-        return { label: "Ideia", color: "bg-gray-100 text-gray-700 hover:bg-gray-200" }
+        return { label: "Ideia", color: "bg-muted text-muted-foreground hover:bg-muted/80" }
       case "draft":
-        return { label: "Rascunho", color: "bg-yellow-100 text-yellow-700 hover:bg-yellow-200" }
+        return { label: "Rascunho", color: "bg-escrivania-purple-100 text-escrivania-purple-700 hover:bg-escrivania-purple-200" }
       case "revised":
-        return { label: "Revisado", color: "bg-blue-100 text-blue-700 hover:bg-blue-200" }
+        return { label: "Revisado", color: "bg-escrivania-blue-100 text-escrivania-blue-700 hover:bg-escrivania-blue-200" }
       case "final":
-        return { label: "Finalizado", color: "bg-green-100 text-green-700 hover:bg-green-200" }
+        return { label: "Finalizado", color: "bg-escrivania-blue-200 text-escrivania-blue-800 hover:bg-escrivania-blue-300" }
       default:
-        return { label: "Ideia", color: "bg-gray-100 text-gray-700 hover:bg-gray-200" }
+        return { label: "Ideia", color: "bg-muted text-muted-foreground hover:bg-muted/80" }
     }
   }
 
@@ -57,7 +57,7 @@ export function StatusBadge({ status, onStatusChange, className = "" }: StatusBa
               onClick={() => onStatusChange(statusOption)}
               className="flex items-center space-x-2"
             >
-              {status === statusOption && <Check className="w-4 h-4 text-green-600" />}
+              {status === statusOption && <Check className="w-4 h-4 text-escrivania-blue-600" />}
               <div className={`w-3 h-3 rounded-full ${config.color.split(" ")[0]}`} />
               <span>{config.label}</span>
             </DropdownMenuItem>
@@ -80,7 +80,7 @@ export function POVBadge({ character, allCharacters, onCharacterChange, classNam
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Badge variant="outline" className={`cursor-pointer hover:bg-gray-50 ${className}`}>
+          <Badge variant="outline" className={`cursor-pointer hover:bg-muted/50 ${className}`}>
             <User className="w-3 h-3 mr-1" />
             Sem POV
             <ChevronDown className="w-3 h-3 ml-1" />
@@ -109,7 +109,7 @@ export function POVBadge({ character, allCharacters, onCharacterChange, classNam
       <HoverCardTrigger asChild>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Badge className={`bg-purple-100 text-purple-700 hover:bg-purple-200 cursor-pointer ${className}`}>
+            <Badge className={`bg-escrivania-purple-100 text-escrivania-purple-700 hover:bg-escrivania-purple-200 cursor-pointer ${className}`}>
               <Avatar className="w-4 h-4 mr-1">
                 <AvatarImage src={character.avatarUrl || "/placeholder.svg"} />
                 <AvatarFallback className="text-xs">{character.name.charAt(0)}</AvatarFallback>

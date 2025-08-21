@@ -179,21 +179,66 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth()
 
   const createProject = async (data: Omit<Project, 'id' | 'created_at' | 'updated_at'>) => {
-    if (!user) return
+    if (!user) {
+      dispatch({ type: 'SET_ERROR', payload: 'Usuário não autenticado' })
+      return
+    }
     
     dispatch({ type: 'SET_LOADING', payload: true })
+    dispatch({ type: 'SET_ERROR', payload: null }) // Limpar erros anteriores
+    
     try {
+      // Primeiro, vamos tentar inserir o usuário na tabela users se não existir
+      const { error: userError } = await supabase
+        .from('users')
+        .upsert({
+          id: user.id,
+          email: user.email,
+          name: user.name || null,
+          avatar_url: user.avatar_url || null
+        }, { onConflict: 'id' })
+      
+      if (userError) {
+        console.error('Erro ao inserir usuário:', userError)
+        throw new Error(`Erro ao inserir usuário: ${userError.message}`)
+      }
+      
+      // Verificar se o usuário foi inserido/existe
+      const { data: existingUser, error: checkUserError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', user.id)
+        .single()
+      
+      if (checkUserError || !existingUser) {
+        console.error('Usuário não encontrado após upsert:', checkUserError)
+        throw new Error('Falha ao verificar usuário na base de dados')
+      }
+      
+      // Agora inserir o projeto
       const { data: project, error } = await supabase
         .from('projects')
-        .insert([data])
+        .insert([{
+          ...data,
+          user_id: user.id
+        }])
         .select()
         .single()
       
-      if (error) throw error
+      if (error) {
+        console.error('Supabase error:', error)
+        throw new Error(`Erro do banco de dados: ${error.message}`)
+      }
+      
+      if (!project) {
+        throw new Error('Projeto não foi criado corretamente')
+      }
       
       dispatch({ type: 'ADD_PROJECT', payload: project })
     } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Failed to create project' })
+      console.error('Error creating project:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Falha ao criar projeto'
+      dispatch({ type: 'SET_ERROR', payload: errorMessage })
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false })
     }
