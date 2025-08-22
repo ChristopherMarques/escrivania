@@ -3,6 +3,7 @@
 import { useEditor } from "@tiptap/react";
 import * as React from "react";
 import { debounce } from "lodash";
+const { useCallback, useMemo, useEffect } = React;
 
 // --- Tiptap Core Extensions ---
 import { Extension } from "@tiptap/core";
@@ -130,6 +131,21 @@ export function TiptapEditor({
   readOnly = false,
 }: TiptapEditorProps) {
   const deviceInfo = useDeviceInfo();
+  
+  // Debounced onChange function for performance optimization
+  const debouncedOnChange = useMemo(
+    () => debounce((content: any) => {
+      onChange?.(content);
+    }, 150),
+    [onChange]
+  );
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      debouncedOnChange.cancel();
+    };
+  }, [debouncedOnChange]);
   const [wordCount, setWordCount] = React.useState(0);
   const [characterCount, setCharacterCount] = React.useState(0);
   const [readingTime, setReadingTime] = React.useState(0);
@@ -158,6 +174,9 @@ export function TiptapEditor({
             : "desktop-editor"
         }`,
       },
+      // Performance optimizations
+      scrollThreshold: 100,
+      scrollMargin: 50,
       handleKeyDown: (view, event) => {
         // Melhorar comportamento de navegação com setas
         if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
@@ -173,6 +192,13 @@ export function TiptapEditor({
         return false;
       },
     },
+    // Performance optimizations
+    parseOptions: {
+      preserveWhitespace: 'full',
+    },
+    enableInputRules: true,
+    enablePasteRules: true,
+    injectCSS: false, // We handle CSS ourselves
     extensions: [
       StarterKit.configure({
         horizontalRule: false,
@@ -302,7 +328,7 @@ export function TiptapEditor({
     content,
     onUpdate: ({ editor }) => {
       const json = editor.getJSON();
-      onChange(json);
+      debouncedOnChange(json);
 
       // Update counts
       const stats = editor.storage.characterCount;
