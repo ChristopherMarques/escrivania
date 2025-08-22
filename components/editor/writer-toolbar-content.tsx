@@ -1,40 +1,46 @@
 "use client";
 
+import { ColorPicker } from "@/components/ui/color-picker";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type { PageSize } from "@/lib/extensions/page-format";
+import { cn } from "@/lib/utils";
 import { Editor } from "@tiptap/react";
 import {
+  AlignCenter,
+  AlignJustify,
+  AlignLeft,
+  AlignRight,
+  AlignVerticalSpaceAround,
+  AtSign,
   Bold,
-  Italic,
-  Underline,
-  Strikethrough,
-  Code,
+  CheckSquare,
+  CornerDownLeft,
+  Hash,
   Heading1,
   Heading2,
   Heading3,
+  Highlighter,
+  ImagePlus,
+  Italic,
   List,
   ListOrdered,
-  Quote,
   Minus,
-  Undo,
+  Quote,
   Redo,
-  Link,
-  Unlink,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-  AlignJustify,
-  FileCode2,
-  Table,
-  Youtube,
-  Superscript,
+  Strikethrough,
   Subscript,
-  Highlighter,
-  CheckSquare,
+  Superscript,
   Type,
-  Palette,
-  AlignVerticalSpaceAround,
+  Underline,
+  Undo,
 } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { PageFormatSelector } from "./page-format-selector";
 import { WriterToolbarStats } from "./writer-toolbar-stats";
 
 interface WriterToolbarContentProps {
@@ -76,12 +82,6 @@ export function WriterToolbarContent({
       action: () => editor.chain().focus().toggleStrike().run(),
       isActive: editor.isActive("strike"),
       tooltip: "Riscado",
-    },
-    {
-      icon: Code,
-      action: () => editor.chain().focus().toggleCode().run(),
-      isActive: editor.isActive("code"),
-      tooltip: "Código inline",
     },
   ];
 
@@ -155,56 +155,38 @@ export function WriterToolbarContent({
       isActive: editor.isActive("blockquote"),
       tooltip: "Citação",
     },
-    {
-      icon: FileCode2,
-      action: () => editor.chain().focus().toggleCodeBlock().run(),
-      isActive: editor.isActive("codeBlock"),
-      tooltip: "Bloco de código",
-    },
+
     {
       icon: Minus,
       action: () => editor.chain().focus().setHorizontalRule().run(),
       isActive: false,
       tooltip: "Linha horizontal",
     },
-    {
-      icon: Link,
-      action: () => {
-        const url = window.prompt("URL do link:");
-        if (url) {
-          editor.chain().focus().setLink({ href: url }).run();
-        }
-      },
-      isActive: editor.isActive("link"),
-      tooltip: "Inserir link",
-    },
-    {
-      icon: Unlink,
-      action: () => editor.chain().focus().unsetLink().run(),
-      isActive: false,
-      tooltip: "Remover link",
-    },
   ];
 
   const mediaButtons = [
     {
-      icon: Table,
+      icon: ImagePlus,
       action: () => {
-        editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
-      },
-      isActive: editor.isActive("table"),
-      tooltip: "Inserir tabela",
-    },
-    {
-      icon: Youtube,
-      action: () => {
-        const url = window.prompt("URL do vídeo do YouTube:");
-        if (url) {
-          editor.chain().focus().setYoutubeVideo({ src: url }).run();
-        }
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+        input.onchange = (e) => {
+          const file = (e.target as HTMLInputElement).files?.[0];
+          if (file) {
+            // Trigger the ImageUploadNode functionality
+            const reader = new FileReader();
+            reader.onload = () => {
+              const dataUrl = reader.result as string;
+              editor.chain().focus().setImage({ src: dataUrl }).run();
+            };
+            reader.readAsDataURL(file);
+          }
+        };
+        input.click();
       },
       isActive: false,
-      tooltip: "Inserir vídeo do YouTube",
+      tooltip: "Inserir imagem",
     },
   ];
 
@@ -226,6 +208,55 @@ export function WriterToolbarContent({
       action: () => editor.chain().focus().toggleHighlight().run(),
       isActive: editor.isActive("highlight"),
       tooltip: "Destacar texto",
+    },
+  ];
+
+  const mentionButtons = [
+    {
+      icon: AtSign,
+      action: () => {
+        const selection = editor.state.selection;
+        const text = "@";
+        editor.chain().focus().insertContent(text).run();
+      },
+      isActive: false,
+      tooltip: "Mencionar personagem (@)",
+    },
+    {
+      icon: Hash,
+      action: () => {
+        const selection = editor.state.selection;
+        const text = "#";
+        editor.chain().focus().insertContent(text).run();
+      },
+      isActive: false,
+      tooltip: "Mencionar localização (#)",
+    },
+  ];
+
+  const utilityButtons = [
+    {
+      icon: CornerDownLeft,
+      action: () => editor.chain().focus().setHardBreak().run(),
+      isActive: false,
+      tooltip: "Quebra de linha forçada",
+    },
+    {
+      icon: Type,
+      action: () => {
+        // Typography extension doesn't have a toggle command, but we can show its status
+        // The Typography extension works automatically, so this button shows if it's enabled
+        console.log(
+          "Typography extension is active:",
+          editor.extensionManager.extensions.find(
+            (ext) => ext.name === "typography"
+          )
+        );
+      },
+      isActive: !!editor.extensionManager.extensions.find(
+        (ext) => ext.name === "typography"
+      ),
+      tooltip: "Tipografia automática (ativa)",
     },
   ];
 
@@ -269,17 +300,6 @@ export function WriterToolbarContent({
     { value: "1.75", label: "1.75" },
     { value: "2", label: "2.0" },
     { value: "2.5", label: "2.5" },
-  ];
-
-  // Background colors available
-  const backgroundColors = [
-    { value: "transparent", label: "Sem cor", color: "transparent" },
-    { value: "oklch(0.95 0.05 90)", label: "Amarelo claro", color: "oklch(0.95 0.05 90)" },
-  { value: "oklch(0.95 0.05 200)", label: "Azul claro", color: "oklch(0.95 0.05 200)" },
-  { value: "oklch(0.95 0.05 140)", label: "Verde claro", color: "oklch(0.95 0.05 140)" },
-  { value: "oklch(0.95 0.05 320)", label: "Rosa claro", color: "oklch(0.95 0.05 320)" },
-  { value: "oklch(0.95 0.05 270)", label: "Roxo claro", color: "oklch(0.95 0.05 270)" },
-  { value: "oklch(0.95 0.05 20)", label: "Vermelho claro", color: "oklch(0.95 0.05 20)" },
   ];
 
   const historyButtons = [
@@ -340,12 +360,12 @@ export function WriterToolbarContent({
         <div className="flex items-center gap-2 flex-wrap">
           {renderButtonGroup(formatButtons, "format")}
           <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 flex-shrink-0" />
-          
+
           {/* Font Family Selector */}
           <Select
-            value={editor.getAttributes('textStyle').fontFamily || 'Inter'}
+            value={editor.getAttributes("textStyle").fontFamily || "Inter"}
             onValueChange={(value) => {
-              if (value === 'Inter') {
+              if (value === "Inter") {
                 editor.chain().focus().unsetFontFamily().run();
               } else {
                 editor.chain().focus().setFontFamily(value).run();
@@ -364,10 +384,10 @@ export function WriterToolbarContent({
               ))}
             </SelectContent>
           </Select>
-          
+
           {/* Font Size Selector */}
           <Select
-            value={editor.getAttributes('textStyle').fontSize || '16px'}
+            value={editor.getAttributes("textStyle").fontSize || "16px"}
             onValueChange={(value) => {
               editor.chain().focus().setFontSize(value).run();
             }}
@@ -383,47 +403,37 @@ export function WriterToolbarContent({
               ))}
             </SelectContent>
           </Select>
-          
-          {/* Background Color Selector */}
-          <Select
-            value={editor.getAttributes('textStyle').backgroundColor || 'transparent'}
-            onValueChange={(value) => {
-              if (value === 'transparent') {
-                editor.chain().focus().unsetBackgroundColor().run();
-              } else {
-                editor.chain().focus().setBackgroundColor(value).run();
-              }
+
+          {/* Text Color Picker */}
+          <ColorPicker
+            value={editor.getAttributes("textStyle").color || "#000000"}
+            onChange={(color) => {
+              editor.chain().focus().setColor(color).run();
             }}
-          >
-            <SelectTrigger className="w-32 h-8 text-xs">
-              <Palette className="w-3 h-3 mr-1" />
-              <SelectValue placeholder="Fundo" />
-            </SelectTrigger>
-            <SelectContent>
-              {backgroundColors.map((color) => (
-                <SelectItem key={color.value} value={color.value}>
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="w-4 h-4 rounded border border-gray-300" 
-                      style={{ backgroundColor: color.color }}
-                    />
-                    {color.label}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          
+            className="w-40 h-8 text-xs"
+          />
+
+          {/* Background Color Picker */}
+          <ColorPicker
+            value={
+              editor.getAttributes("textStyle").backgroundColor || "#ffffff"
+            }
+            onChange={(color) => {
+              editor.chain().focus().setBackgroundColor(color).run();
+            }}
+            className="w-40 h-8 text-xs"
+          />
+
           {/* Line Height Selector */}
           <Select
-            value={editor.getAttributes('textStyle').lineHeight || '1.5'}
+            value={editor.getAttributes("textStyle").lineHeight || "1.5"}
             onValueChange={(value) => {
               editor.chain().focus().setLineHeight(value).run();
             }}
           >
             <SelectTrigger className="w-24 h-8 text-xs">
-               <AlignVerticalSpaceAround className="w-3 h-3 mr-1" />
-               <SelectValue placeholder="Altura" />
+              <AlignVerticalSpaceAround className="w-3 h-3 mr-1" />
+              <SelectValue placeholder="Altura" />
             </SelectTrigger>
             <SelectContent>
               {lineHeights.map((height) => (
@@ -433,9 +443,27 @@ export function WriterToolbarContent({
               ))}
             </SelectContent>
           </Select>
-          
+
+          {/* Page Format Selector */}
+          <PageFormatSelector
+            value={
+              (editor.storage.pageFormat?.pageSize as PageSize) ||
+              (editor.getAttributes("doc").pageSize as PageSize) ||
+              "default"
+            }
+            onValueChange={(pageSize: PageSize) => {
+              editor.chain().focus().setPageFormat(pageSize).run();
+            }}
+            size="sm"
+            className="h-8"
+          />
+
           <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 flex-shrink-0" />
           {renderButtonGroup(textStyleButtons, "textStyle")}
+          <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 flex-shrink-0" />
+          {renderButtonGroup(mentionButtons, "mentions")}
+          <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 flex-shrink-0" />
+          {renderButtonGroup(utilityButtons, "utilities")}
           <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 flex-shrink-0" />
           {renderButtonGroup(headingButtons, "headings")}
           <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 flex-shrink-0" />
@@ -452,7 +480,7 @@ export function WriterToolbarContent({
           {renderButtonGroup(historyButtons, "history")}
         </div>
       </div>
-      
+
       {/* Stats - Hidden on mobile, shown on larger screens */}
       <div className="hidden sm:block flex-shrink-0">
         <WriterToolbarStats

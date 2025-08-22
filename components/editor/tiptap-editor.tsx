@@ -2,11 +2,11 @@
 
 import { useEditor } from "@tiptap/react";
 import * as React from "react";
+import { debounce } from "lodash";
 
 // --- Tiptap Core Extensions ---
 import { Extension } from "@tiptap/core";
 import CharacterCount from "@tiptap/extension-character-count";
-import Color from "@tiptap/extension-color";
 import { Highlight } from "@tiptap/extension-highlight";
 import { Image } from "@tiptap/extension-image";
 import { TaskItem, TaskList } from "@tiptap/extension-list";
@@ -23,26 +23,23 @@ import { StarterKit } from "@tiptap/starter-kit";
 
 // --- New Extensions ---
 import { Blockquote } from "@tiptap/extension-blockquote";
-import { Code } from "@tiptap/extension-code";
-import { CodeBlock } from "@tiptap/extension-code-block";
 import DropCursor from "@tiptap/extension-dropcursor";
 import { Focus } from "@tiptap/extension-focus";
+import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { HardBreak } from "@tiptap/extension-hard-break";
-import { Link } from "@tiptap/extension-link";
 import { Mention } from "@tiptap/extension-mention";
-import {
-  Table,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from "@tiptap/extension-table";
-import { Youtube } from "@tiptap/extension-youtube";
-import { TextStyleKit } from "@tiptap/extension-text-style";
+import { Color, TextStyleKit } from "@tiptap/extension-text-style";
 // History extension removed - using StarterKit's built-in history
 
 // --- Tiptap Node ---
 import { HorizontalRule } from "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension";
 import { ImageUploadNode } from "@/components/tiptap-node/image-upload-node/image-upload-node-extension";
+
+// --- Custom Extensions ---
+import { EnhancedEnter } from "@/lib/extensions/enhanced-enter";
+import { ImageTextFlow } from "@/lib/extensions/image-text-flow";
+import { SmartDeletion } from "@/lib/extensions/smart-deletion";
+import { PageFormat } from "@/lib/extensions/page-format";
 
 // --- Utils ---
 import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils";
@@ -150,18 +147,42 @@ export function TiptapEditor({
         autocomplete: "off",
         autocorrect: "off",
         autocapitalize: "off",
+        spellcheck: "true",
         "aria-label":
           "Área principal de conteúdo, comece a digitar para inserir texto.",
-        class: `enhanced-writer-editor ${className} ${deviceInfo.isMobile ? 'mobile-editor' : deviceInfo.isTablet ? 'tablet-editor' : 'desktop-editor'}`,
+        class: `enhanced-writer-editor ${className} ${
+          deviceInfo.isMobile
+            ? "mobile-editor"
+            : deviceInfo.isTablet
+            ? "tablet-editor"
+            : "desktop-editor"
+        }`,
+      },
+      handleKeyDown: (view, event) => {
+        // Melhorar comportamento de navegação com setas
+        if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+          // Permitir navegação fluida entre linhas
+          return false;
+        }
+        
+        // Permitir que a extensão EnhancedEnter gerencie o Enter
+        if (event.key === 'Enter') {
+          return false;
+        }
+        
+        return false;
       },
     },
     extensions: [
       StarterKit.configure({
         horizontalRule: false,
-        link: false, // Disabled to use custom Link extension
         blockquote: false, // Disabled to use custom Blockquote extension
-        codeBlock: false, // Disabled to use custom CodeBlock extension
         hardBreak: false, // Disabled to use custom HardBreak extension
+        paragraph: {
+          HTMLAttributes: {
+            class: 'tiptap-paragraph',
+          },
+        },
         // history is enabled by default in StarterKit
         bulletList: {
           keepMarks: true,
@@ -171,6 +192,7 @@ export function TiptapEditor({
           keepMarks: true,
           keepAttributes: false,
         },
+        gapcursor: false, // Using separate Gapcursor extension for better control
       }),
       // Core Extensions
       HorizontalRule,
@@ -183,7 +205,13 @@ export function TiptapEditor({
           class: "highlight",
         },
       }),
-      Image,
+      Image.configure({
+        inline: false,
+        allowBase64: true,
+        HTMLAttributes: {
+          class: 'tiptap-image',
+        },
+      }),
       Typography,
       Superscript,
       Subscript,
@@ -202,32 +230,18 @@ export function TiptapEditor({
         upload: handleImageUpload,
         onError: (error) => console.error("Upload failed:", error),
       }),
-      // New Extensions - Marks
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: {
-          class: "text-escrivania-blue-600 underline cursor-pointer",
-        },
-      }),
-      Code.configure({
-        HTMLAttributes: {
-          class:
-            "bg-muted text-muted-foreground px-1 py-0.5 rounded text-sm font-mono",
-        },
-      }),
       // New Extensions - Nodes
       Blockquote.configure({
         HTMLAttributes: {
           class: "border-l-4 border-border pl-4 italic text-muted-foreground",
         },
       }),
-      CodeBlock.configure({
+      HardBreak.configure({
+        keepMarks: false,
         HTMLAttributes: {
-          class:
-            "bg-secondary text-secondary-foreground p-4 rounded-lg font-mono text-sm overflow-x-auto",
+          class: 'tiptap-hard-break',
         },
       }),
-      HardBreak,
       Mention.configure({
         HTMLAttributes: {
           class:
@@ -250,47 +264,13 @@ export function TiptapEditor({
           },
         },
       }),
-      Table.configure({
-        resizable: true,
-        HTMLAttributes: {
-          class: "border-collapse border border-border w-full",
-        },
-      }),
-      TableRow.configure({
-        HTMLAttributes: {
-          class: "border border-border",
-        },
-      }),
-      TableHeader.configure({
-        HTMLAttributes: {
-          class: "border border-border bg-muted font-semibold p-2",
-        },
-      }),
-      TableCell.configure({
-        HTMLAttributes: {
-          class: "border border-gray-300 p-2",
-        },
-      }),
-      Youtube.configure({
-        width: deviceInfo.isMobile ? 320 : 
-               deviceInfo.isTablet ? 480 : 
-               deviceInfo.isMacbook ? 560 : // Otimizado para MacBook Pro M1 13"
-               deviceInfo.isNotebook ? 640 : 
-               720, // Desktop grandes
-        height: deviceInfo.isMobile ? 240 : 
-                deviceInfo.isTablet ? 360 : 
-                deviceInfo.isMacbook ? 315 : // Proporção 16:9 para MacBook Pro M1
-                deviceInfo.isNotebook ? 480 : 
-                540, // Desktop grandes
-        HTMLAttributes: {
-          class: "youtube-embed rounded-lg",
-        },
-      }),
+
       // New Extensions - Functionality
       DropCursor.configure({
         color: "oklch(0.75 0.15 200)", // Usando a cor azul do projeto
         width: 2,
       }),
+      Gapcursor,
       Focus.configure({
         className: "has-focus",
         mode: "all",
@@ -299,7 +279,25 @@ export function TiptapEditor({
       // Text Style Extensions
       TextStyleKit,
       // Custom Extensions
+      EnhancedEnter.configure({
+        createNewParagraph: true,
+        allowEmptyParagraphs: true,
+        trimEmptyParagraphs: true,
+      }),
+      ImageTextFlow.configure({
+        autoAddParagraphs: true,
+        enableArrowNavigation: true,
+        enableEnterNavigation: true,
+      }),
+      SmartDeletion.configure({
+        enableSmartBackspace: true,
+        enableSmartDelete: true,
+        enableSmartMerge: true,
+        enableImageDeletion: true,
+      }),
       MentionExtension,
+      // Page Format Extension
+      PageFormat,
     ],
     content,
     onUpdate: ({ editor }) => {
@@ -411,14 +409,16 @@ export function TiptapEditor({
       )}
 
       {/* Editor Content */}
-      <div className={cn(
-        "flex-1 overflow-hidden",
-        deviceInfo.isMobile && "p-2",
-        deviceInfo.isTablet && "p-3",
-        deviceInfo.isMacbook && "p-4", // Padding otimizado para MacBook Pro M1
-        deviceInfo.isNotebook && "p-4",
-        deviceInfo.isDesktop && "p-6" // Mais espaço em desktops grandes
-      )}>
+      <div
+        className={cn(
+          "flex-1 overflow-hidden",
+          deviceInfo.isMobile && "p-2",
+          deviceInfo.isTablet && "p-3",
+          deviceInfo.isMacbook && "p-4", // Padding otimizado para MacBook Pro M1
+          deviceInfo.isNotebook && "p-4",
+          deviceInfo.isDesktop && "p-6" // Mais espaço em desktops grandes
+        )}
+      >
         <EditorContentWrapper editor={editor} />
       </div>
 
