@@ -1,7 +1,7 @@
 export interface IScene {
   id: string
   title: string
-  content: any // JSON content for Tiptap editor
+  content: object // JSON content for Tiptap editor
   synopsis: string
   status: "idea" | "draft" | "revised" | "final"
   povCharacterId?: string
@@ -113,7 +113,7 @@ export interface Scene {
   title: string
   synopsis: string
   notes: string
-  content: any
+  content: object
   wordCount: number
   status: SceneStatus
   order: number
@@ -152,7 +152,7 @@ export interface ISelectedItem {
 
 // Action types for contexts
 export interface IProjectActions {
-  updateSceneContent: (sceneId: string, content: any) => void
+  updateSceneContent: (sceneId: string, content: object) => void
   updateSceneSynopsis: (sceneId: string, synopsis: string) => void
   updateSceneStatus: (sceneId: string, status: IScene["status"]) => void
   updateSceneTags: (sceneId: string, tags: string[]) => void

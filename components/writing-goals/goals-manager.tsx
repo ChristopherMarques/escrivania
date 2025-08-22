@@ -86,7 +86,7 @@ function GoalForm({ goal, onSave, onCancel }: GoalFormProps) {
     });
   };
 
-  const handleFieldChange = (field: string, value: any) => {
+  const handleFieldChange = (field: string, value: string | number | boolean | Date) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 

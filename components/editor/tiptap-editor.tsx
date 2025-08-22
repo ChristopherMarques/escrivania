@@ -8,7 +8,6 @@ const { useCallback, useMemo, useEffect } = React;
 // --- Tiptap Core Extensions ---
 import { Extension } from "@tiptap/core";
 import CharacterCount from "@tiptap/extension-character-count";
-import { Highlight } from "@tiptap/extension-highlight";
 import { Image } from "@tiptap/extension-image";
 import { TaskItem, TaskList } from "@tiptap/extension-list";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -29,7 +28,10 @@ import { Focus } from "@tiptap/extension-focus";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { HardBreak } from "@tiptap/extension-hard-break";
 import { Mention } from "@tiptap/extension-mention";
-import { Color, TextStyleKit } from "@tiptap/extension-text-style";
+import { Color, TextStyle } from "@tiptap/extension-text-style";
+import { FontFamily } from "@tiptap/extension-font-family";
+import { FontSize } from "@tiptap/extension-font-size";
+import { Highlight } from "@tiptap/extension-highlight";
 // History extension removed - using StarterKit's built-in history
 
 // --- Tiptap Node ---
@@ -243,6 +245,13 @@ export function TiptapEditor({
       Subscript,
       Selection,
       Color,
+      TextStyle,
+      FontFamily.configure({
+        types: ['textStyle'],
+      }),
+      FontSize.configure({
+        types: ['textStyle'],
+      }),
       CharacterCount,
       Placeholder.configure({
         placeholder,
@@ -302,8 +311,7 @@ export function TiptapEditor({
         mode: "all",
       }),
       // History extension removed - using StarterKit's built-in history
-      // Text Style Extensions
-      TextStyleKit,
+      // Text Style Extensions - removed TextStyleKit, using individual extensions
       // Custom Extensions
       EnhancedEnter.configure({
         createNewParagraph: true,

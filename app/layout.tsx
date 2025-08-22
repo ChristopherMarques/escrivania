@@ -15,6 +15,7 @@ import {
 import { ProjectsProvider } from "@/lib/contexts/projects-context"
 import { ActiveProjectProvider } from "@/lib/contexts/active-project-context"
 import { SettingsProvider } from "@/lib/contexts/settings-context"
+import { ReactQueryProvider } from "@/lib/react-query"
 import "./globals.css"
 
 const inter = Inter({
@@ -112,11 +113,13 @@ export default function RootLayout({
       `}
     >
       <body className="font-sans antialiased">
-        <SettingsProvider>
-          <ProjectsProvider>
-            <ActiveProjectProvider>{children}</ActiveProjectProvider>
-          </ProjectsProvider>
-        </SettingsProvider>
+        <ReactQueryProvider>
+          <SettingsProvider>
+            <ProjectsProvider>
+              <ActiveProjectProvider>{children}</ActiveProjectProvider>
+            </ProjectsProvider>
+          </SettingsProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   )

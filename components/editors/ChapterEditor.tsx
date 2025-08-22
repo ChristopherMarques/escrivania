@@ -70,7 +70,7 @@ export function ChapterEditor({ chapterId, onBack }: ChapterEditorProps) {
     try {
       await createScene({
         title: newSceneTitle,
-        content: '',
+        content: {},
         chapter_id: chapter.id,
         order_index: chapterScenes.length,
       })
