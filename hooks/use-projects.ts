@@ -1,5 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Tables, Inserts, Updates } from '@/lib/supabase'
+import { Inserts, Tables, Updates } from '@/lib/supabase'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 type Project = Tables<'projects'>
 type ProjectInsert = Inserts<'projects'>

@@ -27,11 +27,10 @@ import {
   useSynopses,
   useUpdateSynopsis,
 } from "@/hooks/use-synopses";
-import { useUser } from "@/lib/hooks/use-auth";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Tables } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
 import type React from "react";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useMemo, useCallback } from "react";
 import type { ISelectedItem, ViewMode } from "../types";
 
 interface IntegratedProjectState {
@@ -61,60 +60,37 @@ interface IntegratedProjectContextType {
   // Error states
   projectError: Error | null;
 
-  // Current items
+  // Current items (memoized)
   getCurrentScene: () => Tables<"scenes"> | undefined;
   getCurrentCharacter: () => Tables<"characters"> | undefined;
   getCurrentChapter: () => Tables<"chapters"> | undefined;
 
-  // Actions
+  // Actions (memoized)
   setSelectedItem: (item: ISelectedItem) => void;
   setViewMode: (mode: ViewMode) => void;
   toggleChapter: (chapterId: string) => void;
 
-  // CRUD Actions
+  // CRUD Actions (memoized)
   createChapter: (title: string, synopsis?: string) => Promise<void>;
-  updateChapter: (
-    id: string,
-    data: Partial<Tables<"chapters">>
-  ) => Promise<void>;
+  updateChapter: (id: string, data: Partial<Tables<"chapters">>) => Promise<void>;
   deleteChapter: (id: string) => Promise<void>;
-  reorderChapters: (
-    chapters: { id: string; order_index: number }[]
-  ) => Promise<void>;
+  reorderChapters: (chapters: { id: string; order_index: number }[]) => Promise<void>;
 
-  createScene: (
-    chapterId: string,
-    title: string,
-    content?: string
-  ) => Promise<void>;
+  createScene: (chapterId: string, title: string, content?: string) => Promise<void>;
   updateScene: (id: string, data: Partial<Tables<"scenes">>) => Promise<void>;
   deleteScene: (id: string) => Promise<void>;
-  reorderScenes: (
-    scenes: { id: string; order_index: number }[]
-  ) => Promise<void>;
+  reorderScenes: (scenes: { id: string; order_index: number }[]) => Promise<void>;
 
-  createCharacter: (
-    name: string,
-    description?: string,
-    role?: string
-  ) => Promise<void>;
-  updateCharacter: (
-    id: string,
-    data: Partial<Tables<"characters">>
-  ) => Promise<void>;
+  createCharacter: (name: string, description?: string, role?: string) => Promise<void>;
+  updateCharacter: (id: string, data: Partial<Tables<"characters">>) => Promise<void>;
   deleteCharacter: (id: string) => Promise<void>;
 
   createSynopsis: (title: string, content?: string) => Promise<void>;
-  updateSynopsis: (
-    id: string,
-    data: Partial<Tables<"synopses">>
-  ) => Promise<void>;
+  updateSynopsis: (id: string, data: Partial<Tables<"synopses">>) => Promise<void>;
   deleteSynopsis: (id: string) => Promise<void>;
 }
 
-const IntegratedProjectContext = createContext<
-  IntegratedProjectContextType | undefined
->(undefined);
+const IntegratedProjectContext = createContext<IntegratedProjectContextType | undefined>(undefined);
 
 interface IntegratedProjectProviderProps {
   children: React.ReactNode;
@@ -125,34 +101,41 @@ export function IntegratedProjectProvider({
   children,
   projectId,
 }: IntegratedProjectProviderProps) {
-  const router = useRouter();
-  const { user, loading: userLoading } = useUser();
-
+  const { user } = useAuth();
+  
+  // Local state with initial values
   const [state, setState] = useState<IntegratedProjectState>({
     selectedItem: null,
-    viewMode: "writing",
+    viewMode: "writing" as ViewMode,
     expandedChapters: new Set<string>(),
   });
 
-  // React Query hooks
-  const { data: project, isLoading: isLoadingProject, error: projectError } = useProject(
-    projectId,
-    user?.id || ""
-  );
-  const { data: chapters = [], isLoading: isLoadingChapters } = useChapters(
-    projectId,
-    user?.id || ""
-  );
-  const { data: scenes = [], isLoading: isLoadingScenes } = useScenes(
-    projectId,
-    user?.id || ""
-  );
-  const { data: characters = [], isLoading: isLoadingCharacters } =
-    useCharacters(projectId, user?.id || "");
-  const { data: synopses = [], isLoading: isLoadingSynopses } = useSynopses(
-    projectId,
-    user?.id || ""
-  );
+  // React Query hooks - memoized to prevent unnecessary re-renders
+  const {
+    data: project,
+    isLoading: isLoadingProject,
+    error: projectError,
+  } = useProject(projectId, user?.id || "");
+
+  const {
+    data: chapters = [],
+    isLoading: isLoadingChapters,
+  } = useChapters(projectId, user?.id || "");
+
+  const {
+    data: scenes = [],
+    isLoading: isLoadingScenes,
+  } = useScenes(projectId, user?.id || "");
+
+  const {
+    data: characters = [],
+    isLoading: isLoadingCharacters,
+  } = useCharacters(projectId, user?.id || "");
+
+  const {
+    data: synopses = [],
+    isLoading: isLoadingSynopses,
+  } = useSynopses(projectId, user?.id || "");
 
   // Mutation hooks
   const createChapterMutation = useCreateChapter();
@@ -173,56 +156,49 @@ export function IntegratedProjectProvider({
   const updateSynopsisMutation = useUpdateSynopsis();
   const deleteSynopsisMutation = useDeleteSynopsis();
 
-  // Helper functions
-  const getCurrentScene = (): Tables<"scenes"> | undefined => {
-    if (!state.selectedItem || state.selectedItem.type !== "scene") {
-      return undefined;
-    }
-    return scenes.find((s) => s.id === state.selectedItem!.id);
-  };
+  // Memoized current item getters
+  const getCurrentScene = useCallback(() => {
+    if (state.selectedItem?.type !== "scene" || !scenes) return undefined;
+    return scenes.find((scene) => scene.id === state.selectedItem?.id);
+  }, [state.selectedItem, scenes]);
 
-  const getCurrentCharacter = (): Tables<"characters"> | undefined => {
-    if (!state.selectedItem || state.selectedItem.type !== "character") {
-      return undefined;
-    }
-    return characters.find((c) => c.id === state.selectedItem!.id);
-  };
+  const getCurrentCharacter = useCallback(() => {
+    if (state.selectedItem?.type !== "character" || !characters) return undefined;
+    return characters.find((character) => character.id === state.selectedItem?.id);
+  }, [state.selectedItem, characters]);
 
-  const getCurrentChapter = (): Tables<"chapters"> | undefined => {
-    if (!state.selectedItem || state.selectedItem.type !== "chapter") {
-      return undefined;
-    }
-    return chapters.find((c) => c.id === state.selectedItem!.id);
-  };
+  const getCurrentChapter = useCallback(() => {
+    if (state.selectedItem?.type !== "chapter" || !chapters) return undefined;
+    return chapters.find((chapter) => chapter.id === state.selectedItem?.id);
+  }, [state.selectedItem, chapters]);
 
-  // State actions
-  const setSelectedItem = (item: ISelectedItem) => {
-    setState((prev) => ({ ...prev, selectedItem: item }));
-  };
+  // Memoized state actions
+  const setSelectedItem = useCallback((item: ISelectedItem) => {
+    setState(prev => ({ ...prev, selectedItem: item }));
+  }, []);
 
-  const setViewMode = (mode: ViewMode) => {
-    setState((prev) => ({ ...prev, viewMode: mode }));
-  };
+  const setViewMode = useCallback((mode: ViewMode) => {
+    setState(prev => ({ ...prev, viewMode: mode }));
+  }, []);
 
-  const toggleChapter = (chapterId: string) => {
-    setState((prev) => {
-      const newExpanded = new Set(prev.expandedChapters);
-      if (newExpanded.has(chapterId)) {
-        newExpanded.delete(chapterId);
+  const toggleChapter = useCallback((chapterId: string) => {
+    setState(prev => {
+      const newExpandedChapters = new Set(prev.expandedChapters);
+      if (newExpandedChapters.has(chapterId)) {
+        newExpandedChapters.delete(chapterId);
       } else {
-        newExpanded.add(chapterId);
+        newExpandedChapters.add(chapterId);
       }
-      return { ...prev, expandedChapters: newExpanded };
+      return { ...prev, expandedChapters: newExpandedChapters };
     });
-  };
+  }, []);
 
-  // CRUD actions
-  const createChapter = async (title: string, synopsis?: string) => {
+  // Memoized CRUD actions
+  const createChapter = useCallback(async (title: string, synopsis?: string) => {
     if (!user?.id) return;
-
-    const maxOrder =
-      chapters.length > 0 ? Math.max(...chapters.map((c) => c.order_index)) : 0;
-
+    
+    const maxOrder = chapters.length > 0 ? Math.max(...chapters.map((c) => c.order_index)) : 0;
+    
     await createChapterMutation.mutateAsync({
       title,
       description: synopsis || "",
@@ -230,44 +206,29 @@ export function IntegratedProjectProvider({
       order_index: maxOrder + 1,
       userId: user.id,
     });
-  };
+  }, [user?.id, projectId, createChapterMutation, chapters]);
 
-  const updateChapter = async (
-    id: string,
-    data: Partial<Tables<"chapters">>
-  ) => {
+  const updateChapter = useCallback(async (id: string, data: Partial<Tables<"chapters">>) => {
     if (!user?.id) return;
     await updateChapterMutation.mutateAsync({ id, data, userId: user.id });
-  };
+  }, [user?.id, updateChapterMutation]);
 
-  const deleteChapter = async (id: string) => {
+  const deleteChapter = useCallback(async (id: string) => {
     if (!user?.id) return;
     await deleteChapterMutation.mutateAsync({ id, userId: user.id });
-  };
+  }, [user?.id, deleteChapterMutation]);
 
-  const reorderChapters = async (
-    chaptersData: { id: string; order_index: number }[]
-  ) => {
+  const reorderChapters = useCallback(async (chaptersData: { id: string; order_index: number }[]) => {
     if (!user?.id) return;
-    await reorderChaptersMutation.mutateAsync({
-      chapters: chaptersData,
-      userId: user.id,
-    });
-  };
+    await reorderChaptersMutation.mutateAsync({ chapters: chaptersData, userId: user.id });
+  }, [user?.id, reorderChaptersMutation]);
 
-  const createScene = async (
-    chapterId: string,
-    title: string,
-    content?: string
-  ) => {
+  const createScene = useCallback(async (chapterId: string, title: string, content?: string) => {
     if (!user?.id) return;
-
+    
     const chapterScenes = scenes.filter((s) => s.chapter_id === chapterId);
-    const maxOrder =
-      chapterScenes.length > 0
-        ? Math.max(...chapterScenes.map((s) => s.order_index))
-        : 0;
-
+    const maxOrder = chapterScenes.length > 0 ? Math.max(...chapterScenes.map((s) => s.order_index)) : 0;
+    
     await createSceneMutation.mutateAsync({
       title,
       content: content || null,
@@ -275,113 +236,134 @@ export function IntegratedProjectProvider({
       order_index: maxOrder + 1,
       userId: user.id,
     });
-  };
+  }, [user?.id, createSceneMutation, scenes]);
 
-  const updateScene = async (id: string, data: Partial<Tables<"scenes">>) => {
+  const updateScene = useCallback(async (id: string, data: Partial<Tables<"scenes">>) => {
     if (!user?.id) return;
     await updateSceneMutation.mutateAsync({ id, data, userId: user.id });
-  };
+  }, [user?.id, updateSceneMutation]);
 
-  const deleteScene = async (id: string) => {
+  const deleteScene = useCallback(async (id: string) => {
     if (!user?.id) return;
     await deleteSceneMutation.mutateAsync({ id, userId: user.id });
-  };
+  }, [user?.id, deleteSceneMutation]);
 
-  const reorderScenes = async (
-    scenesData: { id: string; order_index: number }[]
-  ) => {
+  const reorderScenes = useCallback(async (scenesData: { id: string; order_index: number }[]) => {
     if (!user?.id) return;
-    await reorderScenesMutation.mutateAsync({
-      scenes: scenesData,
-      userId: user.id,
-    });
-  };
+    await reorderScenesMutation.mutateAsync({ scenes: scenesData, userId: user.id });
+  }, [user?.id, reorderScenesMutation]);
 
-  const createCharacter = async (name: string, description?: string) => {
+  const createCharacter = useCallback(async (name: string, description?: string, role?: string) => {
     if (!user?.id) return;
-
     await createCharacterMutation.mutateAsync({
       name,
       description: description || "",
       project_id: projectId,
       userId: user.id,
     });
-  };
+  }, [user?.id, projectId, createCharacterMutation]);
 
-  const updateCharacter = async (
-    id: string,
-    data: Partial<Tables<"characters">>
-  ) => {
+  const updateCharacter = useCallback(async (id: string, data: Partial<Tables<"characters">>) => {
     if (!user?.id) return;
     await updateCharacterMutation.mutateAsync({ id, data, userId: user.id });
-  };
+  }, [user?.id, updateCharacterMutation]);
 
-  const deleteCharacter = async (id: string) => {
+  const deleteCharacter = useCallback(async (id: string) => {
     if (!user?.id) return;
     await deleteCharacterMutation.mutateAsync({ id, userId: user.id });
-  };
+  }, [user?.id, deleteCharacterMutation]);
 
-  const createSynopsis = async (title: string, content?: string) => {
+  const createSynopsis = useCallback(async (title: string, content?: string) => {
     if (!user?.id) return;
-
     await createSynopsisMutation.mutateAsync({
       title,
       content: content || "",
       project_id: projectId,
       userId: user.id,
     });
-  };
+  }, [user?.id, projectId, createSynopsisMutation]);
 
-  const updateSynopsis = async (
-    id: string,
-    data: Partial<Tables<"synopses">>
-  ) => {
+  const updateSynopsis = useCallback(async (id: string, data: Partial<Tables<"synopses">>) => {
     if (!user?.id) return;
     await updateSynopsisMutation.mutateAsync({ id, data, userId: user.id });
-  };
+  }, [user?.id, updateSynopsisMutation]);
 
-  const deleteSynopsis = async (id: string) => {
+  const deleteSynopsis = useCallback(async (id: string) => {
     if (!user?.id) return;
     await deleteSynopsisMutation.mutateAsync({ id, userId: user.id });
-  };
+  }, [user?.id, deleteSynopsisMutation]);
+
+  // Memoized context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({
+    state,
+    project,
+    chapters,
+    scenes,
+    characters,
+    synopses,
+    isLoadingProject,
+    isLoadingChapters,
+    isLoadingScenes,
+    isLoadingCharacters,
+    isLoadingSynopses,
+    projectError,
+    getCurrentScene,
+    getCurrentCharacter,
+    getCurrentChapter,
+    setSelectedItem,
+    setViewMode,
+    toggleChapter,
+    createChapter,
+    updateChapter,
+    deleteChapter,
+    reorderChapters,
+    createScene,
+    updateScene,
+    deleteScene,
+    reorderScenes,
+    createCharacter,
+    updateCharacter,
+    deleteCharacter,
+    createSynopsis,
+    updateSynopsis,
+    deleteSynopsis,
+  }), [
+    state,
+    project,
+    chapters,
+    scenes,
+    characters,
+    synopses,
+    isLoadingProject,
+    isLoadingChapters,
+    isLoadingScenes,
+    isLoadingCharacters,
+    isLoadingSynopses,
+    projectError,
+    getCurrentScene,
+    getCurrentCharacter,
+    getCurrentChapter,
+    setSelectedItem,
+    setViewMode,
+    toggleChapter,
+    createChapter,
+    updateChapter,
+    deleteChapter,
+    reorderChapters,
+    createScene,
+    updateScene,
+    deleteScene,
+    reorderScenes,
+    createCharacter,
+    updateCharacter,
+    deleteCharacter,
+    createSynopsis,
+    updateSynopsis,
+    deleteSynopsis,
+  ]);
 
   return (
-    <IntegratedProjectContext.Provider
-      value={{
-        state,
-        project,
-        chapters,
-        scenes,
-        characters,
-        synopses,
-        isLoadingProject,
-        isLoadingChapters,
-        isLoadingScenes,
-        isLoadingCharacters,
-        isLoadingSynopses,
-        projectError,
-        getCurrentScene,
-        getCurrentCharacter,
-        getCurrentChapter,
-        setSelectedItem,
-        setViewMode,
-        toggleChapter,
-        createChapter,
-        updateChapter,
-        deleteChapter,
-        reorderChapters,
-        createScene,
-        updateScene,
-        deleteScene,
-        reorderScenes,
-        createCharacter,
-        updateCharacter,
-        deleteCharacter,
-        createSynopsis,
-        updateSynopsis,
-        deleteSynopsis,
-      }}
-    >
+    <IntegratedProjectContext.Provider value={contextValue}>
       {children}
     </IntegratedProjectContext.Provider>
   );

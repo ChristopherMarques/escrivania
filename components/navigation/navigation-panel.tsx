@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, memo, useMemo, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
@@ -25,7 +25,7 @@ interface NavigationPanelProps {
   className?: string
 }
 
-export function NavigationPanel({
+export const NavigationPanel = memo(function NavigationPanel({
   project,
   chapters = [],
   scenes = [],
@@ -41,9 +41,32 @@ export function NavigationPanel({
   className,
 }: NavigationPanelProps) {
 
-  const isSelected = (type: string, id: string) => {
+  const isSelected = useCallback((type: string, id: string) => {
     return selectedItem?.type === type && selectedItem?.id === id
-  }
+  }, [selectedItem])
+
+  // Memoize sorted chapters and scenes
+  const sortedChapters = useMemo(() => 
+    chapters.sort((a, b) => a.order_index - b.order_index),
+    [chapters]
+  )
+
+  const sortedCharacters = useMemo(() => 
+    characters.sort((a, b) => a.name.localeCompare(b.name)),
+    [characters]
+  )
+
+  const scenesByChapter = useMemo(() => {
+    const sceneMap = new Map<string, Tables<'scenes'>[]>()
+    scenes.forEach(scene => {
+      const chapterScenes = sceneMap.get(scene.chapter_id) || []
+      chapterScenes.push(scene)
+      sceneMap.set(scene.chapter_id, chapterScenes)
+    })
+    // Sort scenes within each chapter
+    sceneMap.forEach(scenes => scenes.sort((a, b) => a.order_index - b.order_index))
+    return sceneMap
+  }, [scenes])
 
   return (
     <div className={cn("flex flex-col h-full bg-white/40 backdrop-blur-sm border-r border-white/20", className)}>
@@ -72,9 +95,8 @@ export function NavigationPanel({
             </div>
 
             <div className="space-y-1">
-              {chapters.map((chapter) => {
-                const chapterScenes = scenes.filter(scene => scene.chapter_id === chapter.id)
-                  .sort((a, b) => a.order_index - b.order_index)
+              {sortedChapters.map((chapter) => {
+                const chapterScenes = scenesByChapter.get(chapter.id) || []
                 
                 return (
                   <Collapsible
@@ -160,7 +182,7 @@ export function NavigationPanel({
             </div>
 
             <div className="space-y-1">
-              {characters.map((character) => (
+              {sortedCharacters.map((character) => (
                 <Button
                   key={character.id}
                   variant="ghost"
@@ -203,4 +225,4 @@ export function NavigationPanel({
       </ScrollArea>
     </div>
   )
-}
+})

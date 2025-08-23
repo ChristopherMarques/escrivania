@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { Tables } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import { BarChart3, Edit, FileText, MapPin, Save, User, X } from "lucide-react";
-import { useState } from "react";
+import { useState, memo, useMemo, useCallback } from "react";
 
 // Tipos específicos para o painel de metadados
 type SceneWithChapter = Tables<"scenes"> & {
@@ -36,7 +36,7 @@ interface MetadataPanelProps {
   className?: string;
 }
 
-export function MetadataPanel({
+export const MetadataPanel = memo(function MetadataPanel({
   project,
   chapters = [],
   scenes = [],
@@ -48,7 +48,8 @@ export function MetadataPanel({
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<any>({});
 
-  const getSelectedData = (): SelectedData => {
+  // Memoize selected data calculation
+  const selectedData = useMemo((): SelectedData => {
     if (!selectedItem) return null;
 
     const { type, id } = selectedItem;
@@ -71,28 +72,28 @@ export function MetadataPanel({
       default:
         return null;
     }
-  };
+  }, [selectedItem, chapters, scenes, characters]);
 
-  const selectedData = getSelectedData();
-
-  const handleEdit = () => {
-    setEditData(selectedData || {});
-    setIsEditing(true);
-  };
-
-  const handleSave = () => {
-    if (onUpdateItem && selectedItem) {
-      onUpdateItem(selectedItem.type, selectedItem.id, editData);
+  const handleEdit = useCallback(() => {
+    if (selectedData) {
+      setEditData({ ...selectedData });
+      setIsEditing(true);
     }
-    setIsEditing(false);
-  };
+  }, [selectedData]);
 
-  const handleCancel = () => {
+  const handleSave = useCallback(() => {
+    if (selectedItem && onUpdateItem) {
+      onUpdateItem(selectedItem.type, selectedItem.id, editData);
+      setIsEditing(false);
+    }
+  }, [selectedItem, onUpdateItem, editData]);
+
+  const handleCancel = useCallback(() => {
+    setIsEditing(false);
     setEditData({});
-    setIsEditing(false);
-  };
+  }, []);
 
-  const getIcon = () => {
+  const getIcon = useMemo(() => {
     switch (selectedItem?.type) {
       case "chapter":
         return <FileText className="h-5 w-5 text-escrivania-purple-600" />;
@@ -105,9 +106,9 @@ export function MetadataPanel({
       default:
         return <BarChart3 className="h-5 w-5 text-gray-600" />;
     }
-  };
+  }, [selectedItem?.type]);
 
-  const getTypeLabel = () => {
+  const getTypeLabel = useMemo(() => {
     switch (selectedItem?.type) {
       case "chapter":
         return "Capítulo";
@@ -120,20 +121,20 @@ export function MetadataPanel({
       default:
         return "Item";
     }
-  };
+  }, [selectedItem?.type]);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "N/A";
     return new Date(dateString).toLocaleDateString("pt-BR");
   };
 
-  const getWordCount = (content: string) => {
+  const getWordCount = useCallback((content: string) => {
     if (!content || typeof content !== "string") return 0;
     return content
       .trim()
       .split(/\s+/)
       .filter((word) => word.length > 0).length;
-  };
+  }, []);
 
   if (!selectedItem || !selectedData) {
     return (
@@ -168,9 +169,9 @@ export function MetadataPanel({
     >
       {/* Header */}
       <div className="p-4 border-b border-white/20">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
           <div className="flex items-center gap-2">
-            {getIcon()}
+            {getIcon}
             <h2 className="font-semibold text-foreground">Metadados</h2>
           </div>
           {!isEditing ? (
@@ -211,8 +212,8 @@ export function MetadataPanel({
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm flex items-center gap-2">
-                {getIcon()}
-                {getTypeLabel()}
+                {getIcon}
+                {getTypeLabel}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -341,4 +342,4 @@ export function MetadataPanel({
       </ScrollArea>
     </div>
   );
-}
+});

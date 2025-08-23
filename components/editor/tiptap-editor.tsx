@@ -3,7 +3,7 @@
 import { useEditor } from "@tiptap/react";
 import * as React from "react";
 import { debounce } from "lodash";
-const { useCallback, useMemo, useEffect } = React;
+const { useCallback, useMemo, useEffect, memo } = React;
 
 // --- Tiptap Core Extensions ---
 import { Extension } from "@tiptap/core";
@@ -123,7 +123,7 @@ const MentionExtension = Extension.create({
   },
 });
 
-export function TiptapEditor({
+export const TiptapEditor = memo(function TiptapEditor({
   content,
   onChange,
   placeholder = "Comece a escrever sua história aqui...",
@@ -134,7 +134,7 @@ export function TiptapEditor({
 }: TiptapEditorProps) {
   const deviceInfo = useDeviceInfo();
   
-  // Debounced onChange function for performance optimization
+  // Memoize debounced onChange function for performance optimization
   const debouncedOnChange = useMemo(
     () => debounce((content: any) => {
       onChange?.(content);
@@ -394,32 +394,33 @@ export function TiptapEditor({
     return null;
   }
 
-  const getMinHeight = () => {
+  // Memoize responsive calculations
+  const minHeight = useMemo(() => {
     if (deviceInfo.isMobile) return "min-h-[400px]";
     if (deviceInfo.isTablet) return "min-h-[500px]";
     if (deviceInfo.isMacbook) return "min-h-[550px]"; // Otimizado para MacBook Pro M1 13"
     if (deviceInfo.isNotebook) return "min-h-[580px]";
     return "min-h-[650px]"; // Desktop grandes
-  };
+  }, [deviceInfo]);
 
-  const getToolbarVisibility = () => {
+  const toolbarVisibility = useMemo(() => {
     if (readOnly) return false;
     if (deviceInfo.isMobile) return false; // Hide toolbar on mobile for cleaner interface
     return true; // Show toolbar on tablet, notebook, macbook and desktop
-  };
+  }, [readOnly, deviceInfo.isMobile]);
 
-  const getStatsVisibility = () => {
+  const statsVisibility = useMemo(() => {
     if (readOnly) return false;
     if (deviceInfo.isMobile) return false; // Hide stats on mobile
     if (deviceInfo.isTablet) return false; // Hide stats on tablet
     return true; // Show stats on notebook, macbook and desktop
-  };
+  }, [readOnly, deviceInfo.isMobile, deviceInfo.isTablet]);
 
   return (
     <div
       className={cn(
         "flex flex-col w-full h-full max-h-screen",
-        getMinHeight(),
+        minHeight,
         "bg-background rounded-lg dark:bg-gray-900",
         "overflow-hidden",
         deviceInfo.isMobile && "text-sm",
@@ -431,7 +432,7 @@ export function TiptapEditor({
       )}
     >
       {/* Toolbar - Hidden on mobile and read-only mode */}
-      {getToolbarVisibility() && (
+      {toolbarVisibility && (
         <div className="flex-shrink-0">
           <WriterToolbarContent
             editor={editor}
@@ -457,7 +458,7 @@ export function TiptapEditor({
       </div>
 
       {/* Stats Panel - Hidden on mobile/tablet and read-only mode */}
-      {getStatsVisibility() && (
+      {statsVisibility && (
         <div className="flex-shrink-0">
           <WriterStatsPanel
             wordCount={wordCount}
@@ -473,4 +474,4 @@ export function TiptapEditor({
       )}
     </div>
   );
-}
+});

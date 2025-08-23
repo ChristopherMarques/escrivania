@@ -680,14 +680,19 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
 
       if (chaptersError) throw chaptersError;
 
-      // Load scenes
-      const { data: scenes, error: scenesError } = await getClient()
-        .from("scenes")
-        .select("*")
-        .eq("project_id", projectId)
-        .order("order_index", { ascending: true });
+      // Load scenes - get scenes for all chapters of this project
+      let scenes: Scene[] = [];
+      if (chapters && chapters.length > 0) {
+        const chapterIds = chapters.map(chapter => chapter.id);
+        const { data: scenesData, error: scenesError } = await getClient()
+          .from("scenes")
+          .select("*")
+          .in("chapter_id", chapterIds)
+          .order("order_index", { ascending: true });
 
-      if (scenesError) throw scenesError;
+        if (scenesError) throw scenesError;
+        scenes = scenesData || [];
+      }
 
       // Load characters
       const { data: characters, error: charactersError } = await getClient()
@@ -777,14 +782,19 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
 
           if (chaptersError) throw chaptersError;
 
-          // Load scenes
-          const { data: scenes, error: scenesError } = await getClient()
-            .from("scenes")
-            .select("*")
-            .eq("project_id", projectId)
-            .order("order_index", { ascending: true });
+          // Load scenes - get scenes for all chapters of this project
+          let scenes: Scene[] = [];
+          if (chapters && chapters.length > 0) {
+            const chapterIds = chapters.map(chapter => chapter.id);
+            const { data: scenesData, error: scenesError } = await getClient()
+              .from("scenes")
+              .select("*")
+              .in("chapter_id", chapterIds)
+              .order("order_index", { ascending: true });
 
-          if (scenesError) throw scenesError;
+            if (scenesError) throw scenesError;
+            scenes = scenesData || [];
+          }
 
           // Load characters
           const { data: characters, error: charactersError } = await getClient()

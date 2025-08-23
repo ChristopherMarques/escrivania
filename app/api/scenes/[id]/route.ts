@@ -84,7 +84,7 @@ export async function PUT(
     if (content !== undefined) updateData.content = content
     if (orderIndex !== undefined) updateData.order_index = orderIndex
 
-    const { data: scene, error } = await supabase
+    const { data: scene, error } = await supabaseAdmin
       .from('scenes')
       .update(updateData)
       .eq('id', id)
@@ -118,7 +118,7 @@ export async function DELETE(
     }
 
     // Verificar se o usuário tem acesso à cena
-    const { data: existingScene } = await supabase
+    const { data: existingScene } = await supabaseAdmin
       .from('scenes')
       .select(`
         id,

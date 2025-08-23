@@ -17,7 +17,7 @@ interface ProjectDashboardProps {
 
 export function ProjectDashboard({ className }: ProjectDashboardProps) {
   const { state, setCurrentProject } = useProject()
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [showCreateForm, setShowCreateForm] = useState(false)
 
   const handleCreateProject = () => {
@@ -35,7 +35,8 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
 
   const getProjectStats = (projectId: string) => {
     const chapters = state.chapters.filter(c => c.project_id === projectId)
-    const scenes = state.scenes.filter(s => s.project_id === projectId)
+    const chapterIds = chapters.map(c => c.id)
+    const scenes = state.scenes.filter(s => chapterIds.includes(s.chapter_id))
     const characters = state.characters.filter(c => c.project_id === projectId)
     
     return {
@@ -88,7 +89,7 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
           </div>
 
           <div className="space-y-4">
-            {state.loading ? (
+            {(state.loading && user) ? (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {[...Array(3)].map((_, i) => (
                   <Card key={i} className="p-6">

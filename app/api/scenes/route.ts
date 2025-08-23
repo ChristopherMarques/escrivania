@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar se o usuário tem acesso ao capítulo
-    const { data: chapter } = await supabase
+    const { data: chapter } = await supabaseAdmin
       .from('chapters')
       .select(`
         id,

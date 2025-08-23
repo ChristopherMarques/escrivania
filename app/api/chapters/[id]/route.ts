@@ -80,7 +80,7 @@ export async function PUT(
     if (description !== undefined) updateData.description = description
     if (orderIndex !== undefined) updateData.order_index = orderIndex
 
-    const { data: chapter, error } = await supabase
+    const { data: chapter, error } = await supabaseAdmin
       .from('chapters')
       .update(updateData)
       .eq('id', id)
@@ -114,7 +114,7 @@ export async function DELETE(
     }
 
     // Verificar se o usuário tem acesso ao capítulo
-    const { data: existingChapter } = await supabase
+    const { data: existingChapter } = await supabaseAdmin
       .from('chapters')
       .select(`
         id,

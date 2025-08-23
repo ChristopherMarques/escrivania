@@ -24,7 +24,7 @@ import {
   Plus,
   User,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, memo, useMemo, useCallback } from "react";
 
 interface MobileNavigationProps {
   project: Tables<"projects"> | undefined;
@@ -41,7 +41,7 @@ interface MobileNavigationProps {
   onToggleChapter: (chapterId: string) => void;
 }
 
-export function MobileNavigation({
+export const MobileNavigation = memo(function MobileNavigation({
   project,
   chapters = [],
   scenes = [],
@@ -58,6 +58,28 @@ export function MobileNavigation({
   const [isOpen, setIsOpen] = useState(false);
   const deviceInfo = useDeviceInfo();
 
+  // Memoize sorted data
+  const sortedChapters = useMemo(() => 
+    chapters.sort((a, b) => a.order_index - b.order_index),
+    [chapters]
+  )
+
+  const sortedCharacters = useMemo(() => 
+    characters.sort((a, b) => a.name.localeCompare(b.name)),
+    [characters]
+  )
+
+  const scenesByChapter = useMemo(() => {
+    const sceneMap = new Map<string, Tables<'scenes'>[]>()
+    scenes.forEach(scene => {
+      const chapterScenes = sceneMap.get(scene.chapter_id) || []
+      chapterScenes.push(scene)
+      sceneMap.set(scene.chapter_id, chapterScenes)
+    })
+    sceneMap.forEach(scenes => scenes.sort((a, b) => a.order_index - b.order_index))
+    return sceneMap
+  }, [scenes])
+
   // Determine sheet width based on device type
   const getSheetWidth = () => {
     if (deviceInfo.isMobile) return "w-[85vw] max-w-[320px]";
@@ -68,10 +90,10 @@ export function MobileNavigation({
   // Determine if navigation should be visible
   const shouldShowNavigation = deviceInfo.isMobile || deviceInfo.isTablet;
 
-  const handleItemSelect = (item: { type: string; id: string }) => {
+  const handleItemSelect = useCallback((item: { type: string; id: string }) => {
     onItemSelect(item);
     setIsOpen(false);
-  };
+  }, [onItemSelect]);
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -130,10 +152,8 @@ export function MobileNavigation({
               </div>
 
               <div className="space-y-1">
-                {chapters.map((chapter) => {
-                  const chapterScenes = scenes
-                    .filter((scene) => scene.chapter_id === chapter.id)
-                    .sort((a, b) => a.order_index - b.order_index);
+                {sortedChapters.map((chapter) => {
+                  const chapterScenes = scenesByChapter.get(chapter.id) || [];
 
                   return (
                     <Collapsible
@@ -251,7 +271,7 @@ export function MobileNavigation({
               </div>
 
               <div className="space-y-1">
-                {characters.map((character) => (
+                {sortedCharacters.map((character) => (
                   <Button
                     key={character.id}
                     variant="ghost"
@@ -316,4 +336,4 @@ export function MobileNavigation({
       </SheetContent>
     </Sheet>
   );
-}
+});

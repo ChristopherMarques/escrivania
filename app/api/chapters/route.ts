@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar se o usuário tem acesso ao projeto
-    const { data: project } = await supabase
+    const { data: project } = await supabaseAdmin
       .from('projects')
       .select('id')
       .eq('id', projectId)

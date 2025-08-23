@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { NextRequest, NextResponse } from 'next/server'
 
 // GET - Buscar projeto específico
 export async function GET(
