@@ -3,6 +3,7 @@ import { ProjectsProvider } from "@/lib/contexts/projects-context"
 import { SettingsProvider } from "@/lib/contexts/settings-context"
 import { ReactQueryProvider } from "@/lib/react-query"
 import { AuthProvider } from "@/contexts/AuthContext"
+import { ThemeProvider } from "@/components/theme-provider"
 import type { Metadata } from "next"
 import {
   Crimson_Text,
@@ -114,15 +115,22 @@ export default function RootLayout({
       `}
     >
       <body className="font-sans antialiased">
-        <ReactQueryProvider>
-          <AuthProvider>
-            <SettingsProvider>
-              <ProjectsProvider>
-                <ActiveProjectProvider>{children}</ActiveProjectProvider>
-              </ProjectsProvider>
-            </SettingsProvider>
-          </AuthProvider>
-        </ReactQueryProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ReactQueryProvider>
+            <AuthProvider>
+              <SettingsProvider>
+                <ProjectsProvider>
+                  <ActiveProjectProvider>{children}</ActiveProjectProvider>
+                </ProjectsProvider>
+              </SettingsProvider>
+            </AuthProvider>
+          </ReactQueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
