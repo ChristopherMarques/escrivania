@@ -76,6 +76,8 @@ export function useCreateScene() {
     onSuccess: (newScene) => {
       // Invalidar a lista de cenas do capítulo
       queryClient.invalidateQueries({ queryKey: ['scenes', newScene.chapter_id] })
+      // Invalidar a lista de cenas por projeto
+      queryClient.invalidateQueries({ queryKey: ['scenes-by-project'] })
       // Adicionar a nova cena ao cache
       queryClient.setQueryData(['scene', newScene.id], newScene)
     },
@@ -111,8 +113,18 @@ export function useUpdateScene() {
     onSuccess: (updatedScene) => {
       // Atualizar o cache da cena específica
       queryClient.setQueryData(['scene', updatedScene.id], updatedScene)
-      // Invalidar a lista de cenas do capítulo
-      queryClient.invalidateQueries({ queryKey: ['scenes', updatedScene.chapter_id] })
+      
+      // Atualizar diretamente o cache das cenas do capítulo sem invalidar
+      queryClient.setQueryData(['scenes', updatedScene.chapter_id], (oldScenes: Scene[] | undefined) => {
+        if (!oldScenes) return [updatedScene]
+        return oldScenes.map(scene => scene.id === updatedScene.id ? updatedScene : scene)
+      })
+      
+      // Atualizar diretamente o cache das cenas por projeto sem invalidar
+      queryClient.setQueryData(['scenes-by-project', updatedScene.project_id], (oldData: any[] | undefined) => {
+        if (!oldData) return undefined
+        return oldData.map(scene => scene.id === updatedScene.id ? { ...updatedScene, chapter_title: scene.chapter_title } : scene)
+      })
     },
   })
 }
@@ -153,6 +165,8 @@ export function useDeleteScene() {
         // Invalidar a lista de cenas do capítulo
         queryClient.invalidateQueries({ queryKey: ['scenes', cachedScene.chapter_id] })
       }
+      // Invalidar a lista de cenas por projeto
+      queryClient.invalidateQueries({ queryKey: ['scenes-by-project'] })
     },
   })
 }
@@ -203,7 +217,7 @@ export function useReorderScenes() {
 // Hook para buscar cenas por projeto (útil para navegação)
 export function useScenesByProject(projectId: string, userId: string) {
   return useQuery({
-    queryKey: ['scenes-by-project', projectId],
+    queryKey: ['scenes-by-project', projectId, userId],
     queryFn: async (): Promise<(Scene & { chapter_title: string })[]> => {
       // Primeiro buscar todos os capítulos do projeto
       const chaptersResponse = await fetch(`/api/chapters?projectId=${projectId}&userId=${userId}`)
@@ -235,5 +249,12 @@ export function useScenesByProject(projectId: string, userId: string) {
       })
     },
     enabled: !!projectId && !!userId,
+    // Cache por 5 minutos
+    staleTime: 1000 * 60 * 5,
+    // Manter em cache por 15 minutos
+    gcTime: 1000 * 60 * 15,
+    // Não refetch automaticamente para reduzir requisições
+    refetchOnWindowFocus: false,
+    refetchOnMount: false
   })
 }

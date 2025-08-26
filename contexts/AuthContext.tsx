@@ -18,6 +18,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { data: session, isPending: loading } = useSession();
   const user = session?.user || null;
 
+
+
   const signIn = () => {
     betterAuthSignIn.social({
       provider: 'google',

@@ -26,6 +26,12 @@ export function useChapters(projectId: string, userId: string) {
       return data.chapters
     },
     enabled: !!projectId && !!userId,
+    // Cache por 5 minutos
+    staleTime: 1000 * 60 * 5,
+    // Manter em cache por 15 minutos
+    gcTime: 1000 * 60 * 15,
+    // Não refetch automaticamente
+    refetchOnWindowFocus: false,
   })
 }
 

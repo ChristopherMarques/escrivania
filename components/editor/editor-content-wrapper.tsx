@@ -1,8 +1,8 @@
 "use client";
 
-import { EditorContent, Editor } from "@tiptap/react";
-import { cn } from "@/lib/utils";
 import { useDeviceInfo } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
+import { Editor, EditorContent } from "@tiptap/react";
 import { memo, useMemo } from "react";
 
 interface EditorContentWrapperProps {
@@ -18,19 +18,36 @@ const EditorContentWrapperComponent = ({
   
   // Memoize responsive classes calculation for performance
   const responsiveClasses = useMemo(() => {
+    const baseClasses = [
+      "w-full",
+      "h-full",
+      "focus:outline-none",
+      "prose",
+      "prose-gray",
+      "dark:prose-invert",
+      "max-w-none",
+      "prose-headings:font-bold",
+      "prose-p:leading-relaxed",
+      "prose-pre:bg-gray-100",
+      "dark:prose-pre:bg-gray-800",
+      "prose-code:bg-gray-100",
+      "dark:prose-code:bg-gray-800",
+      "prose-code:px-1",
+      "prose-code:py-0.5",
+      "prose-code:rounded",
+    ];
+
     if (deviceInfo.isMobile) {
-      return "prose-sm px-3 py-4 min-h-[350px]";
+      return [...baseClasses, "prose-sm"];
+    } else if (deviceInfo.isTablet) {
+      return [...baseClasses, "prose"];
+    } else if (deviceInfo.isMacbook) {
+      return [...baseClasses, "prose-lg"];
+    } else if (deviceInfo.isNotebook) {
+      return [...baseClasses, "prose-lg"];
+    } else {
+      return [...baseClasses, "prose-xl"];
     }
-    if (deviceInfo.isTablet) {
-      return "prose px-4 py-6 min-h-[450px]";
-    }
-    if (deviceInfo.isMacbook) {
-      return "prose-lg px-5 py-6 min-h-[500px]"; // Otimizado para MacBook Pro M1
-    }
-    if (deviceInfo.isNotebook) {
-      return "prose-lg px-6 py-7 min-h-[550px]";
-    }
-    return "prose-xl px-8 py-8 min-h-[600px]"; // Desktop grandes
   }, [deviceInfo]);
 
   // Memoize editor content classes
@@ -56,14 +73,14 @@ const EditorContentWrapperComponent = ({
   return (
     <div
       className={cn(
-        "flex-1 overflow-y-auto bg-white dark:bg-gray-900",
+        "flex-1 h-full overflow-y-auto bg-white dark:bg-gray-900",
         "transition-all duration-200",
         className
       )}
     >
       <EditorContent
         editor={editor}
-        className={editorContentClasses}
+        className={cn(editorContentClasses, "h-full min-h-full")}
       />
     </div>
   );

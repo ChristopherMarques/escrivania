@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Eye, EyeOff } from "lucide-react";
+import React from "react";
 
 interface FocusModeManagerProps {
   children: React.ReactNode;
@@ -65,21 +65,6 @@ export function FocusModeManager({ children, className }: FocusModeManagerProps)
         )}
       >
         {children}
-        
-        {/* Focus Mode Exit Button */}
-        {isFocusMode && (
-          <div className="fixed top-4 right-4 z-50">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={exitFocusMode}
-              className="bg-black/20 backdrop-blur-sm border-white/20 text-white hover:bg-black/30"
-            >
-              <EyeOff className="h-4 w-4 mr-2" />
-              Sair do Foco
-            </Button>
-          </div>
-        )}
       </div>
     </FocusModeContext.Provider>
   );

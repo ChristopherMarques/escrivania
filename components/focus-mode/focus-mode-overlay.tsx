@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Settings, Timer, Volume2, VolumeX, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface FocusModeOverlayProps {
   isOpen: boolean;
@@ -21,6 +21,10 @@ interface FocusModeOverlayProps {
   onChange: (content: any) => void;
   characters: any[];
   locations: any[];
+  autoSaveStatus?: {
+    statusText: string;
+    statusColor: string;
+  };
 }
 
 const FOCUS_ENVIRONMENTS = [
@@ -78,6 +82,7 @@ export function FocusModeOverlay({
   onChange,
   characters,
   locations,
+  autoSaveStatus,
 }: FocusModeOverlayProps) {
   const [environment, setEnvironment] = useState("minimal");
   const [ambientSound, setAmbientSound] = useState("none");
@@ -86,6 +91,7 @@ export function FocusModeOverlay({
   const [sessionTimer, setSessionTimer] = useState(0);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [targetTime, setTargetTime] = useState(25); // Pomodoro default
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const currentEnv =
     FOCUS_ENVIRONMENTS.find((env) => env.id === environment) ||
@@ -93,6 +99,52 @@ export function FocusModeOverlay({
   const currentSound =
     AMBIENT_SOUNDS.find((sound) => sound.id === ambientSound) ||
     AMBIENT_SOUNDS[0];
+
+  // Audio management
+  useEffect(() => {
+    if (ambientSound === "none") {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      return;
+    }
+
+    // Create audio element for the selected sound
+    const audio = new Audio(`/sounds/${ambientSound}.mp3`);
+    audio.loop = true;
+    audio.volume = soundVolume[0] / 100;
+    audioRef.current = audio;
+
+    // Play the audio
+    audio.play().catch((error) => {
+      console.log("Audio playback failed:", error);
+    });
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, [ambientSound]);
+
+  // Update volume when slider changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = soundVolume[0] / 100;
+    }
+  }, [soundVolume]);
+
+  // Cleanup audio on unmount
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -140,17 +192,21 @@ export function FocusModeOverlay({
       {/* Top Bar */}
       <div className="absolute top-0 left-0 right-0 z-10 bg-black/10 backdrop-blur-sm">
         <div className="flex items-center justify-between p-4">
-          <div className="flex items-center space-x-4">
+          {/* Left side - Exit button */}
+          <div className="flex items-center flex-shrink-0">
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="text-gray-600 hover:text-gray-800"
+              className="text-gray-600 hover:text-gray-800 bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30"
             >
               <X className="w-4 h-4 mr-2" />
               Sair do Foco
             </Button>
+          </div>
 
+          {/* Center - Timer and Auto-save Status */}
+          <div className="flex items-center space-x-4 flex-1 justify-center max-w-2xl mx-4">
             {/* Timer Display */}
             <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1">
               <Timer className="w-4 h-4" />
@@ -174,31 +230,44 @@ export function FocusModeOverlay({
                 Reset
               </Button>
             </div>
+            
+            {/* Auto-save Status */}
+            {autoSaveStatus && (
+              <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1">
+                <div className={`text-xs font-medium ${autoSaveStatus.statusColor}`}>
+                  {autoSaveStatus.statusText}
+                </div>
+              </div>
+            )}
           </div>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowSettings(!showSettings)}
-            className="text-gray-600 hover:text-gray-800"
-          >
-            <Settings className="w-4 h-4" />
-          </Button>
+          {/* Right side - Settings button */}
+          <div className="flex items-center flex-shrink-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowSettings(!showSettings)}
+              className="text-gray-700 hover:text-gray-900 bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30"
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              Configurações
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* Settings Panel */}
       {showSettings && (
-        <div className="absolute top-16 right-4 z-20 w-80 lg:w-96 xl:w-[28rem] 2xl:w-[32rem]">
-          <Card className="bg-white/90 backdrop-blur-sm border-white/30">
+        <div className="absolute top-20 right-4 z-20 w-80 lg:w-96 xl:w-[28rem] 2xl:w-[32rem] animate-in slide-in-from-top-2 duration-200">
+          <Card className="bg-white/95 backdrop-blur-md border-white/50 shadow-2xl">
             <CardContent className="p-4 lg:p-6 xl:p-8 space-y-4 lg:space-y-6">
               <div>
-                <label className="text-sm lg:text-base xl:text-lg font-medium mb-2 lg:mb-3 block">
-                  Ambiente
+                <label className="text-sm lg:text-base xl:text-lg font-semibold mb-2 lg:mb-3 block text-gray-800">
+                  🎨 Ambiente Visual
                 </label>
                 <Select value={environment} onValueChange={setEnvironment}>
-                  <SelectTrigger className="lg:h-12 xl:h-14 lg:text-base xl:text-lg">
-                    <SelectValue />
+                  <SelectTrigger className="lg:h-12 xl:h-14 lg:text-base xl:text-lg border-2 hover:border-gray-400">
+                    <SelectValue placeholder="Selecione um ambiente" />
                   </SelectTrigger>
                   <SelectContent>
                     {FOCUS_ENVIRONMENTS.map((env) => (
@@ -211,12 +280,12 @@ export function FocusModeOverlay({
               </div>
 
               <div>
-                <label className="text-sm lg:text-base xl:text-lg font-medium mb-2 lg:mb-3 block">
-                  Som Ambiente
+                <label className="text-sm lg:text-base xl:text-lg font-semibold mb-2 lg:mb-3 block text-gray-800">
+                  🔊 Som Ambiente
                 </label>
                 <Select value={ambientSound} onValueChange={setAmbientSound}>
-                  <SelectTrigger className="lg:h-12 xl:h-14 lg:text-base xl:text-lg">
-                    <SelectValue />
+                  <SelectTrigger className="lg:h-12 xl:h-14 lg:text-base xl:text-lg border-2 hover:border-gray-400">
+                    <SelectValue placeholder="Selecione um som" />
                   </SelectTrigger>
                   <SelectContent>
                     {AMBIENT_SOUNDS.map((sound) => (
@@ -233,8 +302,8 @@ export function FocusModeOverlay({
 
               {ambientSound !== "none" && (
                 <div>
-                  <label className="text-sm lg:text-base xl:text-lg font-medium mb-2 lg:mb-3 block">
-                    Volume
+                  <label className="text-sm lg:text-base xl:text-lg font-semibold mb-2 lg:mb-3 block text-gray-800">
+                    🔉 Volume ({soundVolume[0]}%)
                   </label>
                   <Slider
                     value={soundVolume}
@@ -247,8 +316,8 @@ export function FocusModeOverlay({
               )}
 
               <div>
-                <label className="text-sm lg:text-base xl:text-lg font-medium mb-2 lg:mb-3 block">
-                  Sessão (minutos)
+                <label className="text-sm lg:text-base xl:text-lg font-semibold mb-2 lg:mb-3 block text-gray-800">
+                  ⏱️ Duração da Sessão
                 </label>
                 <Select
                   value={targetTime.toString()}
@@ -256,8 +325,8 @@ export function FocusModeOverlay({
                     setTargetTime(Number.parseInt(value))
                   }
                 >
-                  <SelectTrigger className="lg:h-12 xl:h-14 lg:text-base xl:text-lg">
-                    <SelectValue />
+                  <SelectTrigger className="lg:h-12 xl:h-14 lg:text-base xl:text-lg border-2 hover:border-gray-400">
+                    <SelectValue placeholder="Selecione a duração" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="15">15 min</SelectItem>
@@ -274,9 +343,9 @@ export function FocusModeOverlay({
       )}
 
       {/* Main Editor Area */}
-      <div className="pt-20 pb-8 px-4 sm:px-8 lg:px-12 xl:px-16 h-full flex items-center justify-center">
-        <div className="w-full max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl h-full">
-          <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-2xl h-full p-4 sm:p-6 lg:p-8 xl:p-10 2xl:p-12 border border-white/30">
+      <div className="pt-20 pb-8 px-2 sm:px-4 lg:px-6 h-full flex items-center justify-center">
+        <div className="w-full max-w-none h-[80vh] min-h-[600px]" style={{width: '90vw'}}>
+          <div className="bg-background/95 backdrop-blur-sm rounded-lg shadow-2xl h-full p-4 sm:p-6 lg:p-8 border border-border/50">
             <TiptapEditor
               content={content}
               onChange={onChange}

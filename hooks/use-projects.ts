@@ -48,6 +48,13 @@ export function useProject(projectId: string, userId: string) {
       return data.project
     },
     enabled: !!projectId && !!userId,
+    // Cache por 10 minutos para reduzir requisições
+    staleTime: 1000 * 60 * 10,
+    // Manter em cache por 30 minutos
+    gcTime: 1000 * 60 * 30,
+    // Não refetch automaticamente
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
     retry: (failureCount, error) => {
       // Não fazer retry se o projeto não foi encontrado ou usuário não carregado
       if (error.message === 'PROJECT_NOT_FOUND' || error.message === 'USER_NOT_LOADED') {
@@ -56,7 +63,7 @@ export function useProject(projectId: string, userId: string) {
       // Fazer retry até 3 vezes para outros erros
       return failureCount < 3
     },
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)
   })
 }
 

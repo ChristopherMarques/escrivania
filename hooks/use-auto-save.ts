@@ -67,11 +67,12 @@ export function useAutoSave(
 
   // Save function with error handling
   const performSave = useCallback(async () => {
-    if (!enabled || state.isSaving || !state.hasUnsavedChanges) {
-      return;
-    }
-
-    setState((prev) => ({ ...prev, isSaving: true, lastError: null }));
+    setState((currentState) => {
+      if (!enabled || currentState.isSaving || !currentState.hasUnsavedChanges) {
+        return currentState;
+      }
+      return { ...currentState, isSaving: true, lastError: null };
+    });
 
     try {
       await saveFunction();
@@ -103,8 +104,6 @@ export function useAutoSave(
     enabled,
     saveFunction,
     showNotifications,
-    state.isSaving,
-    state.hasUnsavedChanges,
     toast,
   ]);
 
@@ -175,12 +174,15 @@ export function useAutoSave(
 
     intervalRef.current = setInterval(() => {
       // Only save if there are changes and enough time has passed since last change
-      if (
-        state.hasUnsavedChanges &&
-        Date.now() - lastChangeTimeRef.current >= debounceDelay
-      ) {
-        performSave();
-      }
+      setState((currentState) => {
+        if (
+          currentState.hasUnsavedChanges &&
+          Date.now() - lastChangeTimeRef.current >= debounceDelay
+        ) {
+          performSave();
+        }
+        return currentState;
+      });
     }, interval);
 
     return () => {
@@ -188,7 +190,7 @@ export function useAutoSave(
         clearInterval(intervalRef.current);
       }
     };
-  }, [enabled, interval, debounceDelay, state.hasUnsavedChanges, performSave]);
+  }, [enabled, interval, debounceDelay, performSave]);
 
   // Cleanup on unmount
   useEffect(() => {

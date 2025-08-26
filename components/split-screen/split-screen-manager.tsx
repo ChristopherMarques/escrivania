@@ -120,11 +120,17 @@ export function SplitScreenManager({ isOpen, onClose, project, currentScene, onS
             <TiptapEditor
               content={item.data.content}
               onChange={(content) => {
-                // Update notes
+                // Update notes with change detection to prevent loops
                 setReferenceItems((prev) =>
-                  prev.map((ref) =>
-                    ref.type === "notes" && ref.id === item.id ? { ...ref, data: { ...ref.data, content } } : ref,
-                  ),
+                  prev.map((ref) => {
+                    if (ref.type === "notes" && ref.id === item.id) {
+                      const currentContent = ref.data?.content;
+                      if (JSON.stringify(content) !== JSON.stringify(currentContent)) {
+                        return { ...ref, data: { ...ref.data, content } };
+                      }
+                    }
+                    return ref;
+                  }),
                 )
               }}
               characters={project.characters}

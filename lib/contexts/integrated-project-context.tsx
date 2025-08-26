@@ -18,7 +18,7 @@ import {
   useCreateScene,
   useDeleteScene,
   useReorderScenes,
-  useScenes,
+  useScenesByProject,
   useUpdateScene,
 } from "@/hooks/use-scenes";
 import {
@@ -101,7 +101,7 @@ export function IntegratedProjectProvider({
   children,
   projectId,
 }: IntegratedProjectProviderProps) {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   
   // Local state with initial values
   const [state, setState] = useState<IntegratedProjectState>({
@@ -110,7 +110,7 @@ export function IntegratedProjectProvider({
     expandedChapters: new Set<string>(),
   });
 
-  // React Query hooks - memoized to prevent unnecessary re-renders
+  // React Query hooks - wait for authentication to complete
   const {
     data: project,
     isLoading: isLoadingProject,
@@ -125,7 +125,9 @@ export function IntegratedProjectProvider({
   const {
     data: scenes = [],
     isLoading: isLoadingScenes,
-  } = useScenes(projectId, user?.id || "");
+  } = useScenesByProject(projectId, user?.id || "");
+
+
 
   const {
     data: characters = [],

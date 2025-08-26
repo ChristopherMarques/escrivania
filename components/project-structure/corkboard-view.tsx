@@ -1,11 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { memo, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Scene, SceneStatus, Chapter } from "@/lib/types";
+import type { Tables } from "@/lib/supabase";
 import { FileText, Plus, Edit3, MoreVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -14,117 +14,95 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 interface CorkboardViewProps {
-  chapters: Chapter[];
+  chapters: Tables<"chapters">[];
+  scenes: Tables<"scenes">[];
   selectedChapterId?: string;
-  onSceneSelect: (scene: Scene) => void;
-  onSceneUpdate: (sceneId: string, updates: Partial<Scene>) => void;
-  onSceneCreate: (chapterId: string) => void;
-  onSceneDelete: (sceneId: string) => void;
+  onSceneSelect: (sceneId: string) => void;
+  onSceneUpdate: (sceneId: string, updates: Partial<Tables<"scenes">>) => Promise<void>;
+  onSceneCreate: (chapterId: string, title: string) => Promise<void>;
+  onSceneDelete: (sceneId: string) => Promise<void>;
   className?: string;
 }
 
-const sceneStatusConfig: Record<SceneStatus, { label: string; color: string; bgColor: string }> = {
-  'draft': { 
-    label: 'Rascunho', 
-    color: 'text-gray-700 dark:text-gray-300', 
-    bgColor: 'bg-gray-100 dark:bg-gray-800' 
-  },
-  'in-progress': { 
-    label: 'Em Progresso', 
-    color: 'text-yellow-700 dark:text-yellow-300', 
-    bgColor: 'bg-yellow-50 dark:bg-yellow-900/20' 
-  },
-  'completed': { 
-    label: 'Concluído', 
-    color: 'text-green-700 dark:text-green-300', 
-    bgColor: 'bg-green-50 dark:bg-green-900/20' 
-  },
-  'needs-revision': { 
-    label: 'Precisa Revisão', 
-    color: 'text-red-700 dark:text-red-300', 
-    bgColor: 'bg-red-50 dark:bg-red-900/20' 
-  },
-};
-
 interface SceneCardProps {
-  scene: Scene;
-  onSelect: () => void;
-  onUpdate: (updates: Partial<Scene>) => void;
-  onDelete: () => void;
+  scene: Tables<"scenes">;
+  onSelect: (sceneId: string) => void;
+  onUpdate: (sceneId: string, updates: Partial<Tables<"scenes">>) => Promise<void>;
+  onDelete: (sceneId: string) => Promise<void>;
 }
 
-function SceneCard({ scene, onSelect, onUpdate, onDelete }: SceneCardProps) {
-  const [isEditing, setIsEditing] = React.useState(false);
-  const [localSynopsis, setLocalSynopsis] = React.useState(scene.synopsis || '');
-  const statusConfig = sceneStatusConfig[scene.status];
+const SceneCard = memo(function SceneCard({ scene, onSelect, onUpdate, onDelete }: SceneCardProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [title, setTitle] = useState(scene.title || "");
 
-  const handleSynopsisSubmit = () => {
-    onUpdate({ synopsis: localSynopsis });
+  const handleSave = async () => {
+    await onUpdate(scene.id, { title });
     setIsEditing(false);
   };
 
-  const handleSynopsisCancel = () => {
-    setLocalSynopsis(scene.synopsis || '');
+  const handleCancel = () => {
+    setTitle(scene.title || "");
     setIsEditing(false);
   };
+
+  const contentLength = scene.content ? scene.content.length : 0;
+  const wordCount = Math.ceil(contentLength / 5); // Estimativa simples
 
   return (
     <Card 
-      className={cn(
-        "w-64 h-48 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105",
-        "border-2 border-dashed border-gray-300 dark:border-gray-600",
-        statusConfig.bgColor
-      )}
-      onClick={onSelect}
+      className="w-64 h-80 cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-blue-300"
+      onClick={() => !isEditing && onSelect(scene.id)}
     >
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-sm truncate text-gray-900 dark:text-gray-100">
-              {scene.title || 'Cena sem título'}
-            </h3>
+            {isEditing ? (
+              <input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="font-semibold text-sm w-full border-none outline-none bg-transparent"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSave();
+                  if (e.key === 'Escape') handleCancel();
+                }}
+              />
+            ) : (
+              <h3 className="font-semibold text-sm truncate" title={scene.title}>
+                {scene.title}
+              </h3>
+            )}
             <div className="flex items-center gap-2 mt-1">
-              <Badge 
-                variant="secondary" 
-                className={cn("text-xs", statusConfig.color)}
-              >
-                {statusConfig.label}
+              <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800">
+                Cena
               </Badge>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {scene.wordCount || 0} palavras
+              <span className="text-xs text-gray-500">
+                {wordCount} palavras
               </span>
             </div>
           </div>
           
           <DropdownMenu>
-            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-6 w-6 p-0"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <MoreVertical className="h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={(e) => {
-                e.stopPropagation();
-                setIsEditing(true);
-              }}>
+              <DropdownMenuItem onClick={() => setIsEditing(true)}>
                 <Edit3 className="h-3 w-3 mr-2" />
-                Editar Sinopse
+                Editar Título
               </DropdownMenuItem>
               <DropdownMenuItem 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete();
-                }}
-                className="text-red-600 dark:text-red-400"
+                onClick={() => onDelete(scene.id)}
+                className="text-red-600"
               >
                 Excluir
               </DropdownMenuItem>
@@ -133,55 +111,34 @@ function SceneCard({ scene, onSelect, onUpdate, onDelete }: SceneCardProps) {
         </div>
       </CardHeader>
       
-      <CardContent className="pt-0">
+      <CardContent className="pt-0 h-48 flex flex-col">
         {isEditing ? (
-          <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
-            <Textarea
-              value={localSynopsis}
-              onChange={(e) => setLocalSynopsis(e.target.value)}
-              placeholder="Sinopse da cena..."
-              className="text-xs resize-none"
-              rows={3}
-            />
-            <div className="flex gap-1">
-              <Button size="sm" onClick={handleSynopsisSubmit} className="h-6 text-xs">
-                Salvar
-              </Button>
-              <Button size="sm" variant="outline" onClick={handleSynopsisCancel} className="h-6 text-xs">
-                Cancelar
-              </Button>
-            </div>
+          <div className="flex gap-1 mt-2">
+            <Button size="sm" onClick={handleSave} className="h-6 text-xs px-2">
+              Salvar
+            </Button>
+            <Button size="sm" variant="outline" onClick={handleCancel} className="h-6 text-xs px-2">
+              Cancelar
+            </Button>
           </div>
         ) : (
-          <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-4">
-            {scene.synopsis || 'Clique para adicionar uma sinopse...'}
+          <div className="flex-1 overflow-hidden">
+            <p className="text-xs text-gray-600 line-clamp-6">
+              {scene.content ? 
+                `${scene.content.substring(0, 200)}...` : 
+                "Clique para começar a escrever..."
+              }
+            </p>
           </div>
         )}
       </CardContent>
     </Card>
   );
-}
+});
 
-interface AddSceneCardProps {
-  onAdd: () => void;
-}
-
-function AddSceneCard({ onAdd }: AddSceneCardProps) {
-  return (
-    <Card 
-      className="w-64 h-48 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50"
-      onClick={onAdd}
-    >
-      <CardContent className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
-        <Plus className="h-8 w-8 mb-2" />
-        <span className="text-sm font-medium">Nova Cena</span>
-      </CardContent>
-    </Card>
-  );
-}
-
-export function CorkboardView({
+export const CorkboardView = memo(function CorkboardView({
   chapters,
+  scenes,
   selectedChapterId,
   onSceneSelect,
   onSceneUpdate,
@@ -190,7 +147,11 @@ export function CorkboardView({
   className,
 }: CorkboardViewProps) {
   const selectedChapter = chapters.find(ch => ch.id === selectedChapterId);
-  const scenes = selectedChapter?.scenes || [];
+  const chapterScenes = useMemo(() => 
+    scenes.filter(scene => scene.chapter_id === selectedChapterId)
+      .sort((a, b) => a.order_index - b.order_index),
+    [scenes, selectedChapterId]
+  );
 
   if (!selectedChapterId) {
     return (
@@ -199,7 +160,8 @@ export function CorkboardView({
           <div className="text-center">
             <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p className="text-sm">
-              Selecione um capítulo para ver\nas cenas no quadro de cortiça
+              Selecione um capítulo para ver
+              <br />as cenas no quadro de cortiça
             </p>
           </div>
         </div>
@@ -216,11 +178,11 @@ export function CorkboardView({
             Quadro de Cortiça
           </h2>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            {selectedChapter?.title || 'Capítulo'} • {scenes.length} cenas
+            {selectedChapter?.title || 'Capítulo'} • {chapterScenes.length} cenas
           </p>
         </div>
         <Button
-          onClick={() => onSceneCreate(selectedChapterId)}
+          onClick={() => onSceneCreate(selectedChapterId, "Nova Cena")}
           size="sm"
           className="gap-2"
         >
@@ -231,50 +193,37 @@ export function CorkboardView({
 
       {/* Corkboard Grid */}
       <div className="flex-1 overflow-auto p-6">
-        <div className="grid grid-cols-auto-fit-64 gap-6 justify-center">
-          {scenes.map((scene) => (
-            <SceneCard
-              key={scene.id}
-              scene={scene}
-              onSelect={() => onSceneSelect(scene)}
-              onUpdate={(updates) => onSceneUpdate(scene.id, updates)}
-              onDelete={() => onSceneDelete(scene.id)}
-            />
-          ))}
-          
-          <AddSceneCard onAdd={() => onSceneCreate(selectedChapterId)} />
-        </div>
-        
-        {scenes.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400">
-            <FileText className="h-12 w-12 mb-4 opacity-50" />
-            <p className="text-sm text-center">
-              Este capítulo ainda não tem cenas.\nClique em "Nova Cena" para começar.
-            </p>
+        {chapterScenes.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-gray-500">
+            <div className="text-center">
+              <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p className="text-sm mb-4">
+                Nenhuma cena neste capítulo ainda.
+              </p>
+              <Button
+                onClick={() => onSceneCreate(selectedChapterId, "Nova Cena")}
+                size="sm"
+                className="gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Criar Primeira Cena
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-auto-fit-64 gap-6 justify-center">
+            {chapterScenes.map((scene) => (
+              <SceneCard
+                key={scene.id}
+                scene={scene}
+                onSelect={onSceneSelect}
+                onUpdate={onSceneUpdate}
+                onDelete={onSceneDelete}
+              />
+            ))}
           </div>
         )}
       </div>
     </div>
   );
-}
-
-// CSS personalizado para o grid responsivo
-const corkboardStyles = `
-.grid-cols-auto-fit-64 {
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-}
-
-.line-clamp-4 {
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-`;
-
-// Inject styles
-if (typeof document !== 'undefined') {
-  const styleElement = document.createElement('style');
-  styleElement.textContent = corkboardStyles;
-  document.head.appendChild(styleElement);
-}
+});

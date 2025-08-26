@@ -1,6 +1,6 @@
+import type { Command } from '@tiptap/core';
 import { Extension } from '@tiptap/core';
-import { Plugin, PluginKey } from '@tiptap/pm/state';
-import { NodeSelection } from '@tiptap/pm/state';
+import { NodeSelection, Plugin, PluginKey, TextSelection } from '@tiptap/pm/state';
 
 export interface ImageTextFlowOptions {
   /**
@@ -91,7 +91,7 @@ export const ImageTextFlow = Extension.create<ImageTextFlowOptions>({
                 }
 
                 const newSelection = state.tr.setSelection(
-                  state.selection.constructor.near(state.doc.resolve(newPos))
+                  TextSelection.near(state.doc.resolve(newPos))
                 );
                 dispatch(newSelection);
                 return true;
@@ -107,7 +107,7 @@ export const ImageTextFlow = Extension.create<ImageTextFlowOptions>({
                 // Inserir parágrafo depois da imagem
                 const tr = state.tr.insert(pos + selection.node.nodeSize, newParagraph);
                 const newPos = pos + selection.node.nodeSize + 1;
-                tr.setSelection(state.selection.constructor.near(tr.doc.resolve(newPos)));
+                tr.setSelection(TextSelection.near(tr.doc.resolve(newPos)));
                 dispatch(tr);
                 return true;
               }
@@ -123,72 +123,68 @@ export const ImageTextFlow = Extension.create<ImageTextFlowOptions>({
           },
         },
         
-        // Plugin para garantir parágrafos ao redor de imagens
-        appendTransaction: (transactions, oldState, newState) => {
-          if (!this.options.autoAddParagraphs) return null;
+        // Plugin para garantir parágrafos ao redor de imagens - DESABILITADO para evitar inserção automática
+        // appendTransaction: (transactions, oldState, newState) => {
+        //   if (!this.options.autoAddParagraphs) return null;
 
-          let tr = null;
-          let modified = false;
+        //   let tr = null;
+        //   let modified = false;
 
-          newState.doc.descendants((node, pos) => {
-            if (node.type === newState.schema.nodes.image) {
-              const $pos = newState.doc.resolve(pos);
+        //   newState.doc.descendants((node, pos) => {
+        //     if (node.type === newState.schema.nodes.image) {
+        //       const $pos = newState.doc.resolve(pos);
               
-              // Verificar se há parágrafo antes da imagem
-              if (pos === 0 || !$pos.nodeBefore || $pos.nodeBefore.type !== newState.schema.nodes.paragraph) {
-                if (!tr) tr = newState.tr;
-                tr.insert(pos, newState.schema.nodes.paragraph.create());
-                modified = true;
-              }
+        //       // Verificar se há parágrafo antes da imagem
+        //       if (pos === 0 || !$pos.nodeBefore || $pos.nodeBefore.type !== newState.schema.nodes.paragraph) {
+        //         if (!tr) tr = newState.tr;
+        //         tr.insert(pos, newState.schema.nodes.paragraph.create());
+        //         modified = true;
+        //       }
               
-              // Verificar se há parágrafo depois da imagem
-              const afterPos = pos + node.nodeSize;
-              const $afterPos = newState.doc.resolve(afterPos);
-              if (afterPos === newState.doc.content.size || !$afterPos.nodeAfter || $afterPos.nodeAfter.type !== newState.schema.nodes.paragraph) {
-                if (!tr) tr = newState.tr;
-                tr.insert(afterPos, newState.schema.nodes.paragraph.create());
-                modified = true;
-              }
-            }
-          });
+        //       // Verificar se há parágrafo depois da imagem
+        //       const afterPos = pos + node.nodeSize;
+        //       const $afterPos = newState.doc.resolve(afterPos);
+        //       if (afterPos === newState.doc.content.size || !$afterPos.nodeAfter || $afterPos.nodeAfter.type !== newState.schema.nodes.paragraph) {
+        //         if (!tr) tr = newState.tr;
+        //         tr.insert(afterPos, newState.schema.nodes.paragraph.create());
+        //         modified = true;
+        //       }
+        //     }
+        //   });
 
-          return modified ? tr : null;
-        },
+        //   return modified ? tr : null;
+        // },
       }),
     ];
   },
 
   addCommands() {
     return {
-      insertParagraphBeforeImage:
-        () =>
-        ({ state, dispatch }) => {
-          const { selection } = state;
-          
-          if (selection instanceof NodeSelection && selection.node.type === state.schema.nodes.image) {
-            const pos = selection.from;
-            const tr = state.tr.insert(pos, state.schema.nodes.paragraph.create());
-            if (dispatch) dispatch(tr);
-            return true;
-          }
-          
-          return false;
-        },
+      insertParagraphBeforeImage: (): Command => ({ state, dispatch }) => {
+        const { selection } = state;
+        
+        if (selection instanceof NodeSelection && selection.node.type === state.schema.nodes.image) {
+          const pos = selection.from;
+          const tr = state.tr.insert(pos, state.schema.nodes.paragraph.create());
+          if (dispatch) dispatch(tr);
+          return true;
+        }
+        
+        return false;
+      },
 
-      insertParagraphAfterImage:
-        () =>
-        ({ state, dispatch }) => {
-          const { selection } = state;
-          
-          if (selection instanceof NodeSelection && selection.node.type === state.schema.nodes.image) {
-            const pos = selection.from + selection.node.nodeSize;
-            const tr = state.tr.insert(pos, state.schema.nodes.paragraph.create());
-            if (dispatch) dispatch(tr);
-            return true;
-          }
-          
-          return false;
-        },
+      insertParagraphAfterImage: (): Command => ({ state, dispatch }) => {
+        const { selection } = state;
+        
+        if (selection instanceof NodeSelection && selection.node.type === state.schema.nodes.image) {
+          const pos = selection.from + selection.node.nodeSize;
+          const tr = state.tr.insert(pos, state.schema.nodes.paragraph.create());
+          if (dispatch) dispatch(tr);
+          return true;
+        }
+        
+        return false;
+      },
     };
   },
 });

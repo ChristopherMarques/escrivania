@@ -32,10 +32,10 @@ export const SmartDeletion = Extension.create<SmartDeletionOptions>({
 
   addOptions() {
     return {
-      enableSmartBackspace: true,
-      enableSmartDelete: true,
-      enableSmartMerge: true,
-      enableImageDeletion: true,
+      enableSmartBackspace: false, // Desabilitado para evitar comportamentos automáticos
+      enableSmartDelete: false, // Desabilitado para evitar comportamentos automáticos
+      enableSmartMerge: false, // Desabilitado para evitar mesclagem automática
+      enableImageDeletion: true, // Mantido apenas para deletar imagens
     };
   },
 
@@ -252,7 +252,7 @@ export const SmartDeletion = Extension.create<SmartDeletionOptions>({
     return {
       deleteCurrentNode:
         () =>
-        ({ state, dispatch }) => {
+        ({ state, dispatch }: any) => {
           const { selection } = state;
 
           if (selection instanceof NodeSelection) {
@@ -268,7 +268,7 @@ export const SmartDeletion = Extension.create<SmartDeletionOptions>({
 
       smartBackspace:
         () =>
-        ({ state, dispatch, view }) => {
+        ({ state, dispatch, view }: any) => {
           const { selection } = state;
           const { $from } = selection;
 
@@ -292,7 +292,7 @@ export const SmartDeletion = Extension.create<SmartDeletionOptions>({
 
       smartDelete:
         () =>
-        ({ state, dispatch }) => {
+        ({ state, dispatch }: any) => {
           const { selection } = state;
           const { $from } = selection;
 

@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import type { Project } from '@/contexts/ProjectContext'
 import { cn } from '@/lib/utils'
 import { CreateProjectForm } from '@/components/forms/CreateProjectForm'
+import { useRouter } from 'next/navigation'
 
 interface ProjectDashboardProps {
   className?: string
@@ -18,6 +19,7 @@ interface ProjectDashboardProps {
 export function ProjectDashboard({ className }: ProjectDashboardProps) {
   const { state, setCurrentProject } = useProject()
   const { user, loading: authLoading } = useAuth()
+  const router = useRouter()
   const [showCreateForm, setShowCreateForm] = useState(false)
 
   const handleCreateProject = () => {
@@ -31,6 +33,7 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
   const handleSelectProject = (project: Project) => {
     setCurrentProject(project)
     console.log('Projeto selecionado:', project.title)
+    router.push(`/project/${project.id}`)
   }
 
   const getProjectStats = (projectId: string) => {

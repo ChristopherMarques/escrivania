@@ -1,8 +1,8 @@
 "use client";
 
 import { useEditor } from "@tiptap/react";
-import * as React from "react";
 import { debounce } from "lodash";
+import * as React from "react";
 const { useCallback, useMemo, useEffect, memo } = React;
 
 // --- Tiptap Core Extensions ---
@@ -25,13 +25,13 @@ import { StarterKit } from "@tiptap/starter-kit";
 import { Blockquote } from "@tiptap/extension-blockquote";
 import DropCursor from "@tiptap/extension-dropcursor";
 import { Focus } from "@tiptap/extension-focus";
-import { Gapcursor } from "@tiptap/extension-gapcursor";
-import { HardBreak } from "@tiptap/extension-hard-break";
-import { Mention } from "@tiptap/extension-mention";
-import { Color, TextStyle } from "@tiptap/extension-text-style";
 import { FontFamily } from "@tiptap/extension-font-family";
 import { FontSize } from "@tiptap/extension-font-size";
+import { Gapcursor } from "@tiptap/extension-gapcursor";
+import { HardBreak } from "@tiptap/extension-hard-break";
 import { Highlight } from "@tiptap/extension-highlight";
+import { Mention } from "@tiptap/extension-mention";
+import { Color, TextStyle } from "@tiptap/extension-text-style";
 // History extension removed - using StarterKit's built-in history
 
 // --- Tiptap Node ---
@@ -41,8 +41,8 @@ import { ImageUploadNode } from "@/components/tiptap-node/image-upload-node/imag
 // --- Custom Extensions ---
 import { EnhancedEnter } from "@/lib/extensions/enhanced-enter";
 import { ImageTextFlow } from "@/lib/extensions/image-text-flow";
-import { SmartDeletion } from "@/lib/extensions/smart-deletion";
 import { PageFormat } from "@/lib/extensions/page-format";
+import { SmartDeletion } from "@/lib/extensions/smart-deletion";
 
 // --- Utils ---
 import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils";
@@ -138,7 +138,7 @@ export const TiptapEditor = memo(function TiptapEditor({
   const debouncedOnChange = useMemo(
     () => debounce((content: any) => {
       onChange?.(content);
-    }, 150),
+    }, 300), // Increased debounce time for better performance
     [onChange]
   );
 
@@ -155,6 +155,131 @@ export const TiptapEditor = memo(function TiptapEditor({
   const [writingGoal, setWritingGoal] = React.useState(500); // Meta de palavras
   const [sessionStartTime] = React.useState(Date.now());
   const [sessionWordCount, setSessionWordCount] = React.useState(0);
+
+  // Memoize extensions for better performance
+  const extensions = useMemo(() => [
+    StarterKit.configure({
+      horizontalRule: false,
+      blockquote: false,
+      hardBreak: false,
+      paragraph: {
+        HTMLAttributes: {
+          class: 'tiptap-paragraph',
+        },
+      },
+      bulletList: {
+        keepMarks: true,
+        keepAttributes: false,
+      },
+      orderedList: {
+        keepMarks: true,
+        keepAttributes: false,
+      },
+      gapcursor: false,
+    }),
+    HorizontalRule,
+    TextAlign.configure({ types: ["heading", "paragraph"] }),
+    TaskList,
+    TaskItem.configure({ nested: true }),
+    Highlight.configure({
+      multicolor: true,
+      HTMLAttributes: {
+        class: "highlight",
+      },
+    }),
+    Image.configure({
+      inline: false,
+      allowBase64: true,
+      HTMLAttributes: {
+        class: 'tiptap-image',
+      },
+    }),
+    Typography,
+    Superscript,
+    Subscript,
+    Selection,
+    Color,
+    TextStyle,
+    FontFamily.configure({
+      types: ['textStyle'],
+    }),
+    FontSize.configure({
+      types: ['textStyle'],
+    }),
+    CharacterCount,
+    Placeholder.configure({
+      placeholder,
+      emptyEditorClass: "is-editor-empty",
+    }),
+    Underline,
+    ImageUploadNode.configure({
+      accept: "image/*",
+      maxSize: MAX_FILE_SIZE,
+      limit: 3,
+      upload: handleImageUpload,
+      onError: (error) => console.error("Upload failed:", error),
+    }),
+    Blockquote.configure({
+      HTMLAttributes: {
+        class: "border-l-4 border-border pl-4 italic text-muted-foreground",
+      },
+    }),
+    HardBreak.configure({
+      keepMarks: false,
+      HTMLAttributes: {
+        class: 'tiptap-hard-break',
+      },
+    }),
+    Mention.configure({
+      HTMLAttributes: {
+        class:
+          "mention bg-escrivania-blue-100 text-escrivania-blue-800 px-2 py-1 rounded-full text-sm",
+      },
+      suggestion: {
+        items: ({ query }) => {
+          return [
+            "Protagonist",
+            "Antagonist",
+            "Supporting Character",
+            "Love Interest",
+            "Mentor",
+            "Sidekick",
+          ]
+            .filter((item) =>
+              item.toLowerCase().startsWith(query.toLowerCase())
+            )
+            .slice(0, 5);
+        },
+      },
+    }),
+    DropCursor.configure({
+      color: "oklch(0.75 0.15 200)",
+      width: 2,
+    }),
+    Gapcursor,
+    Focus.configure({
+      className: "has-focus",
+      mode: "all",
+    }),
+    EnhancedEnter.configure({
+      createNewParagraph: false,
+      allowEmptyParagraphs: false,
+      trimEmptyParagraphs: false,
+    }),
+    ImageTextFlow.configure({
+      autoAddParagraphs: false,
+      enableArrowNavigation: false,
+      enableEnterNavigation: false,
+    }),
+    SmartDeletion.configure({
+      enableSmartBackspace: false,
+      enableSmartDelete: false,
+      enableSmartMerge: false,
+      enableImageDeletion: true,
+    }),
+    MentionExtension,
+    PageFormat,
+  ], [placeholder]);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -201,144 +326,19 @@ export const TiptapEditor = memo(function TiptapEditor({
     enableInputRules: true,
     enablePasteRules: true,
     injectCSS: false, // We handle CSS ourselves
-    extensions: [
-      StarterKit.configure({
-        horizontalRule: false,
-        blockquote: false, // Disabled to use custom Blockquote extension
-        hardBreak: false, // Disabled to use custom HardBreak extension
-        paragraph: {
-          HTMLAttributes: {
-            class: 'tiptap-paragraph',
-          },
-        },
-        // history is enabled by default in StarterKit
-        bulletList: {
-          keepMarks: true,
-          keepAttributes: false,
-        },
-        orderedList: {
-          keepMarks: true,
-          keepAttributes: false,
-        },
-        gapcursor: false, // Using separate Gapcursor extension for better control
-      }),
-      // Core Extensions
-      HorizontalRule,
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
-      TaskList,
-      TaskItem.configure({ nested: true }),
-      Highlight.configure({
-        multicolor: true,
-        HTMLAttributes: {
-          class: "highlight",
-        },
-      }),
-      Image.configure({
-        inline: false,
-        allowBase64: true,
-        HTMLAttributes: {
-          class: 'tiptap-image',
-        },
-      }),
-      Typography,
-      Superscript,
-      Subscript,
-      Selection,
-      Color,
-      TextStyle,
-      FontFamily.configure({
-        types: ['textStyle'],
-      }),
-      FontSize.configure({
-        types: ['textStyle'],
-      }),
-      CharacterCount,
-      Placeholder.configure({
-        placeholder,
-        emptyEditorClass: "is-editor-empty",
-      }),
-      Underline,
-      ImageUploadNode.configure({
-        accept: "image/*",
-        maxSize: MAX_FILE_SIZE,
-        limit: 3,
-        upload: handleImageUpload,
-        onError: (error) => console.error("Upload failed:", error),
-      }),
-      // New Extensions - Nodes
-      Blockquote.configure({
-        HTMLAttributes: {
-          class: "border-l-4 border-border pl-4 italic text-muted-foreground",
-        },
-      }),
-      HardBreak.configure({
-        keepMarks: false,
-        HTMLAttributes: {
-          class: 'tiptap-hard-break',
-        },
-      }),
-      Mention.configure({
-        HTMLAttributes: {
-          class:
-            "mention bg-escrivania-blue-100 text-escrivania-blue-800 px-2 py-1 rounded-full text-sm",
-        },
-        suggestion: {
-          items: ({ query }) => {
-            return [
-              "Protagonist",
-              "Antagonist",
-              "Supporting Character",
-              "Love Interest",
-              "Mentor",
-              "Sidekick",
-            ]
-              .filter((item) =>
-                item.toLowerCase().startsWith(query.toLowerCase())
-              )
-              .slice(0, 5);
-          },
-        },
-      }),
-
-      // New Extensions - Functionality
-      DropCursor.configure({
-        color: "oklch(0.75 0.15 200)", // Usando a cor azul do projeto
-        width: 2,
-      }),
-      Gapcursor,
-      Focus.configure({
-        className: "has-focus",
-        mode: "all",
-      }),
-      // History extension removed - using StarterKit's built-in history
-      // Text Style Extensions - removed TextStyleKit, using individual extensions
-      // Custom Extensions
-      EnhancedEnter.configure({
-        createNewParagraph: true,
-        allowEmptyParagraphs: true,
-        trimEmptyParagraphs: true,
-      }),
-      ImageTextFlow.configure({
-        autoAddParagraphs: true,
-        enableArrowNavigation: true,
-        enableEnterNavigation: true,
-      }),
-      SmartDeletion.configure({
-        enableSmartBackspace: true,
-        enableSmartDelete: true,
-        enableSmartMerge: true,
-        enableImageDeletion: true,
-      }),
-      MentionExtension,
-      // Page Format Extension
-      PageFormat,
-    ],
-    content,
-    onUpdate: ({ editor }) => {
+    extensions,
+    content: content && typeof content === 'object' && content.type ? content : {
+      type: 'doc',
+      content: [{
+        type: 'paragraph',
+        content: []
+      }]
+    },
+    onUpdate: useCallback(({ editor }: { editor: any }) => {
       const json = editor.getJSON();
       debouncedOnChange(json);
 
-      // Update counts
+      // Update counts with throttling for better performance
       const stats = editor.storage.characterCount;
       const words = stats.words();
       const characters = stats.characters();
@@ -353,16 +353,47 @@ export const TiptapEditor = memo(function TiptapEditor({
       const text = editor.getText();
       const paragraphs = text
         .split("\n\n")
-        .filter((p) => p.trim().length > 0).length;
+        .filter((p: string) => p.trim().length > 0).length;
       setParagraphCount(paragraphs);
-    },
+    }, [debouncedOnChange]),
   });
 
+  // Prevent infinite loops by tracking content updates
+  const [isUpdatingContent, setIsUpdatingContent] = React.useState(false);
+  
+  // Sync content with editor when content prop changes
   React.useEffect(() => {
-    if (editor && content !== editor.getJSON()) {
-      editor.commands.setContent(content);
+    if (editor && content !== undefined && !isUpdatingContent && !editor.isFocused) {
+      const currentContent = editor.getJSON();
+      
+      // Extract text for comparison to avoid JSON stringify issues
+      const extractText = (contentObj: any): string => {
+        if (!contentObj || !Array.isArray(contentObj.content)) return '';
+        return contentObj.content.map((node: any) => {
+          if (node.type === 'text') return node.text || '';
+          if (node.content) return extractText(node);
+          return '';
+        }).join('');
+      };
+      
+      const currentText = extractText(currentContent);
+      const newText = extractText(content);
+      
+      // Only update if text content is actually different
+      if (currentText !== newText) {
+        setIsUpdatingContent(true);
+        
+        // Use requestAnimationFrame for better performance
+        requestAnimationFrame(() => {
+          if (editor && !editor.isDestroyed) {
+            editor.commands.setContent(content);
+          }
+          // Reset flag after a short delay
+          setTimeout(() => setIsUpdatingContent(false), 100);
+        });
+      }
     }
-  }, [content, editor]);
+  }, [editor, content, isUpdatingContent]);
 
   // Calculate writing session stats
   const sessionDuration = Math.floor((Date.now() - sessionStartTime) / 60000); // minutes
@@ -390,11 +421,7 @@ export const TiptapEditor = memo(function TiptapEditor({
     [editor]
   );
 
-  if (!editor) {
-    return null;
-  }
-
-  // Memoize responsive calculations
+  // Memoize responsive calculations - moved before conditional return
   const minHeight = useMemo(() => {
     if (deviceInfo.isMobile) return "min-h-[400px]";
     if (deviceInfo.isTablet) return "min-h-[500px]";
@@ -416,10 +443,14 @@ export const TiptapEditor = memo(function TiptapEditor({
     return true; // Show stats on notebook, macbook and desktop
   }, [readOnly, deviceInfo.isMobile, deviceInfo.isTablet]);
 
+  if (!editor) {
+    return null;
+  }
+
   return (
     <div
       className={cn(
-        "flex flex-col w-full h-full max-h-screen",
+        "flex flex-col w-full h-full",
         minHeight,
         "bg-background rounded-lg dark:bg-gray-900",
         "overflow-hidden",
@@ -446,7 +477,7 @@ export const TiptapEditor = memo(function TiptapEditor({
       {/* Editor Content */}
       <div
         className={cn(
-          "flex-1 overflow-hidden",
+          "flex-1 overflow-hidden h-full",
           deviceInfo.isMobile && "p-2",
           deviceInfo.isTablet && "p-3",
           deviceInfo.isMacbook && "p-4", // Padding otimizado para MacBook Pro M1
