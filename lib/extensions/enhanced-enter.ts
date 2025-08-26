@@ -1,6 +1,6 @@
-import { Extension } from '@tiptap/core';
-import { Plugin, PluginKey } from '@tiptap/pm/state';
-import { Fragment, Slice } from '@tiptap/pm/model';
+import { Extension } from "@tiptap/core";
+import { Plugin, PluginKey } from "@tiptap/pm/state";
+// Fragment and Slice imports removed as they are not used
 
 export interface EnhancedEnterOptions {
   /**
@@ -23,7 +23,7 @@ export interface EnhancedEnterOptions {
 }
 
 export const EnhancedEnter = Extension.create<EnhancedEnterOptions>({
-  name: 'enhancedEnter',
+  name: "enhancedEnter",
 
   addOptions() {
     return {
@@ -36,16 +36,16 @@ export const EnhancedEnter = Extension.create<EnhancedEnterOptions>({
   addProseMirrorPlugins() {
     return [
       new Plugin({
-        key: new PluginKey('enhancedEnter'),
+        key: new PluginKey("enhancedEnter"),
         props: {
           handleKeyDown: (view, event) => {
-            if (event.key !== 'Enter') {
+            if (event.key !== "Enter") {
               return false;
             }
 
             const { state, dispatch } = view;
             const { selection, schema } = state;
-            const { $from, $to, empty } = selection;
+            const { $from, empty } = selection;
 
             // Se há seleção, deletar primeiro
             if (!empty) {
@@ -57,7 +57,9 @@ export const EnhancedEnter = Extension.create<EnhancedEnterOptions>({
             // Shift+Enter para quebra de linha forçada
             if (event.shiftKey) {
               if (schema.nodes.hardBreak) {
-                const tr = state.tr.replaceSelectionWith(schema.nodes.hardBreak.create());
+                const tr = state.tr.replaceSelectionWith(
+                  schema.nodes.hardBreak.create()
+                );
                 dispatch(tr);
                 return true;
               }
@@ -71,19 +73,22 @@ export const EnhancedEnter = Extension.create<EnhancedEnterOptions>({
             // Se estamos em um parágrafo
             if (nodeType === schema.nodes.paragraph) {
               const isAtEnd = $from.parentOffset === node.content.size;
-              const isAtStart = $from.parentOffset === 0;
               const isEmpty = node.content.size === 0;
 
               // Se o parágrafo está vazio, criar um novo parágrafo
               if (isEmpty && this.options.createNewParagraph) {
-                const tr = state.tr.replaceSelectionWith(schema.nodes.paragraph.create());
+                const tr = state.tr.replaceSelectionWith(
+                  schema.nodes.paragraph.create()
+                );
                 dispatch(tr);
                 return true;
               }
 
               // Se estamos no final do parágrafo, criar um novo
               if (isAtEnd && this.options.createNewParagraph) {
-                const tr = state.tr.replaceSelectionWith(schema.nodes.paragraph.create());
+                const tr = state.tr.replaceSelectionWith(
+                  schema.nodes.paragraph.create()
+                );
                 dispatch(tr);
                 return true;
               }
@@ -109,13 +114,13 @@ export const EnhancedEnter = Extension.create<EnhancedEnterOptions>({
       insertParagraph:
         () =>
         ({ commands }) => {
-          return commands.insertContent({ type: 'paragraph' });
+          return commands.insertContent({ type: "paragraph" });
         },
-      
+
       insertHardBreak:
         () =>
         ({ commands }) => {
-          return commands.insertContent({ type: 'hardBreak' });
+          return commands.insertContent({ type: "hardBreak" });
         },
 
       splitParagraph:

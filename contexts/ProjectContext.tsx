@@ -683,7 +683,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
       // Load scenes - get scenes for all chapters of this project
       let scenes: Scene[] = [];
       if (chapters && chapters.length > 0) {
-        const chapterIds = chapters.map(chapter => chapter.id);
+        const chapterIds = chapters.map((chapter) => chapter.id);
         const { data: scenesData, error: scenesError } = await getClient()
           .from("scenes")
           .select("*")
@@ -785,7 +785,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
           // Load scenes - get scenes for all chapters of this project
           let scenes: Scene[] = [];
           if (chapters && chapters.length > 0) {
-            const chapterIds = chapters.map(chapter => chapter.id);
+            const chapterIds = chapters.map((chapter) => chapter.id);
             const { data: scenesData, error: scenesError } = await getClient()
               .from("scenes")
               .select("*")

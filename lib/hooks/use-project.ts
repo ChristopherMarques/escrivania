@@ -1,10 +1,10 @@
-import { useActiveProject } from "../contexts/active-project-context"
+import { useActiveProject } from "../contexts/active-project-context";
 
 export function useProject() {
-  const context = useActiveProject()
+  const context = useActiveProject();
 
   if (!context) {
-    throw new Error("useProject must be used within an ActiveProjectProvider")
+    throw new Error("useProject must be used within an ActiveProjectProvider");
   }
 
   return {
@@ -41,5 +41,5 @@ export function useProject() {
       setSelectedItem: context.setSelectedItem,
       toggleChapter: context.toggleChapter,
     },
-  }
+  };
 }

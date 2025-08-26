@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import * as z from 'zod'
-import { Button } from '@/components/ui/button'
+import React, { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -21,71 +21,78 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { useProject } from '@/contexts/ProjectContext'
-import { useAuth } from '@/contexts/AuthContext'
-import { Loader2 } from 'lucide-react'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useProject } from "@/contexts/ProjectContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { Loader2 } from "lucide-react";
 
 const projectSchema = z.object({
-  title: z.string().min(1, 'Título é obrigatório').max(255, 'Título muito longo'),
-  description: z.string().max(1000, 'Descrição muito longa').optional(),
-})
+  title: z
+    .string()
+    .min(1, "Título é obrigatório")
+    .max(255, "Título muito longo"),
+  description: z.string().max(1000, "Descrição muito longa").optional(),
+});
 
-type ProjectFormData = z.infer<typeof projectSchema>
+type ProjectFormData = z.infer<typeof projectSchema>;
 
 interface CreateProjectFormProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSuccess?: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
-export function CreateProjectForm({ open, onOpenChange, onSuccess }: CreateProjectFormProps) {
-  const { createProject, state } = useProject()
-  const { user } = useAuth()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+export function CreateProjectForm({
+  open,
+  onOpenChange,
+  onSuccess,
+}: CreateProjectFormProps) {
+  const { createProject, state } = useProject();
+  const { user } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
-      title: '',
-      description: '',
+      title: "",
+      description: "",
     },
-  })
+  });
 
   const onSubmit = async (data: ProjectFormData) => {
     if (!user) {
-      console.error('Usuário não autenticado')
-      return
+      console.error("Usuário não autenticado");
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       await createProject({
         title: data.title,
         description: data.description || undefined,
         user_id: user.id,
-      })
-      
-      form.reset()
-      onOpenChange(false)
-      onSuccess?.()
+      });
+
+      form.reset();
+      onOpenChange(false);
+      onSuccess?.();
     } catch (error) {
-      console.error('Erro ao criar projeto:', error)
+      console.error("Erro ao criar projeto:", error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!isSubmitting) {
-      onOpenChange(newOpen)
+      onOpenChange(newOpen);
       if (!newOpen) {
-        form.reset()
+        form.reset();
       }
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -93,10 +100,11 @@ export function CreateProjectForm({ open, onOpenChange, onSuccess }: CreateProje
         <DialogHeader>
           <DialogTitle>Criar Novo Projeto</DialogTitle>
           <DialogDescription>
-            Crie um novo projeto literário. Você poderá adicionar capítulos, cenas e personagens depois.
+            Crie um novo projeto literário. Você poderá adicionar capítulos,
+            cenas e personagens depois.
           </DialogDescription>
         </DialogHeader>
-        
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -106,7 +114,7 @@ export function CreateProjectForm({ open, onOpenChange, onSuccess }: CreateProje
                 <FormItem>
                   <FormLabel>Título *</FormLabel>
                   <FormControl>
-                    <Input 
+                    <Input
                       placeholder="Digite o título do seu projeto"
                       {...field}
                       disabled={isSubmitting}
@@ -119,7 +127,7 @@ export function CreateProjectForm({ open, onOpenChange, onSuccess }: CreateProje
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="description"
@@ -127,7 +135,7 @@ export function CreateProjectForm({ open, onOpenChange, onSuccess }: CreateProje
                 <FormItem>
                   <FormLabel>Descrição</FormLabel>
                   <FormControl>
-                    <Textarea 
+                    <Textarea
                       placeholder="Descreva brevemente seu projeto..."
                       className="resize-none"
                       rows={3}
@@ -142,18 +150,20 @@ export function CreateProjectForm({ open, onOpenChange, onSuccess }: CreateProje
                 </FormItem>
               )}
             />
-            
+
             <DialogFooter>
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => handleOpenChange(false)}
                 disabled={isSubmitting}
               >
                 Cancelar
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isSubmitting && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
                 Criar Projeto
               </Button>
             </DialogFooter>
@@ -161,7 +171,7 @@ export function CreateProjectForm({ open, onOpenChange, onSuccess }: CreateProje
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default CreateProjectForm
+export default CreateProjectForm;

@@ -1,15 +1,21 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Maximize, SplitSquareHorizontal, FileText, Grid3X3, List } from "lucide-react"
-import { useDeviceInfo } from "@/hooks/use-mobile"
+import { Button } from "@/components/ui/button";
+import {
+  Maximize,
+  SplitSquareHorizontal,
+  FileText,
+  Grid3X3,
+  List,
+} from "lucide-react";
+import { useDeviceInfo } from "@/hooks/use-mobile";
 
 interface MobileBottomBarProps {
-  viewMode: string
-  onViewModeChange: (mode: string) => void
-  onFocusMode: () => void
-  onSplitScreen: () => void
-  showWritingActions?: boolean
+  viewMode: string;
+  onViewModeChange: (mode: string) => void;
+  onFocusMode: () => void;
+  onSplitScreen: () => void;
+  showWritingActions?: boolean;
 }
 
 export function MobileBottomBar({
@@ -19,31 +25,32 @@ export function MobileBottomBar({
   onSplitScreen,
   showWritingActions = false,
 }: MobileBottomBarProps) {
-  const deviceInfo = useDeviceInfo()
+  const deviceInfo = useDeviceInfo();
 
   // Only show on mobile and tablet devices
   if (!deviceInfo.isMobile && !deviceInfo.isTablet) {
-    return null
+    return null;
   }
 
   const getBottomBarClasses = () => {
-    const baseClasses = "fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm border-t border-white/30"
+    const baseClasses =
+      "fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm border-t border-white/30";
     if (deviceInfo.isMobile) {
-      return `${baseClasses} p-2 pb-safe`
+      return `${baseClasses} p-2 pb-safe`;
     }
-    return `${baseClasses} p-3`
-  }
+    return `${baseClasses} p-3`;
+  };
 
   const getButtonClasses = () => {
     if (deviceInfo.isMobile) {
-      return "flex-1 mx-0.5 h-10 text-xs px-2"
+      return "flex-1 mx-0.5 h-10 text-xs px-2";
     }
-    return "flex-1 mx-1 h-11 text-sm px-3"
-  }
+    return "flex-1 mx-1 h-11 text-sm px-3";
+  };
 
   const getIconSize = () => {
-    return deviceInfo.isMobile ? "w-4 h-4" : "w-5 h-5"
-  }
+    return deviceInfo.isMobile ? "w-4 h-4" : "w-5 h-5";
+  };
 
   return (
     <div className={getBottomBarClasses()}>
@@ -55,7 +62,9 @@ export function MobileBottomBar({
           onClick={() => onViewModeChange("writing")}
           className={getButtonClasses()}
         >
-          <FileText className={`${getIconSize()} ${deviceInfo.isMobile ? 'mr-1' : 'mr-2'}`} />
+          <FileText
+            className={`${getIconSize()} ${deviceInfo.isMobile ? "mr-1" : "mr-2"}`}
+          />
           <span className={deviceInfo.isMobile ? "text-xs" : "text-sm"}>
             {deviceInfo.isMobile ? "Escrita" : "Escrita"}
           </span>
@@ -67,7 +76,9 @@ export function MobileBottomBar({
           onClick={() => onViewModeChange("corkboard")}
           className={getButtonClasses()}
         >
-          <Grid3X3 className={`${getIconSize()} ${deviceInfo.isMobile ? 'mr-1' : 'mr-2'}`} />
+          <Grid3X3
+            className={`${getIconSize()} ${deviceInfo.isMobile ? "mr-1" : "mr-2"}`}
+          />
           <span className={deviceInfo.isMobile ? "text-xs" : "text-sm"}>
             {deviceInfo.isMobile ? "Cortiça" : "Cortiça"}
           </span>
@@ -79,7 +90,9 @@ export function MobileBottomBar({
           onClick={() => onViewModeChange("outliner")}
           className={getButtonClasses()}
         >
-          <List className={`${getIconSize()} ${deviceInfo.isMobile ? 'mr-1' : 'mr-2'}`} />
+          <List
+            className={`${getIconSize()} ${deviceInfo.isMobile ? "mr-1" : "mr-2"}`}
+          />
           <span className={deviceInfo.isMobile ? "text-xs" : "text-sm"}>
             {deviceInfo.isMobile ? "Estrutura" : "Estrutura"}
           </span>
@@ -88,25 +101,29 @@ export function MobileBottomBar({
         {/* Writing Mode Actions */}
         {showWritingActions && (
           <>
-            <Button 
-              variant="ghost" 
-              size={deviceInfo.isMobile ? "sm" : "default"} 
-              onClick={onFocusMode} 
+            <Button
+              variant="ghost"
+              size={deviceInfo.isMobile ? "sm" : "default"}
+              onClick={onFocusMode}
               className={getButtonClasses()}
             >
-              <Maximize className={`${getIconSize()} ${deviceInfo.isMobile ? 'mr-1' : 'mr-2'}`} />
+              <Maximize
+                className={`${getIconSize()} ${deviceInfo.isMobile ? "mr-1" : "mr-2"}`}
+              />
               <span className={deviceInfo.isMobile ? "text-xs" : "text-sm"}>
                 {deviceInfo.isMobile ? "Foco" : "Foco"}
               </span>
             </Button>
 
-            <Button 
-              variant="ghost" 
-              size={deviceInfo.isMobile ? "sm" : "default"} 
-              onClick={onSplitScreen} 
+            <Button
+              variant="ghost"
+              size={deviceInfo.isMobile ? "sm" : "default"}
+              onClick={onSplitScreen}
               className={getButtonClasses()}
             >
-              <SplitSquareHorizontal className={`${getIconSize()} ${deviceInfo.isMobile ? 'mr-1' : 'mr-2'}`} />
+              <SplitSquareHorizontal
+                className={`${getIconSize()} ${deviceInfo.isMobile ? "mr-1" : "mr-2"}`}
+              />
               <span className={deviceInfo.isMobile ? "text-xs" : "text-sm"}>
                 {deviceInfo.isMobile ? "Dividir" : "Dividir"}
               </span>
@@ -115,5 +132,5 @@ export function MobileBottomBar({
         )}
       </div>
     </div>
-  )
+  );
 }

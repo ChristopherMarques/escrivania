@@ -58,5 +58,5 @@ export interface RoadmapItem {
   title: string;
   description: string;
   features: string[];
-  status: 'completed' | 'in-progress' | 'planned';
+  status: "completed" | "in-progress" | "planned";
 }

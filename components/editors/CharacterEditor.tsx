@@ -1,12 +1,18 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
+import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
   Save,
   Edit3,
@@ -15,71 +21,83 @@ import {
   User,
   BookOpen,
   FileText,
-} from 'lucide-react'
-import { useProject } from '@/contexts/ProjectContext'
-import type { Character } from '@/contexts/ProjectContext'
+} from "lucide-react";
+import { useProject } from "@/contexts/ProjectContext";
+import type { Character } from "@/contexts/ProjectContext";
 
 interface CharacterEditorProps {
-  characterId: string
-  onBack?: () => void
+  characterId: string;
+  onBack?: () => void;
 }
 
 export function CharacterEditor({ characterId, onBack }: CharacterEditorProps) {
-  const { state, updateCharacter } = useProject()
-  const [isEditing, setIsEditing] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-  const [editedCharacter, setEditedCharacter] = useState<Partial<Character>>({})
+  const { state, updateCharacter } = useProject();
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [editedCharacter, setEditedCharacter] = useState<Partial<Character>>(
+    {}
+  );
 
-  const character = state.characters.find(c => c.id === characterId)
-  const project = character ? state.projects.find(p => p.id === character.project_id) : null
-  
+  const character = state.characters.find((c) => c.id === characterId);
+  const project = character
+    ? state.projects.find((p) => p.id === character.project_id)
+    : null;
+
   // Encontrar cenas onde o personagem aparece (simulado)
-  const characterScenes = character ? state.scenes.filter(scene => 
-    scene.content?.toLowerCase().includes(character.name.toLowerCase())
-  ) : []
-  
-  // Encontrar capítulos relacionados
-  const relatedChapters = characterScenes.length > 0 
-    ? state.chapters.filter(chapter => 
-        characterScenes.some(scene => scene.chapter_id === chapter.id)
+  const characterScenes = character
+    ? state.scenes.filter((scene) =>
+        scene.content?.toLowerCase().includes(character.name.toLowerCase())
       )
-    : []
+    : [];
+
+  // Encontrar capítulos relacionados
+  const relatedChapters =
+    characterScenes.length > 0
+      ? state.chapters.filter((chapter) =>
+          characterScenes.some((scene) => scene.chapter_id === chapter.id)
+        )
+      : [];
 
   useEffect(() => {
     if (character) {
       setEditedCharacter({
         name: character.name,
-        description: character.description || '',
-      })
+        description: character.description || "",
+      });
     }
-  }, [character])
+  }, [character]);
 
   const handleSaveCharacter = async () => {
-    if (!character || !editedCharacter.name?.trim()) return
+    if (!character || !editedCharacter.name?.trim()) return;
 
-    setIsSaving(true)
+    setIsSaving(true);
     try {
       await updateCharacter(character.id, {
         name: editedCharacter.name,
         description: editedCharacter.description,
-      })
-      setIsEditing(false)
+      });
+      setIsEditing(false);
     } catch (error) {
-      console.error('Erro ao salvar personagem:', error)
+      console.error("Erro ao salvar personagem:", error);
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   const getWordCount = (text: string) => {
-    return text.trim().split(/\s+/).filter(word => word.length > 0).length
-  }
+    return text
+      .trim()
+      .split(/\s+/)
+      .filter((word) => word.length > 0).length;
+  };
 
   if (!character) {
     return (
       <div className="p-6 text-center">
         <User className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-        <h3 className="text-lg font-semibold mb-2">Personagem não encontrado</h3>
+        <h3 className="text-lg font-semibold mb-2">
+          Personagem não encontrado
+        </h3>
         <p className="text-muted-foreground mb-4">
           O personagem que você está procurando não existe ou foi removido.
         </p>
@@ -88,7 +106,7 @@ export function CharacterEditor({ characterId, onBack }: CharacterEditorProps) {
           Voltar
         </Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -104,7 +122,7 @@ export function CharacterEditor({ characterId, onBack }: CharacterEditorProps) {
             <div className="flex items-center space-x-2 mb-1">
               <BookOpen className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">
-                {project?.title || 'Projeto'}
+                {project?.title || "Projeto"}
               </span>
             </div>
             <h1 className="text-2xl font-bold flex items-center">
@@ -113,18 +131,18 @@ export function CharacterEditor({ characterId, onBack }: CharacterEditorProps) {
             </h1>
           </div>
         </div>
-        
+
         <div className="flex items-center space-x-2">
           {isEditing ? (
             <>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => setIsEditing(false)}
                 disabled={isSaving}
               >
                 Cancelar
               </Button>
-              <Button 
+              <Button
                 onClick={handleSaveCharacter}
                 disabled={isSaving || !editedCharacter.name?.trim()}
               >
@@ -151,12 +169,14 @@ export function CharacterEditor({ characterId, onBack }: CharacterEditorProps) {
           <CardTitle className="flex items-center justify-between">
             <span>Perfil do Personagem</span>
             <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-              <span>{getWordCount(character.description || '')} palavras</span>
+              <span>{getWordCount(character.description || "")} palavras</span>
               <span>Aparece em {characterScenes.length} cenas</span>
             </div>
           </CardTitle>
           <CardDescription>
-            {isEditing ? 'Edite o nome e descrição do personagem' : 'Visualize e gerencie as informações do personagem'}
+            {isEditing
+              ? "Edite o nome e descrição do personagem"
+              : "Visualize e gerencie as informações do personagem"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -165,17 +185,29 @@ export function CharacterEditor({ characterId, onBack }: CharacterEditorProps) {
               <div>
                 <label className="text-sm font-medium mb-2 block">Nome</label>
                 <Input
-                  value={editedCharacter.name || ''}
-                  onChange={(e) => setEditedCharacter(prev => ({ ...prev, name: e.target.value }))}
+                  value={editedCharacter.name || ""}
+                  onChange={(e) =>
+                    setEditedCharacter((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
                   placeholder="Nome do personagem"
                   className="text-lg font-semibold"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Descrição</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Descrição
+                </label>
                 <Textarea
-                  value={editedCharacter.description || ''}
-                  onChange={(e) => setEditedCharacter(prev => ({ ...prev, description: e.target.value }))}
+                  value={editedCharacter.description || ""}
+                  onChange={(e) =>
+                    setEditedCharacter((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
                   placeholder="Descreva o personagem: aparência, personalidade, história, motivações..."
                   className="min-h-[300px] resize-none"
                 />
@@ -192,7 +224,10 @@ export function CharacterEditor({ characterId, onBack }: CharacterEditorProps) {
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <User className="mx-auto h-8 w-8 mb-2" />
-                  <p>Nenhuma descrição ainda. Clique em "Editar" para adicionar informações sobre o personagem.</p>
+                  <p>
+                    Nenhuma descrição ainda. Clique em "Editar" para adicionar
+                    informações sobre o personagem.
+                  </p>
                 </div>
               )}
             </div>
@@ -210,12 +245,10 @@ export function CharacterEditor({ characterId, onBack }: CharacterEditorProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{characterScenes.length}</div>
-            <p className="text-xs text-muted-foreground">
-              cenas onde aparece
-            </p>
+            <p className="text-xs text-muted-foreground">cenas onde aparece</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Capítulos</CardTitle>
@@ -227,17 +260,18 @@ export function CharacterEditor({ characterId, onBack }: CharacterEditorProps) {
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Criado</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-sm font-medium">
-              {new Date(character.created_at).toLocaleDateString('pt-BR')}
+              {new Date(character.created_at).toLocaleDateString("pt-BR")}
             </div>
             <p className="text-xs text-muted-foreground">
-              última atualização: {new Date(character.updated_at).toLocaleDateString('pt-BR')}
+              última atualização:{" "}
+              {new Date(character.updated_at).toLocaleDateString("pt-BR")}
             </p>
           </CardContent>
         </Card>
@@ -249,19 +283,26 @@ export function CharacterEditor({ characterId, onBack }: CharacterEditorProps) {
           <h2 className="text-xl font-semibold">Cenas Relacionadas</h2>
           <div className="grid gap-4">
             {characterScenes.map((scene) => {
-              const chapter = state.chapters.find(c => c.id === scene.chapter_id)
+              const chapter = state.chapters.find(
+                (c) => c.id === scene.chapter_id
+              );
               return (
-                <Card key={scene.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                <Card
+                  key={scene.id}
+                  className="hover:shadow-md transition-shadow cursor-pointer"
+                >
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <Badge variant="secondary">{chapter?.title || 'Capítulo'}</Badge>
+                        <Badge variant="secondary">
+                          {chapter?.title || "Capítulo"}
+                        </Badge>
                         <CardTitle className="text-lg">{scene.title}</CardTitle>
                       </div>
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="sm"
-                        onClick={() => console.log('Ir para cena:', scene.id)}
+                        onClick={() => console.log("Ir para cena:", scene.id)}
                       >
                         <FileText className="h-4 w-4" />
                       </Button>
@@ -276,7 +317,12 @@ export function CharacterEditor({ characterId, onBack }: CharacterEditorProps) {
                           </p>
                           <div className="flex items-center justify-between text-xs text-muted-foreground">
                             <span>{getWordCount(scene.content)} palavras</span>
-                            <span>Atualizada {new Date(scene.updated_at).toLocaleDateString('pt-BR')}</span>
+                            <span>
+                              Atualizada{" "}
+                              {new Date(scene.updated_at).toLocaleDateString(
+                                "pt-BR"
+                              )}
+                            </span>
                           </div>
                         </>
                       ) : (
@@ -287,7 +333,7 @@ export function CharacterEditor({ characterId, onBack }: CharacterEditorProps) {
                     </div>
                   </CardContent>
                 </Card>
-              )
+              );
             })}
           </div>
         </div>
@@ -299,9 +345,14 @@ export function CharacterEditor({ characterId, onBack }: CharacterEditorProps) {
           <h2 className="text-xl font-semibold">Capítulos Relacionados</h2>
           <div className="grid gap-4">
             {relatedChapters.map((chapter) => {
-              const chapterScenes = characterScenes.filter(s => s.chapter_id === chapter.id)
+              const chapterScenes = characterScenes.filter(
+                (s) => s.chapter_id === chapter.id
+              );
               return (
-                <Card key={chapter.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                <Card
+                  key={chapter.id}
+                  className="hover:shadow-md transition-shadow cursor-pointer"
+                >
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lg flex items-center">
@@ -325,18 +376,21 @@ export function CharacterEditor({ characterId, onBack }: CharacterEditorProps) {
                         </p>
                       )}
                       <div className="text-xs text-muted-foreground">
-                        Atualizado {new Date(chapter.updated_at).toLocaleDateString('pt-BR')}
+                        Atualizado{" "}
+                        {new Date(chapter.updated_at).toLocaleDateString(
+                          "pt-BR"
+                        )}
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              )
+              );
             })}
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default CharacterEditor
+export default CharacterEditor;

@@ -5,12 +5,7 @@ export const authClient = createAuthClient({
 });
 
 // Exportar hooks e métodos específicos para facilitar o uso
-export const {
-  useSession,
-  signIn,
-  signUp,
-  signOut,
-} = authClient;
+export const { useSession, signIn, signUp, signOut } = authClient;
 
 // Tipos para TypeScript
 export type Session = typeof authClient.$Infer.Session;

@@ -7,7 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -21,17 +27,26 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Target, Plus, MoreVertical, Edit3, Trash2, Calendar, TrendingUp, Award } from "lucide-react";
+import {
+  Target,
+  Plus,
+  MoreVertical,
+  Edit3,
+  Trash2,
+  Calendar,
+  TrendingUp,
+  Award,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { WritingGoals } from "@/lib/types";
 
 interface WritingGoal {
   id: string;
   title: string;
-  type: 'daily' | 'weekly' | 'monthly' | 'project';
+  type: "daily" | "weekly" | "monthly" | "project";
   target: number;
   current: number;
-  unit: 'words' | 'pages' | 'scenes' | 'chapters';
+  unit: "words" | "pages" | "scenes" | "chapters";
   deadline?: Date;
   isActive: boolean;
   createdAt: Date;
@@ -40,7 +55,9 @@ interface WritingGoal {
 
 interface GoalsManagerProps {
   goals: WritingGoal[];
-  onGoalCreate: (goal: Omit<WritingGoal, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  onGoalCreate: (
+    goal: Omit<WritingGoal, "id" | "createdAt" | "updatedAt">
+  ) => void;
   onGoalUpdate: (id: string, updates: Partial<WritingGoal>) => void;
   onGoalDelete: (id: string) => void;
   onProgressUpdate: (id: string, progress: number) => void;
@@ -48,33 +65,33 @@ interface GoalsManagerProps {
 }
 
 const goalTypes = [
-  { value: 'daily', label: 'Diária', icon: '📅' },
-  { value: 'weekly', label: 'Semanal', icon: '📊' },
-  { value: 'monthly', label: 'Mensal', icon: '🗓️' },
-  { value: 'project', label: 'Projeto', icon: '🎯' },
+  { value: "daily", label: "Diária", icon: "📅" },
+  { value: "weekly", label: "Semanal", icon: "📊" },
+  { value: "monthly", label: "Mensal", icon: "🗓️" },
+  { value: "project", label: "Projeto", icon: "🎯" },
 ] as const;
 
 const goalUnits = [
-  { value: 'words', label: 'Palavras', shortLabel: 'palavras' },
-  { value: 'pages', label: 'Páginas', shortLabel: 'páginas' },
-  { value: 'scenes', label: 'Cenas', shortLabel: 'cenas' },
-  { value: 'chapters', label: 'Capítulos', shortLabel: 'capítulos' },
+  { value: "words", label: "Palavras", shortLabel: "palavras" },
+  { value: "pages", label: "Páginas", shortLabel: "páginas" },
+  { value: "scenes", label: "Cenas", shortLabel: "cenas" },
+  { value: "chapters", label: "Capítulos", shortLabel: "capítulos" },
 ] as const;
 
 interface GoalFormProps {
   goal?: WritingGoal;
-  onSave: (goal: Omit<WritingGoal, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  onSave: (goal: Omit<WritingGoal, "id" | "createdAt" | "updatedAt">) => void;
   onCancel: () => void;
 }
 
 function GoalForm({ goal, onSave, onCancel }: GoalFormProps) {
   const [formData, setFormData] = React.useState({
-    title: goal?.title || '',
-    type: goal?.type || 'daily' as const,
+    title: goal?.title || "",
+    type: goal?.type || ("daily" as const),
     target: goal?.target || 1000,
     current: goal?.current || 0,
-    unit: goal?.unit || 'words' as const,
-    deadline: goal?.deadline ? goal.deadline.toISOString().split('T')[0] : '',
+    unit: goal?.unit || ("words" as const),
+    deadline: goal?.deadline ? goal.deadline.toISOString().split("T")[0] : "",
     isActive: goal?.isActive ?? true,
   });
 
@@ -86,8 +103,11 @@ function GoalForm({ goal, onSave, onCancel }: GoalFormProps) {
     });
   };
 
-  const handleFieldChange = (field: string, value: string | number | boolean | Date) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleFieldChange = (
+    field: string,
+    value: string | number | boolean | Date
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -97,7 +117,7 @@ function GoalForm({ goal, onSave, onCancel }: GoalFormProps) {
         <Input
           id="title"
           value={formData.title}
-          onChange={(e) => handleFieldChange('title', e.target.value)}
+          onChange={(e) => handleFieldChange("title", e.target.value)}
           placeholder="Ex: Meta diária de escrita"
           required
         />
@@ -106,7 +126,10 @@ function GoalForm({ goal, onSave, onCancel }: GoalFormProps) {
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="type">Tipo</Label>
-          <Select value={formData.type} onValueChange={(value) => handleFieldChange('type', value)}>
+          <Select
+            value={formData.type}
+            onValueChange={(value) => handleFieldChange("type", value)}
+          >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -125,7 +148,10 @@ function GoalForm({ goal, onSave, onCancel }: GoalFormProps) {
 
         <div className="space-y-2">
           <Label htmlFor="unit">Unidade</Label>
-          <Select value={formData.unit} onValueChange={(value) => handleFieldChange('unit', value)}>
+          <Select
+            value={formData.unit}
+            onValueChange={(value) => handleFieldChange("unit", value)}
+          >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -147,7 +173,9 @@ function GoalForm({ goal, onSave, onCancel }: GoalFormProps) {
             id="target"
             type="number"
             value={formData.target}
-            onChange={(e) => handleFieldChange('target', parseInt(e.target.value) || 0)}
+            onChange={(e) =>
+              handleFieldChange("target", parseInt(e.target.value) || 0)
+            }
             min="1"
             required
           />
@@ -159,20 +187,22 @@ function GoalForm({ goal, onSave, onCancel }: GoalFormProps) {
             id="current"
             type="number"
             value={formData.current}
-            onChange={(e) => handleFieldChange('current', parseInt(e.target.value) || 0)}
+            onChange={(e) =>
+              handleFieldChange("current", parseInt(e.target.value) || 0)
+            }
             min="0"
           />
         </div>
       </div>
 
-      {(formData.type === 'project' || formData.type === 'monthly') && (
+      {(formData.type === "project" || formData.type === "monthly") && (
         <div className="space-y-2">
           <Label htmlFor="deadline">Prazo (opcional)</Label>
           <Input
             id="deadline"
             type="date"
             value={formData.deadline}
-            onChange={(e) => handleFieldChange('deadline', e.target.value)}
+            onChange={(e) => handleFieldChange("deadline", e.target.value)}
           />
         </div>
       )}
@@ -181,9 +211,7 @@ function GoalForm({ goal, onSave, onCancel }: GoalFormProps) {
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancelar
         </Button>
-        <Button type="submit">
-          {goal ? 'Atualizar' : 'Criar'} Meta
-        </Button>
+        <Button type="submit">{goal ? "Atualizar" : "Criar"} Meta</Button>
       </div>
     </form>
   );
@@ -199,9 +227,9 @@ interface GoalCardProps {
 function GoalCard({ goal, onEdit, onDelete, onProgressUpdate }: GoalCardProps) {
   const [isUpdatingProgress, setIsUpdatingProgress] = React.useState(false);
   const [newProgress, setNewProgress] = React.useState(goal.current);
-  
-  const typeConfig = goalTypes.find(t => t.value === goal.type);
-  const unitConfig = goalUnits.find(u => u.value === goal.unit);
+
+  const typeConfig = goalTypes.find((t) => t.value === goal.type);
+  const unitConfig = goalUnits.find((u) => u.value === goal.unit);
   const progressPercentage = Math.min((goal.current / goal.target) * 100, 100);
   const isCompleted = goal.current >= goal.target;
   const isOverdue = goal.deadline && new Date() > goal.deadline && !isCompleted;
@@ -212,25 +240,27 @@ function GoalCard({ goal, onEdit, onDelete, onProgressUpdate }: GoalCardProps) {
   };
 
   const getStatusColor = () => {
-    if (isCompleted) return 'text-green-600 dark:text-green-400';
-    if (isOverdue) return 'text-red-600 dark:text-red-400';
-    if (progressPercentage > 75) return 'text-blue-600 dark:text-blue-400';
-    return 'text-gray-600 dark:text-gray-400';
+    if (isCompleted) return "text-green-600 dark:text-green-400";
+    if (isOverdue) return "text-red-600 dark:text-red-400";
+    if (progressPercentage > 75) return "text-blue-600 dark:text-blue-400";
+    return "text-gray-600 dark:text-gray-400";
   };
 
   const getProgressColor = () => {
-    if (isCompleted) return 'bg-green-500';
-    if (isOverdue) return 'bg-red-500';
-    if (progressPercentage > 75) return 'bg-blue-500';
-    return 'bg-gray-500';
+    if (isCompleted) return "bg-green-500";
+    if (isOverdue) return "bg-red-500";
+    if (progressPercentage > 75) return "bg-blue-500";
+    return "bg-gray-500";
   };
 
   return (
-    <Card className={cn(
-      "transition-all duration-200 hover:shadow-lg",
-      !goal.isActive && "opacity-60",
-      isCompleted && "ring-2 ring-green-500/20"
-    )}>
+    <Card
+      className={cn(
+        "transition-all duration-200 hover:shadow-lg",
+        !goal.isActive && "opacity-60",
+        isCompleted && "ring-2 ring-green-500/20"
+      )}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
@@ -248,14 +278,10 @@ function GoalCard({ goal, onEdit, onDelete, onProgressUpdate }: GoalCardProps) {
                   Concluída
                 </Badge>
               )}
-              {isOverdue && (
-                <Badge variant="destructive">
-                  Atrasada
-                </Badge>
-              )}
+              {isOverdue && <Badge variant="destructive">Atrasada</Badge>}
             </div>
           </div>
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
@@ -271,7 +297,10 @@ function GoalCard({ goal, onEdit, onDelete, onProgressUpdate }: GoalCardProps) {
                 <Edit3 className="h-3 w-3 mr-2" />
                 Editar
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={onDelete} className="text-red-600 dark:text-red-400">
+              <DropdownMenuItem
+                onClick={onDelete}
+                className="text-red-600 dark:text-red-400"
+              >
                 <Trash2 className="h-3 w-3 mr-2" />
                 Excluir
               </DropdownMenuItem>
@@ -279,7 +308,7 @@ function GoalCard({ goal, onEdit, onDelete, onProgressUpdate }: GoalCardProps) {
           </DropdownMenu>
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         {/* Progress Bar */}
         <div className="space-y-2">
@@ -291,19 +320,14 @@ function GoalCard({ goal, onEdit, onDelete, onProgressUpdate }: GoalCardProps) {
               {progressPercentage.toFixed(0)}%
             </span>
           </div>
-          <Progress 
-            value={progressPercentage} 
-            className="h-2"
-          />
+          <Progress value={progressPercentage} className="h-2" />
         </div>
 
         {/* Deadline */}
         {goal.deadline && (
           <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
             <Calendar className="h-3 w-3" />
-            <span>
-              Prazo: {goal.deadline.toLocaleDateString('pt-BR')}
-            </span>
+            <span>Prazo: {goal.deadline.toLocaleDateString("pt-BR")}</span>
           </div>
         )}
 
@@ -323,9 +347,9 @@ function GoalCard({ goal, onEdit, onDelete, onProgressUpdate }: GoalCardProps) {
               <Button size="sm" onClick={handleProgressSubmit}>
                 Salvar
               </Button>
-              <Button 
-                size="sm" 
-                variant="outline" 
+              <Button
+                size="sm"
+                variant="outline"
                 onClick={() => {
                   setIsUpdatingProgress(false);
                   setNewProgress(goal.current);
@@ -346,15 +370,20 @@ interface StatsCardProps {
 }
 
 function StatsCard({ goals }: StatsCardProps) {
-  const activeGoals = goals.filter(g => g.isActive);
-  const completedGoals = activeGoals.filter(g => g.current >= g.target);
-  const overdueGoals = activeGoals.filter(g => 
-    g.deadline && new Date() > g.deadline && g.current < g.target
+  const activeGoals = goals.filter((g) => g.isActive);
+  const completedGoals = activeGoals.filter((g) => g.current >= g.target);
+  const overdueGoals = activeGoals.filter(
+    (g) => g.deadline && new Date() > g.deadline && g.current < g.target
   );
-  
-  const totalProgress = activeGoals.length > 0 
-    ? activeGoals.reduce((sum, goal) => sum + Math.min((goal.current / goal.target) * 100, 100), 0) / activeGoals.length
-    : 0;
+
+  const totalProgress =
+    activeGoals.length > 0
+      ? activeGoals.reduce(
+          (sum, goal) =>
+            sum + Math.min((goal.current / goal.target) * 100, 100),
+          0
+        ) / activeGoals.length
+      : 0;
 
   return (
     <Card>
@@ -383,7 +412,7 @@ function StatsCard({ goals }: StatsCardProps) {
             </div>
           </div>
         </div>
-        
+
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span>Progresso Geral</span>
@@ -391,7 +420,7 @@ function StatsCard({ goals }: StatsCardProps) {
           </div>
           <Progress value={totalProgress} className="h-2" />
         </div>
-        
+
         {overdueGoals.length > 0 && (
           <div className="text-center">
             <div className="text-lg font-bold text-red-600 dark:text-red-400">
@@ -415,23 +444,29 @@ export function GoalsManager({
   onProgressUpdate,
   className,
 }: GoalsManagerProps) {
-  const [editingGoal, setEditingGoal] = React.useState<WritingGoal | null>(null);
+  const [editingGoal, setEditingGoal] = React.useState<WritingGoal | null>(
+    null
+  );
   const [isCreating, setIsCreating] = React.useState(false);
-  const [filterType, setFilterType] = React.useState<string>('all');
+  const [filterType, setFilterType] = React.useState<string>("all");
   const [showCompleted, setShowCompleted] = React.useState(true);
 
-  const filteredGoals = goals.filter(goal => {
-    if (filterType !== 'all' && goal.type !== filterType) return false;
+  const filteredGoals = goals.filter((goal) => {
+    if (filterType !== "all" && goal.type !== filterType) return false;
     if (!showCompleted && goal.current >= goal.target) return false;
     return true;
   });
 
-  const handleCreate = (goalData: Omit<WritingGoal, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const handleCreate = (
+    goalData: Omit<WritingGoal, "id" | "createdAt" | "updatedAt">
+  ) => {
     onGoalCreate(goalData);
     setIsCreating(false);
   };
 
-  const handleUpdate = (goalData: Omit<WritingGoal, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const handleUpdate = (
+    goalData: Omit<WritingGoal, "id" | "createdAt" | "updatedAt">
+  ) => {
     if (editingGoal) {
       onGoalUpdate(editingGoal.id, goalData);
       setEditingGoal(null);
@@ -439,7 +474,12 @@ export function GoalsManager({
   };
 
   return (
-    <div className={cn("flex flex-col h-full bg-gray-50 dark:bg-gray-900", className)}>
+    <div
+      className={cn(
+        "flex flex-col h-full bg-gray-50 dark:bg-gray-900",
+        className
+      )}
+    >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
         <div>
@@ -448,7 +488,8 @@ export function GoalsManager({
             Metas de Escrita
           </h2>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            {goals.length} metas • {goals.filter(g => g.current >= g.target).length} concluídas
+            {goals.length} metas •{" "}
+            {goals.filter((g) => g.current >= g.target).length} concluídas
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -486,7 +527,7 @@ export function GoalsManager({
           <div className="lg:col-span-1">
             <StatsCard goals={goals} />
           </div>
-          
+
           {/* Goals Grid */}
           <div className="lg:col-span-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -496,19 +537,20 @@ export function GoalsManager({
                   goal={goal}
                   onEdit={() => setEditingGoal(goal)}
                   onDelete={() => onGoalDelete(goal.id)}
-                  onProgressUpdate={(progress) => onProgressUpdate(goal.id, progress)}
+                  onProgressUpdate={(progress) =>
+                    onProgressUpdate(goal.id, progress)
+                  }
                 />
               ))}
             </div>
-            
+
             {filteredGoals.length === 0 && (
               <div className="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400">
                 <Target className="h-12 w-12 mb-4 opacity-50" />
                 <p className="text-sm text-center">
-                  {filterType === 'all' 
+                  {filterType === "all"
                     ? 'Nenhuma meta criada ainda.\nClique em "Nova Meta" para começar.'
-                    : 'Nenhuma meta encontrada para este filtro.'
-                  }
+                    : "Nenhuma meta encontrada para este filtro."}
                 </p>
               </div>
             )}

@@ -1,8 +1,12 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, ReactNode } from 'react';
-import { useSession, signIn as betterAuthSignIn, signOut as betterAuthSignOut } from '@/lib/auth-client';
-import type { Session, User } from '@/lib/auth-client';
+import React, { createContext, useContext, ReactNode } from "react";
+import {
+  useSession,
+  signIn as betterAuthSignIn,
+  signOut as betterAuthSignOut,
+} from "@/lib/auth-client";
+import type { Session, User } from "@/lib/auth-client";
 
 interface AuthContextType {
   user: User | null;
@@ -18,11 +22,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { data: session, isPending: loading } = useSession();
   const user = session?.user || null;
 
-
-
   const signIn = () => {
     betterAuthSignIn.social({
-      provider: 'google',
+      provider: "google",
     });
   };
 
@@ -34,13 +36,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider value={{ user, session, loading, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
-  )
+  );
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
+    throw new Error("useAuth must be used within an AuthProvider");
   }
-  return context
+  return context;
 }

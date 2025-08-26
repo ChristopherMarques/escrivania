@@ -1,16 +1,28 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { TiptapEditor } from "@/components/editor/tiptap-editor"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { TiptapEditor } from "@/components/editor/tiptap-editor";
 import {
   Dialog,
   DialogContent,
@@ -18,51 +30,107 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Users, Wand2, Plus, Trash2, Heart, Sword, Crown, Shield, Target, UserMinus } from "lucide-react"
-import type { ICharacter } from "@/lib/types"
+} from "@/components/ui/dialog";
+import {
+  Users,
+  Wand2,
+  Plus,
+  Trash2,
+  Heart,
+  Sword,
+  Crown,
+  Shield,
+  Target,
+  UserMinus,
+} from "lucide-react";
+import type { ICharacter } from "@/lib/types";
 
 interface CharacterSheetProps {
-  character: ICharacter
-  allCharacters: ICharacter[]
-  onUpdate: (character: ICharacter) => void
-  onDelete: (characterId: string) => void
+  character: ICharacter;
+  allCharacters: ICharacter[];
+  onUpdate: (character: ICharacter) => void;
+  onDelete: (characterId: string) => void;
 }
 
-const archetypes = ["Herói", "Mentor", "Guardião", "Arauto", "Metamorfo", "Sombra", "Trapaceiro", "Aliado"]
+const archetypes = [
+  "Herói",
+  "Mentor",
+  "Guardião",
+  "Arauto",
+  "Metamorfo",
+  "Sombra",
+  "Trapaceiro",
+  "Aliado",
+];
 
 const relationshipTypes = [
-  { value: "ally", label: "Aliado", icon: Shield, color: "bg-escrivania-blue-100 text-escrivania-blue-700" },
-  { value: "enemy", label: "Inimigo", icon: Sword, color: "bg-destructive/20 text-destructive" },
-  { value: "romantic", label: "Romântico", icon: Heart, color: "bg-escrivania-purple-100 text-escrivania-purple-700" },
-  { value: "family", label: "Família", icon: Users, color: "bg-escrivania-blue-200 text-escrivania-blue-800" },
-  { value: "mentor", label: "Mentor", icon: Crown, color: "bg-escrivania-purple-200 text-escrivania-purple-800" },
-  { value: "rival", label: "Rival", icon: Target, color: "bg-escrivania-purple-300 text-escrivania-purple-900" },
-]
+  {
+    value: "ally",
+    label: "Aliado",
+    icon: Shield,
+    color: "bg-escrivania-blue-100 text-escrivania-blue-700",
+  },
+  {
+    value: "enemy",
+    label: "Inimigo",
+    icon: Sword,
+    color: "bg-destructive/20 text-destructive",
+  },
+  {
+    value: "romantic",
+    label: "Romântico",
+    icon: Heart,
+    color: "bg-escrivania-purple-100 text-escrivania-purple-700",
+  },
+  {
+    value: "family",
+    label: "Família",
+    icon: Users,
+    color: "bg-escrivania-blue-200 text-escrivania-blue-800",
+  },
+  {
+    value: "mentor",
+    label: "Mentor",
+    icon: Crown,
+    color: "bg-escrivania-purple-200 text-escrivania-purple-800",
+  },
+  {
+    value: "rival",
+    label: "Rival",
+    icon: Target,
+    color: "bg-escrivania-purple-300 text-escrivania-purple-900",
+  },
+];
 
-export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }: CharacterSheetProps) {
-  const [isGeneratingPortrait, setIsGeneratingPortrait] = useState(false)
-  const [isAddRelationshipOpen, setIsAddRelationshipOpen] = useState(false)
-  const [selectedCharacterForRelation, setSelectedCharacterForRelation] = useState("")
-  const [selectedRelationType, setSelectedRelationType] = useState<string>("")
-  const [relationDescription, setRelationDescription] = useState("")
+export function CharacterSheet({
+  character,
+  allCharacters,
+  onUpdate,
+  onDelete,
+}: CharacterSheetProps) {
+  const [isGeneratingPortrait, setIsGeneratingPortrait] = useState(false);
+  const [isAddRelationshipOpen, setIsAddRelationshipOpen] = useState(false);
+  const [selectedCharacterForRelation, setSelectedCharacterForRelation] =
+    useState("");
+  const [selectedRelationType, setSelectedRelationType] = useState<string>("");
+  const [relationDescription, setRelationDescription] = useState("");
 
   const updateCharacter = (updates: Partial<ICharacter>) => {
-    onUpdate({ ...character, ...updates, updatedAt: new Date().toISOString() })
-  }
+    onUpdate({ ...character, ...updates, updatedAt: new Date().toISOString() });
+  };
 
   const generatePortrait = async () => {
-    setIsGeneratingPortrait(true)
+    setIsGeneratingPortrait(true);
     // Simulate AI portrait generation
     setTimeout(() => {
-      const portraitUrl = `/placeholder.svg?height=200&width=200&query=portrait of ${character.name}`
-      updateCharacter({ avatarUrl: portraitUrl })
-      setIsGeneratingPortrait(false)
-    }, 2000)
-  }
+      const portraitUrl = `/placeholder.svg?height=200&width=200&query=portrait of ${character.name}`;
+      updateCharacter({ avatarUrl: portraitUrl });
+      setIsGeneratingPortrait(false);
+    }, 2000);
+  };
 
   const addRelationship = () => {
-    if (!selectedCharacterForRelation || !selectedRelationType) return
+    if (!selectedCharacterForRelation || !selectedRelationType) return;
 
     const newRelationships = [
       ...(character.relationships || []),
@@ -71,27 +139,29 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
         type: selectedRelationType as any,
         description: relationDescription,
       },
-    ]
+    ];
 
-    updateCharacter({ relationships: newRelationships })
-    setSelectedCharacterForRelation("")
-    setSelectedRelationType("")
-    setRelationDescription("")
-    setIsAddRelationshipOpen(false)
-  }
+    updateCharacter({ relationships: newRelationships });
+    setSelectedCharacterForRelation("");
+    setSelectedRelationType("");
+    setRelationDescription("");
+    setIsAddRelationshipOpen(false);
+  };
 
   const removeRelationship = (characterId: string) => {
-    const updatedRelationships = (character.relationships || []).filter((rel) => rel.characterId !== characterId)
-    updateCharacter({ relationships: updatedRelationships })
-  }
+    const updatedRelationships = (character.relationships || []).filter(
+      (rel) => rel.characterId !== characterId
+    );
+    updateCharacter({ relationships: updatedRelationships });
+  };
 
   const getRelationshipType = (typeValue: string) => {
-    return relationshipTypes.find((type) => type.value === typeValue)
-  }
+    return relationshipTypes.find((type) => type.value === typeValue);
+  };
 
   const getCharacterById = (id: string) => {
-    return allCharacters.find((char) => char.id === id)
-  }
+    return allCharacters.find((char) => char.id === id);
+  };
 
   return (
     <div className="h-full flex flex-col">
@@ -154,12 +224,17 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
             <TabsContent value="general" className="space-y-6 mt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="archetype" className="text-sm font-medium text-gray-700">
+                  <Label
+                    htmlFor="archetype"
+                    className="text-sm font-medium text-gray-700"
+                  >
                     Arquétipo
                   </Label>
                   <Select
                     value={character.archetype || ""}
-                    onValueChange={(value) => updateCharacter({ archetype: value })}
+                    onValueChange={(value) =>
+                      updateCharacter({ archetype: value })
+                    }
                   >
                     <SelectTrigger className="mt-2 bg-white/50 border-gray-200 focus:border-purple-300">
                       <SelectValue placeholder="Selecione um arquétipo" />
@@ -175,13 +250,18 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
                 </div>
 
                 <div>
-                  <Label htmlFor="conflict" className="text-sm font-medium text-gray-700">
+                  <Label
+                    htmlFor="conflict"
+                    className="text-sm font-medium text-gray-700"
+                  >
                     Conflito Principal
                   </Label>
                   <Input
                     id="conflict"
                     value={character.conflict || ""}
-                    onChange={(e) => updateCharacter({ conflict: e.target.value })}
+                    onChange={(e) =>
+                      updateCharacter({ conflict: e.target.value })
+                    }
                     placeholder="Ex: Medo de não ser aceito"
                     className="mt-2 bg-white/50 border-gray-200 focus:border-purple-300"
                   />
@@ -190,7 +270,10 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
 
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="internal-motivation" className="text-sm font-medium text-gray-700">
+                  <Label
+                    htmlFor="internal-motivation"
+                    className="text-sm font-medium text-gray-700"
+                  >
                     Motivação Interna
                   </Label>
                   <Textarea
@@ -198,7 +281,10 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
                     value={character.motivation?.internal || ""}
                     onChange={(e) =>
                       updateCharacter({
-                        motivation: { ...character.motivation, internal: e.target.value },
+                        motivation: {
+                          ...character.motivation,
+                          internal: e.target.value,
+                        },
                       })
                     }
                     placeholder="O que o personagem realmente deseja internamente?"
@@ -207,7 +293,10 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
                 </div>
 
                 <div>
-                  <Label htmlFor="external-motivation" className="text-sm font-medium text-gray-700">
+                  <Label
+                    htmlFor="external-motivation"
+                    className="text-sm font-medium text-gray-700"
+                  >
                     Motivação Externa
                   </Label>
                   <Textarea
@@ -215,7 +304,10 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
                     value={character.motivation?.external || ""}
                     onChange={(e) =>
                       updateCharacter({
-                        motivation: { ...character.motivation, external: e.target.value },
+                        motivation: {
+                          ...character.motivation,
+                          external: e.target.value,
+                        },
                       })
                     }
                     placeholder="O que o personagem precisa alcançar na história?"
@@ -227,7 +319,9 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
 
             <TabsContent value="appearance" className="space-y-6 mt-0">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">Aparência Física</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Aparência Física
+                </h3>
                 <Button
                   onClick={generatePortrait}
                   disabled={isGeneratingPortrait}
@@ -240,7 +334,10 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="physical" className="text-sm font-medium text-gray-700">
+                  <Label
+                    htmlFor="physical"
+                    className="text-sm font-medium text-gray-700"
+                  >
                     Descrição Física
                   </Label>
                   <Textarea
@@ -248,7 +345,10 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
                     value={character.appearance?.physical || ""}
                     onChange={(e) =>
                       updateCharacter({
-                        appearance: { ...character.appearance, physical: e.target.value },
+                        appearance: {
+                          ...character.appearance,
+                          physical: e.target.value,
+                        },
                       })
                     }
                     placeholder="Altura, peso, cor dos olhos, cabelo..."
@@ -257,7 +357,10 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
                 </div>
 
                 <div>
-                  <Label htmlFor="clothing" className="text-sm font-medium text-gray-700">
+                  <Label
+                    htmlFor="clothing"
+                    className="text-sm font-medium text-gray-700"
+                  >
                     Vestuário
                   </Label>
                   <Textarea
@@ -265,7 +368,10 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
                     value={character.appearance?.clothing || ""}
                     onChange={(e) =>
                       updateCharacter({
-                        appearance: { ...character.appearance, clothing: e.target.value },
+                        appearance: {
+                          ...character.appearance,
+                          clothing: e.target.value,
+                        },
                       })
                     }
                     placeholder="Estilo de roupa, acessórios..."
@@ -275,7 +381,10 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
               </div>
 
               <div>
-                <Label htmlFor="mannerisms" className="text-sm font-medium text-gray-700">
+                <Label
+                  htmlFor="mannerisms"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Tiques e Maneirismos
                 </Label>
                 <Textarea
@@ -283,7 +392,10 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
                   value={character.appearance?.mannerisms || ""}
                   onChange={(e) =>
                     updateCharacter({
-                      appearance: { ...character.appearance, mannerisms: e.target.value },
+                      appearance: {
+                        ...character.appearance,
+                        mannerisms: e.target.value,
+                      },
                     })
                   }
                   placeholder="Gestos característicos, forma de falar, hábitos..."
@@ -294,10 +406,14 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
 
             <TabsContent value="history" className="mt-0">
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">Biografia do Personagem</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Biografia do Personagem
+                </h3>
                 <TiptapEditor
                   content={character.biography || ""}
-                  onChange={(content) => updateCharacter({ biography: content })}
+                  onChange={(content) =>
+                    updateCharacter({ biography: content })
+                  }
                   placeholder="Escreva a história completa do personagem..."
                   className="min-h-[400px]"
                 />
@@ -306,7 +422,9 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
 
             <TabsContent value="relationships" className="space-y-6 mt-0">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">Relacionamentos</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Relacionamentos
+                </h3>
                 <Button
                   onClick={() => setIsAddRelationshipOpen(true)}
                   className="bg-gradient-to-r from-purple-500 to-blue-400 hover:from-purple-600 hover:to-blue-500 text-white"
@@ -318,33 +436,51 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {(character.relationships || []).map((relationship) => {
-                  const relatedCharacter = getCharacterById(relationship.characterId)
-                  const relationshipType = getRelationshipType(relationship.type)
+                  const relatedCharacter = getCharacterById(
+                    relationship.characterId
+                  );
+                  const relationshipType = getRelationshipType(
+                    relationship.type
+                  );
 
-                  if (!relatedCharacter || !relationshipType) return null
+                  if (!relatedCharacter || !relationshipType) return null;
 
-                  const Icon = relationshipType.icon
+                  const Icon = relationshipType.icon;
 
                   return (
-                    <Card key={relationship.characterId} className="bg-white/50 backdrop-blur-sm border-white/30">
+                    <Card
+                      key={relationship.characterId}
+                      className="bg-white/50 backdrop-blur-sm border-white/30"
+                    >
                       <CardHeader className="pb-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-3">
                             <Avatar className="w-10 h-10">
-                              <AvatarImage src={relatedCharacter.avatarUrl || "/placeholder.svg"} />
+                              <AvatarImage
+                                src={
+                                  relatedCharacter.avatarUrl ||
+                                  "/placeholder.svg"
+                                }
+                              />
                               <AvatarFallback className="bg-gradient-to-br from-purple-100 to-blue-100 text-purple-700">
                                 {relatedCharacter.name.charAt(0)}
                               </AvatarFallback>
                             </Avatar>
                             <div>
-                              <CardTitle className="text-sm">{relatedCharacter.name}</CardTitle>
-                              <CardDescription className="text-xs">{relatedCharacter.role}</CardDescription>
+                              <CardTitle className="text-sm">
+                                {relatedCharacter.name}
+                              </CardTitle>
+                              <CardDescription className="text-xs">
+                                {relatedCharacter.role}
+                              </CardDescription>
                             </div>
                           </div>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => removeRelationship(relationship.characterId)}
+                            onClick={() =>
+                              removeRelationship(relationship.characterId)
+                            }
                             className="h-8 w-8 p-0 text-red-600 hover:bg-red-50"
                           >
                             <UserMinus className="w-4 h-4" />
@@ -354,14 +490,20 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
                       <CardContent className="pt-0">
                         <div className="flex items-center space-x-2 mb-2">
                           <Icon className="w-4 h-4" />
-                          <Badge className={`text-xs ${relationshipType.color}`}>{relationshipType.label}</Badge>
+                          <Badge
+                            className={`text-xs ${relationshipType.color}`}
+                          >
+                            {relationshipType.label}
+                          </Badge>
                         </div>
                         {relationship.description && (
-                          <p className="text-sm text-gray-600">{relationship.description}</p>
+                          <p className="text-sm text-gray-600">
+                            {relationship.description}
+                          </p>
                         )}
                       </CardContent>
                     </Card>
-                  )
+                  );
                 })}
               </div>
 
@@ -369,7 +511,9 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
                 <div className="text-center py-8 text-gray-500">
                   <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                   <p>Nenhum relacionamento definido ainda.</p>
-                  <p className="text-sm">Adicione conexões com outros personagens.</p>
+                  <p className="text-sm">
+                    Adicione conexões com outros personagens.
+                  </p>
                 </div>
               )}
             </TabsContent>
@@ -378,16 +522,24 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
       </div>
 
       {/* Add Relationship Dialog */}
-      <Dialog open={isAddRelationshipOpen} onOpenChange={setIsAddRelationshipOpen}>
+      <Dialog
+        open={isAddRelationshipOpen}
+        onOpenChange={setIsAddRelationshipOpen}
+      >
         <DialogContent className="sm:max-w-[425px] bg-white/90 backdrop-blur-xl border-white/20">
           <DialogHeader>
             <DialogTitle>Adicionar Relacionamento</DialogTitle>
-            <DialogDescription>Defina a relação entre {character.name} e outro personagem.</DialogDescription>
+            <DialogDescription>
+              Defina a relação entre {character.name} e outro personagem.
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="related-character">Personagem</Label>
-              <Select value={selectedCharacterForRelation} onValueChange={setSelectedCharacterForRelation}>
+              <Select
+                value={selectedCharacterForRelation}
+                onValueChange={setSelectedCharacterForRelation}
+              >
                 <SelectTrigger className="bg-white/50 border-gray-200 focus:border-purple-300">
                   <SelectValue placeholder="Selecione um personagem" />
                 </SelectTrigger>
@@ -404,7 +556,10 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
             </div>
             <div className="grid gap-2">
               <Label htmlFor="relationship-type">Tipo de Relação</Label>
-              <Select value={selectedRelationType} onValueChange={setSelectedRelationType}>
+              <Select
+                value={selectedRelationType}
+                onValueChange={setSelectedRelationType}
+              >
                 <SelectTrigger className="bg-white/50 border-gray-200 focus:border-purple-300">
                   <SelectValue placeholder="Selecione o tipo" />
                 </SelectTrigger>
@@ -429,7 +584,10 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddRelationshipOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsAddRelationshipOpen(false)}
+            >
               Cancelar
             </Button>
             <Button
@@ -443,5 +601,5 @@ export function CharacterSheet({ character, allCharacters, onUpdate, onDelete }:
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

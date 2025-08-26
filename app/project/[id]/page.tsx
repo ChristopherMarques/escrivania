@@ -1,7 +1,10 @@
 "use client";
 
 import { TiptapEditor } from "@/components/editor/tiptap-editor";
-import { FocusModeManager, useFocusMode } from "@/components/focus-mode/focus-mode-manager";
+import {
+  FocusModeManager,
+  useFocusMode,
+} from "@/components/focus-mode/focus-mode-manager";
 import { FocusModeOverlay } from "@/components/focus-mode/focus-mode-overlay";
 import { MetadataPanel } from "@/components/metadata/metadata-panel";
 import { MobileBottomBar } from "@/components/mobile/mobile-bottom-bar";
@@ -54,29 +57,38 @@ const ProjectEditorContent = memo(function ProjectEditorContent() {
   const memoizedCharacters = useMemo(() => characters || [], [characters]);
 
   // Memoized handlers
-  const handleItemSelect = useCallback((item: any) => {
-    setSelectedItem(item);
-    // Automatically switch to writing mode when a scene is selected
-    if (item?.type === "scene") {
-      setViewMode("writing");
-    }
-  }, [setSelectedItem, setViewMode]);
+  const handleItemSelect = useCallback(
+    (item: any) => {
+      setSelectedItem(item);
+      // Automatically switch to writing mode when a scene is selected
+      if (item?.type === "scene") {
+        setViewMode("writing");
+      }
+    },
+    [setSelectedItem, setViewMode]
+  );
 
   const handleAddChapter = useCallback(async () => {
     await createChapter("Novo Capítulo");
   }, [createChapter]);
 
-  const handleAddScene = useCallback(async (chapterId: string) => {
-    await createScene(chapterId, "Nova Cena");
-  }, [createScene]);
+  const handleAddScene = useCallback(
+    async (chapterId: string) => {
+      await createScene(chapterId, "Nova Cena");
+    },
+    [createScene]
+  );
 
   const handleAddCharacter = useCallback(async () => {
     await createCharacter("Novo Personagem");
   }, [createCharacter]);
 
-  const handleSceneSelect = useCallback((sceneId: string) => {
-    setSelectedItem({ type: "scene", id: sceneId });
-  }, [setSelectedItem]);
+  const handleSceneSelect = useCallback(
+    (sceneId: string) => {
+      setSelectedItem({ type: "scene", id: sceneId });
+    },
+    [setSelectedItem]
+  );
 
   const { selectedItem, viewMode } = state;
   const currentScene = getCurrentScene();
@@ -109,23 +121,25 @@ const ProjectEditorContent = memo(function ProjectEditorContent() {
       if (currentScene?.id && content) {
         // Validate content structure
         if (!content.type || !Array.isArray(content.content)) {
-          console.warn('Invalid content structure received:', content);
+          console.warn("Invalid content structure received:", content);
           return;
         }
-        
+
         // Extract text content for comparison
         const extractText = (contentObj: any): string => {
-          if (!contentObj || !Array.isArray(contentObj.content)) return '';
-          return contentObj.content.map((node: any) => {
-            if (node.type === 'text') return node.text || '';
-            if (node.content) return extractText(node);
-            return '';
-          }).join('');
+          if (!contentObj || !Array.isArray(contentObj.content)) return "";
+          return contentObj.content
+            .map((node: any) => {
+              if (node.type === "text") return node.text || "";
+              if (node.content) return extractText(node);
+              return "";
+            })
+            .join("");
         };
-        
+
         const currentText = extractText(currentScene.content || {});
         const newText = extractText(content);
-        
+
         // Only trigger auto-save if text content is actually different
         if (currentText !== newText) {
           pendingContent.current = content;
@@ -135,8 +149,6 @@ const ProjectEditorContent = memo(function ProjectEditorContent() {
     },
     [currentScene?.id, currentScene?.content, autoSave]
   );
-
-
 
   // Loading state
   if (isLoadingProject) {
@@ -211,10 +223,10 @@ const ProjectEditorContent = memo(function ProjectEditorContent() {
         handleAddScene={handleAddScene}
         handleAddCharacter={handleAddCharacter}
         isMobileNavOpen={isMobileNavOpen}
-         setIsMobileNavOpen={setIsMobileNavOpen}
-         handleSceneSelect={handleSceneSelect}
-         autoSaveStatus={autoSaveStatus}
-       />
+        setIsMobileNavOpen={setIsMobileNavOpen}
+        handleSceneSelect={handleSceneSelect}
+        autoSaveStatus={autoSaveStatus}
+      />
     </FocusModeManager>
   );
 });
@@ -252,10 +264,10 @@ const ProjectEditorInner = memo(function ProjectEditorInner({
   handleAddScene,
   handleAddCharacter,
   isMobileNavOpen,
-   setIsMobileNavOpen,
-   handleSceneSelect,
-   autoSaveStatus,
- }: any) {
+  setIsMobileNavOpen,
+  handleSceneSelect,
+  autoSaveStatus,
+}: any) {
   const { isFocusMode, exitFocusMode, toggleFocusMode } = useFocusMode();
 
   return (
@@ -270,9 +282,28 @@ const ProjectEditorInner = memo(function ProjectEditorInner({
         locations={[]}
         autoSaveStatus={autoSaveStatus}
       />
-        {/* Mobile Navigation */}
-        {deviceInfo.isMobile && (
-          <MobileNavigation
+      {/* Mobile Navigation */}
+      {deviceInfo.isMobile && (
+        <MobileNavigation
+          project={project}
+          chapters={memoizedChapters}
+          scenes={memoizedScenes}
+          characters={memoizedCharacters}
+          selectedItem={selectedItem}
+          onItemSelect={handleItemSelect}
+          onAddChapter={handleAddChapter}
+          onAddScene={handleAddScene}
+          onAddCharacter={handleAddCharacter}
+          onAddLocation={() => {}}
+          expandedChapters={state.expandedChapters}
+          onToggleChapter={toggleChapter}
+        />
+      )}
+
+      {/* Desktop Navigation Panel */}
+      {!deviceInfo.isMobile && (
+        <div className="w-64 flex-shrink-0">
+          <NavigationPanel
             project={project}
             chapters={memoizedChapters}
             scenes={memoizedScenes}
@@ -286,138 +317,123 @@ const ProjectEditorInner = memo(function ProjectEditorInner({
             expandedChapters={state.expandedChapters}
             onToggleChapter={toggleChapter}
           />
+        </div>
+      )}
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        {/* View Mode Toolbar */}
+        {!deviceInfo.isMobile && (
+          <ViewModeToolbar
+            viewMode={viewMode}
+            onViewModeChange={(mode) => setViewMode(mode as ViewMode)}
+            projectTitle={project?.title}
+          />
         )}
 
-        {/* Desktop Navigation Panel */}
-        {!deviceInfo.isMobile && (
-          <div className="w-64 flex-shrink-0">
-            <NavigationPanel
+        {/* Content based on view mode */}
+        <div className="flex-1 flex overflow-hidden min-h-0">
+          <div className="flex-1 overflow-hidden min-w-0">
+            {viewMode === "writing" ? (
+              selectedItem?.type === "scene" && currentScene ? (
+                <div className="h-full flex flex-col">
+                  {/* Auto-save status indicator */}
+                  <div className="flex-shrink-0 px-4 py-2 border-b bg-muted/30">
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm text-muted-foreground">
+                        {currentScene.title}
+                      </div>
+                      <div className={`text-xs ${autoSaveStatus.statusColor}`}>
+                        {autoSaveStatus.statusText}
+                      </div>
+                    </div>
+                  </div>
+                  <TiptapEditor
+                    content={currentScene.content || {}}
+                    onChange={handleEditorChange}
+                    placeholder="Comece a escrever sua cena..."
+                    className="flex-1"
+                    characters={memoizedCharacters}
+                    locations={[]}
+                  />
+                </div>
+              ) : (
+                <div className="flex h-full items-center justify-center">
+                  <div className="text-center text-muted-foreground">
+                    <FileText className="h-12 w-12 mx-auto mb-4" />
+                    <p>Selecione uma cena para começar a escrever</p>
+                  </div>
+                </div>
+              )
+            ) : viewMode === "corkboard" ? (
+              <CorkboardView
+                chapters={memoizedChapters}
+                scenes={memoizedScenes}
+                selectedChapterId={
+                  selectedItem?.type === "chapter" ? selectedItem.id : undefined
+                }
+                onSceneSelect={handleSceneSelect}
+                onSceneUpdate={updateScene}
+                onSceneCreate={handleAddScene}
+                onSceneDelete={async (sceneId) => {
+                  // TODO: Implement scene deletion
+                  console.log("Delete scene:", sceneId);
+                }}
+                className="h-full"
+              />
+            ) : viewMode === "outliner" ? (
+              <div className="flex h-full items-center justify-center">
+                <div className="text-center text-muted-foreground">
+                  <List className="h-12 w-12 mx-auto mb-4" />
+                  <p>Modo Estrutura em desenvolvimento</p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex h-full items-center justify-center">
+                <div className="text-center text-muted-foreground">
+                  <Grid3X3 className="h-12 w-12 mx-auto mb-4" />
+                  <p>Selecione um modo de visualização</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Metadata Panel */}
+          {(selectedItem?.type === "character" ||
+            selectedItem?.type === "scene" ||
+            selectedItem?.type === "chapter") && (
+            <MetadataPanel
               project={project}
               chapters={memoizedChapters}
               scenes={memoizedScenes}
               characters={memoizedCharacters}
               selectedItem={selectedItem}
-              onItemSelect={handleItemSelect}
-              onAddChapter={handleAddChapter}
-              onAddScene={handleAddScene}
-              onAddCharacter={handleAddCharacter}
-              onAddLocation={() => {}}
-              expandedChapters={state.expandedChapters}
-              onToggleChapter={toggleChapter}
-            />
-          </div>
-        )}
-
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-          {/* View Mode Toolbar */}
-          {!deviceInfo.isMobile && (
-            <ViewModeToolbar
-              viewMode={viewMode}
-              onViewModeChange={(mode) => setViewMode(mode as ViewMode)}
-              projectTitle={project?.title}
+              onUpdateItem={async (type: string, id: string, data: any) => {
+                if (type === "character") {
+                  await updateCharacter(id, data);
+                } else if (type === "scene") {
+                  await updateScene(id, data);
+                } else if (type === "chapter") {
+                  await updateChapter(id, data);
+                }
+              }}
+              className={`${deviceInfo.isMacbook ? "w-64" : "w-80"}`}
             />
           )}
-
-          {/* Content based on view mode */}
-          <div className="flex-1 flex overflow-hidden min-h-0">
-            <div className="flex-1 overflow-hidden min-w-0">
-              {viewMode === "writing" ? (
-                selectedItem?.type === "scene" && currentScene ? (
-                  <div className="h-full flex flex-col">
-                    {/* Auto-save status indicator */}
-                    <div className="flex-shrink-0 px-4 py-2 border-b bg-muted/30">
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm text-muted-foreground">
-                          {currentScene.title}
-                        </div>
-                        <div className={`text-xs ${autoSaveStatus.statusColor}`}>
-                          {autoSaveStatus.statusText}
-                        </div>
-                      </div>
-                    </div>
-                    <TiptapEditor
-                      content={currentScene.content || {}}
-                      onChange={handleEditorChange}
-                      placeholder="Comece a escrever sua cena..."
-                      className="flex-1"
-                      characters={memoizedCharacters}
-                      locations={[]}
-                    />
-                  </div>
-                ) : (
-                  <div className="flex h-full items-center justify-center">
-                    <div className="text-center text-muted-foreground">
-                      <FileText className="h-12 w-12 mx-auto mb-4" />
-                      <p>Selecione uma cena para começar a escrever</p>
-                    </div>
-                  </div>
-                )
-              ) : viewMode === "corkboard" ? (
-                <CorkboardView
-                  chapters={memoizedChapters}
-                  scenes={memoizedScenes}
-                  selectedChapterId={selectedItem?.type === "chapter" ? selectedItem.id : undefined}
-                  onSceneSelect={handleSceneSelect}
-                  onSceneUpdate={updateScene}
-                  onSceneCreate={handleAddScene}
-                  onSceneDelete={async (sceneId) => {
-                    // TODO: Implement scene deletion
-                    console.log("Delete scene:", sceneId);
-                  }}
-                  className="h-full"
-                />
-              ) : viewMode === "outliner" ? (
-                <div className="flex h-full items-center justify-center">
-                  <div className="text-center text-muted-foreground">
-                    <List className="h-12 w-12 mx-auto mb-4" />
-                    <p>Modo Estrutura em desenvolvimento</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex h-full items-center justify-center">
-                  <div className="text-center text-muted-foreground">
-                    <Grid3X3 className="h-12 w-12 mx-auto mb-4" />
-                    <p>Selecione um modo de visualização</p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Metadata Panel */}
-             {(selectedItem?.type === "character" || selectedItem?.type === "scene" || selectedItem?.type === "chapter") && (
-               <MetadataPanel
-                 project={project}
-                 chapters={memoizedChapters}
-                 scenes={memoizedScenes}
-                 characters={memoizedCharacters}
-                 selectedItem={selectedItem}
-                 onUpdateItem={async (type: string, id: string, data: any) => {
-                   if (type === "character") {
-                     await updateCharacter(id, data);
-                   } else if (type === "scene") {
-                     await updateScene(id, data);
-                   } else if (type === "chapter") {
-                     await updateChapter(id, data);
-                   }
-                 }}
-                 className={`${deviceInfo.isMacbook ? "w-64" : "w-80"}`}
-               />
-             )}
-          </div>
         </div>
-
-        {/* Mobile Bottom Bar */}
-        {deviceInfo.isMobile && (
-          <MobileBottomBar
-            viewMode={viewMode}
-            onViewModeChange={(mode) => setViewMode(mode as ViewMode)}
-            onFocusMode={toggleFocusMode}
-            onSplitScreen={() => {}}
-            showWritingActions={viewMode === "writing" && !!currentScene}
-            />
-        )}
       </div>
+
+      {/* Mobile Bottom Bar */}
+      {deviceInfo.isMobile && (
+        <MobileBottomBar
+          viewMode={viewMode}
+          onViewModeChange={(mode) => setViewMode(mode as ViewMode)}
+          onFocusMode={toggleFocusMode}
+          onSplitScreen={() => {}}
+          showWritingActions={viewMode === "writing" && !!currentScene}
+        />
+      )}
+    </div>
   );
 });
 

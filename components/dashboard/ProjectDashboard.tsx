@@ -1,69 +1,75 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import { Plus, BookOpen, FileText } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import { useProject } from '@/contexts/ProjectContext'
-import { useAuth } from '@/contexts/AuthContext'
-import type { Project } from '@/contexts/ProjectContext'
-import { cn } from '@/lib/utils'
-import { CreateProjectForm } from '@/components/forms/CreateProjectForm'
-import { useRouter } from 'next/navigation'
+import React, { useState } from "react";
+import { Plus, BookOpen, FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useProject } from "@/contexts/ProjectContext";
+import { useAuth } from "@/contexts/AuthContext";
+import type { Project } from "@/contexts/ProjectContext";
+import { cn } from "@/lib/utils";
+import { CreateProjectForm } from "@/components/forms/CreateProjectForm";
+import { useRouter } from "next/navigation";
 
 interface ProjectDashboardProps {
-  className?: string
+  className?: string;
 }
 
 export function ProjectDashboard({ className }: ProjectDashboardProps) {
-  const { state, setCurrentProject } = useProject()
-  const { user, loading: authLoading } = useAuth()
-  const router = useRouter()
-  const [showCreateForm, setShowCreateForm] = useState(false)
+  const { state, setCurrentProject } = useProject();
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   const handleCreateProject = () => {
-    setShowCreateForm(true)
-  }
+    setShowCreateForm(true);
+  };
 
   const handleCreateSuccess = () => {
-    setShowCreateForm(false)
-  }
+    setShowCreateForm(false);
+  };
 
   const handleSelectProject = (project: Project) => {
-    setCurrentProject(project)
-    console.log('Projeto selecionado:', project.title)
-    router.push(`/project/${project.id}`)
-  }
+    setCurrentProject(project);
+    console.log("Projeto selecionado:", project.title);
+    router.push(`/project/${project.id}`);
+  };
 
   const getProjectStats = (projectId: string) => {
-    const chapters = state.chapters.filter(c => c.project_id === projectId)
-    const chapterIds = chapters.map(c => c.id)
-    const scenes = state.scenes.filter(s => chapterIds.includes(s.chapter_id))
-    const characters = state.characters.filter(c => c.project_id === projectId)
-    
+    const chapters = state.chapters.filter((c) => c.project_id === projectId);
+    const chapterIds = chapters.map((c) => c.id);
+    const scenes = state.scenes.filter((s) =>
+      chapterIds.includes(s.chapter_id)
+    );
+    const characters = state.characters.filter(
+      (c) => c.project_id === projectId
+    );
+
     return {
       chapters: chapters.length,
       scenes: scenes.length,
-      characters: characters.length
-    }
-  }
+      characters: characters.length,
+    };
+  };
 
   if (!user) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <BookOpen className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Faça login para continuar</h3>
+          <h3 className="text-lg font-semibold mb-2">
+            Faça login para continuar
+          </h3>
           <p className="text-muted-foreground mb-4">
             Você precisa estar logado para acessar seus projetos literários.
           </p>
-          <Button onClick={() => console.log('Implementar login')}>
+          <Button onClick={() => console.log("Implementar login")}>
             Fazer Login
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -71,12 +77,12 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="text-center space-y-4">
           <h1 className="text-3xl font-bold text-foreground">
-            Bem-vindo, {user?.name || 'Escritor'}!
+            Bem-vindo, {user?.name || "Escritor"}!
           </h1>
           <p className="text-lg text-muted-foreground">
             Comece sua jornada literária criando um novo projeto
           </p>
-          <Button 
+          <Button
             onClick={handleCreateProject}
             size="lg"
             className="bg-gradient-to-r from-escrivania-purple-600 to-escrivania-blue-600 hover:from-escrivania-purple-700 hover:to-escrivania-blue-700 text-white shadow-lg"
@@ -88,11 +94,13 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
 
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-semibold text-foreground">Seus Projetos</h2>
+            <h2 className="text-2xl font-semibold text-foreground">
+              Seus Projetos
+            </h2>
           </div>
 
           <div className="space-y-4">
-            {(state.loading && user) ? (
+            {state.loading && user ? (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {[...Array(3)].map((_, i) => (
                   <Card key={i} className="p-6">
@@ -127,9 +135,12 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {state.projects.map((project) => {
-                  const stats = getProjectStats(project.id)
+                  const stats = getProjectStats(project.id);
                   return (
-                    <Card key={project.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                    <Card
+                      key={project.id}
+                      className="hover:shadow-md transition-shadow cursor-pointer"
+                    >
                       <CardHeader className="pb-3">
                         <CardTitle className="text-lg font-semibold text-foreground truncate">
                           {project.title}
@@ -161,7 +172,7 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
                             <p className="text-muted-foreground">Personagens</p>
                           </div>
                         </div>
-                        <Button 
+                        <Button
                           onClick={() => handleSelectProject(project)}
                           className="w-full"
                           variant="outline"
@@ -170,7 +181,7 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
                         </Button>
                       </CardContent>
                     </Card>
-                  )
+                  );
                 })}
               </div>
             )}
@@ -181,7 +192,9 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
                   <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mx-auto mb-4">
                     <FileText className="h-6 w-6 text-red-600" />
                   </div>
-                  <p className="text-red-800 font-medium text-center">{state.error}</p>
+                  <p className="text-red-800 font-medium text-center">
+                    {state.error}
+                  </p>
                 </div>
               </div>
             )}
@@ -195,7 +208,7 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
         onSuccess={handleCreateSuccess}
       />
     </div>
-  )
+  );
 }
 
-export default ProjectDashboard
+export default ProjectDashboard;

@@ -230,11 +230,13 @@ export function FocusModeOverlay({
                 Reset
               </Button>
             </div>
-            
+
             {/* Auto-save Status */}
             {autoSaveStatus && (
               <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1">
-                <div className={`text-xs font-medium ${autoSaveStatus.statusColor}`}>
+                <div
+                  className={`text-xs font-medium ${autoSaveStatus.statusColor}`}
+                >
                   {autoSaveStatus.statusText}
                 </div>
               </div>
@@ -344,7 +346,10 @@ export function FocusModeOverlay({
 
       {/* Main Editor Area */}
       <div className="pt-20 pb-8 px-2 sm:px-4 lg:px-6 h-full flex items-center justify-center">
-        <div className="w-full max-w-none h-[80vh] min-h-[600px]" style={{width: '90vw'}}>
+        <div
+          className="w-full max-w-none h-[80vh] min-h-[600px]"
+          style={{ width: "90vw" }}
+        >
           <div className="bg-background/95 backdrop-blur-sm rounded-lg shadow-2xl h-full p-4 sm:p-6 lg:p-8 border border-border/50">
             <TiptapEditor
               content={content}

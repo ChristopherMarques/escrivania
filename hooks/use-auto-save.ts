@@ -68,7 +68,11 @@ export function useAutoSave(
   // Save function with error handling
   const performSave = useCallback(async () => {
     setState((currentState) => {
-      if (!enabled || currentState.isSaving || !currentState.hasUnsavedChanges) {
+      if (
+        !enabled ||
+        currentState.isSaving ||
+        !currentState.hasUnsavedChanges
+      ) {
         return currentState;
       }
       return { ...currentState, isSaving: true, lastError: null };
@@ -100,12 +104,7 @@ export function useAutoSave(
         toast("Erro ao salvar: " + errorObj.message);
       }
     }
-  }, [
-    enabled,
-    saveFunction,
-    showNotifications,
-    toast,
-  ]);
+  }, [enabled, saveFunction, showNotifications, toast]);
 
   // Mark content as changed
   const markAsChanged = useCallback(() => {

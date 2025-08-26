@@ -1,10 +1,14 @@
-'use client'
+"use client";
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { useState } from 'react'
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { useState } from "react";
 
-export function ReactQueryProvider({ children }: { children: React.ReactNode }) {
+export function ReactQueryProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -27,39 +31,39 @@ export function ReactQueryProvider({ children }: { children: React.ReactNode }) 
           },
         },
       })
-  )
+  );
 
   return (
     <QueryClientProvider client={queryClient}>
       {children}
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
-  )
+  );
 }
 
 // Hook para invalidar queries relacionadas a um projeto
 export function useInvalidateProjectQueries() {
-  const queryClient = new QueryClient()
-  
+  const queryClient = new QueryClient();
+
   return {
     invalidateProject: (projectId: string) => {
-      queryClient.invalidateQueries({ queryKey: ['projects'] })
-      queryClient.invalidateQueries({ queryKey: ['project', projectId] })
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["project", projectId] });
     },
     invalidateChapters: (projectId: string) => {
-      queryClient.invalidateQueries({ queryKey: ['chapters', projectId] })
+      queryClient.invalidateQueries({ queryKey: ["chapters", projectId] });
     },
     invalidateScenes: (chapterId: string) => {
-      queryClient.invalidateQueries({ queryKey: ['scenes', chapterId] })
+      queryClient.invalidateQueries({ queryKey: ["scenes", chapterId] });
     },
     invalidateCharacters: (projectId: string) => {
-      queryClient.invalidateQueries({ queryKey: ['characters', projectId] })
+      queryClient.invalidateQueries({ queryKey: ["characters", projectId] });
     },
     invalidateSynopses: (projectId: string) => {
-      queryClient.invalidateQueries({ queryKey: ['synopses', projectId] })
+      queryClient.invalidateQueries({ queryKey: ["synopses", projectId] });
     },
     invalidateAll: () => {
-      queryClient.invalidateQueries()
-    }
-  }
+      queryClient.invalidateQueries();
+    },
+  };
 }

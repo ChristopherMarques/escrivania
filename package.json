@@ -6,6 +6,12 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "type-check": "tsc --noEmit",
+    "clean:deps": "depcheck --ignores='@types/*,eslint-config-*' && npm-check-unused",
+    "prepare": "husky",
     "start": "next start"
   },
   "dependencies": {
@@ -116,16 +122,38 @@
     "yjs": "^13.6.27",
     "zod": "3.25.67"
   },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml,css,scss,html}": [
+      "prettier --write"
+    ]
+  },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.34.0",
     "@tailwindcss/postcss": "^4.1.9",
     "@types/lodash": "^4.17.20",
     "@types/lodash.throttle": "^4.1.9",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@typescript-eslint/eslint-plugin": "^8.41.0",
+    "@typescript-eslint/parser": "^8.41.0",
+    "depcheck": "^1.4.7",
     "eslint": "^9",
     "eslint-config-next": "15.5.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
+    "npm-check-unused": "^6.0.0",
     "postcss": "^8.5",
+    "prettier": "^3.6.2",
     "sass": "^1.90.0",
     "tailwindcss": "^4.1.9",
     "tw-animate-css": "1.3.3",

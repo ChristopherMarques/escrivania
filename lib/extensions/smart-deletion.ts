@@ -44,10 +44,10 @@ export const SmartDeletion = Extension.create<SmartDeletionOptions>({
       new Plugin({
         key: new PluginKey("smartDeletion"),
         props: {
-          handleKeyDown: (view, event) => {
+          handleKeyDown: (_view, event) => {
             const { state, dispatch } = view;
             const { selection, schema } = state;
-            const { $from, $to, empty } = selection;
+            const { $from, empty } = selection;
 
             // Backspace
             if (
@@ -204,7 +204,7 @@ export const SmartDeletion = Extension.create<SmartDeletionOptions>({
 
               // Comportamento especial para deletar palavras com Ctrl+Delete
               if (event.ctrlKey && nextNode && nextNode.isText) {
-                const text = nextNode.text || "";
+                // text variable removed as it's not used
                 const pos = $from.pos;
                 let deleteTo = pos;
 
@@ -268,7 +268,7 @@ export const SmartDeletion = Extension.create<SmartDeletionOptions>({
 
       smartBackspace:
         () =>
-        ({ state, dispatch, view }: any) => {
+        ({ state, dispatch, view: _view }: any) => {
           const { selection } = state;
           const { $from } = selection;
 

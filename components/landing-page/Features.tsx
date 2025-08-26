@@ -108,7 +108,11 @@ export function Features({
   const subtitleY = useTransform(scrollYProgress, [0, 1], [30, -30]);
   const backgroundY = useTransform(scrollYProgress, [0, 1], [0, -100]);
   const cardY = useTransform(scrollYProgress, [0, 1], [0, -50]);
-  const scaleProgress = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0.8, 1, 1, 1.05]);
+  const scaleProgress = useTransform(
+    scrollYProgress,
+    [0, 0.3, 0.7, 1],
+    [0.8, 1, 1, 1.05]
+  );
 
   const containerVariants = {
     hidden: { opacity: 0 },

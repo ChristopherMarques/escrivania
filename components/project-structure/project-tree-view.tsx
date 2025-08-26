@@ -9,7 +9,7 @@ import { Chapter, Scene } from "@/lib/types";
 interface ProjectTreeViewProps {
   chapters: Chapter[];
   selectedItemId?: string;
-  onSelectItem: (type: 'chapter' | 'scene', id: string) => void;
+  onSelectItem: (type: "chapter" | "scene", id: string) => void;
   onAddChapter: () => void;
   onAddScene: (chapterId: string) => void;
   className?: string;
@@ -23,7 +23,9 @@ export function ProjectTreeView({
   onAddScene,
   className,
 }: ProjectTreeViewProps) {
-  const [expandedChapters, setExpandedChapters] = React.useState<Set<string>>(new Set());
+  const [expandedChapters, setExpandedChapters] = React.useState<Set<string>>(
+    new Set()
+  );
 
   const toggleChapter = (chapterId: string) => {
     const newExpanded = new Set(expandedChapters);
@@ -36,7 +38,12 @@ export function ProjectTreeView({
   };
 
   return (
-    <div className={cn("flex flex-col h-full bg-gray-50 dark:bg-gray-900", className)}>
+    <div
+      className={cn(
+        "flex flex-col h-full bg-gray-50 dark:bg-gray-900",
+        className
+      )}
+    >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -74,9 +81,10 @@ export function ProjectTreeView({
                     className={cn(
                       "flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors",
                       "hover:bg-gray-100 dark:hover:bg-gray-800",
-                      isSelected && "bg-blue-100 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100"
+                      isSelected &&
+                        "bg-blue-100 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100"
                     )}
-                    onClick={() => onSelectItem('chapter', chapter.id)}
+                    onClick={() => onSelectItem("chapter", chapter.id)}
                   >
                     <Button
                       variant="ghost"
@@ -122,9 +130,10 @@ export function ProjectTreeView({
                             className={cn(
                               "flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors",
                               "hover:bg-gray-100 dark:hover:bg-gray-800",
-                              isSceneSelected && "bg-blue-100 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100"
+                              isSceneSelected &&
+                                "bg-blue-100 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100"
                             )}
-                            onClick={() => onSelectItem('scene', scene.id)}
+                            onClick={() => onSelectItem("scene", scene.id)}
                           >
                             <FileText className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                             <span className="flex-1 text-sm truncate">

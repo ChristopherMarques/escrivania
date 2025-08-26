@@ -98,7 +98,11 @@ export function Roadmap({
   });
 
   // Efeito de scale suave - começa pequeno e cresce até o tamanho original
-  const scaleProgress = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0.7, 1, 1, 0.9]);
+  const scaleProgress = useTransform(
+    scrollYProgress,
+    [0, 0.3, 0.7, 1],
+    [0.7, 1, 1, 0.9]
+  );
   const y = useTransform(scrollYProgress, [0, 1], [50, -50]);
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
 
@@ -177,7 +181,6 @@ export function Roadmap({
                       scale: 1.05,
                       y: -10,
                     }}
-
                   >
                     {/* Quarter Badge */}
                     <div className="absolute top-4 right-4">

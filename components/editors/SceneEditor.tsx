@@ -1,12 +1,18 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
+import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
   Save,
   Edit3,
@@ -18,89 +24,102 @@ import {
   ChevronLeft,
   ChevronRight,
   Target,
-} from 'lucide-react'
-import { useProject } from '@/contexts/ProjectContext'
-import type { Scene } from '@/contexts/ProjectContext'
+} from "lucide-react";
+import { useProject } from "@/contexts/ProjectContext";
+import type { Scene } from "@/contexts/ProjectContext";
 
 interface SceneEditorProps {
-  sceneId: string
-  onBack?: () => void
+  sceneId: string;
+  onBack?: () => void;
 }
 
 export function SceneEditor({ sceneId, onBack }: SceneEditorProps) {
-  const { state, updateScene } = useProject()
-  const [isEditing, setIsEditing] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-  const [editedScene, setEditedScene] = useState<Partial<Scene>>({})
+  const { state, updateScene } = useProject();
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [editedScene, setEditedScene] = useState<Partial<Scene>>({});
 
-  const scene = state.scenes.find(s => s.id === sceneId)
-  const chapter = scene ? state.chapters.find(c => c.id === scene.chapter_id) : null
-  const project = chapter ? state.projects.find(p => p.id === chapter.project_id) : null
-  
+  const scene = state.scenes.find((s) => s.id === sceneId);
+  const chapter = scene
+    ? state.chapters.find((c) => c.id === scene.chapter_id)
+    : null;
+  const project = chapter
+    ? state.projects.find((p) => p.id === chapter.project_id)
+    : null;
+
   // Encontrar cenas adjacentes no mesmo capítulo
-  const chapterScenes = chapter 
+  const chapterScenes = chapter
     ? state.scenes
-        .filter(s => s.chapter_id === chapter.id)
+        .filter((s) => s.chapter_id === chapter.id)
         .sort((a, b) => a.order_index - b.order_index)
-    : []
-  
-  const currentSceneIndex = chapterScenes.findIndex(s => s.id === sceneId)
-  const previousScene = currentSceneIndex > 0 ? chapterScenes[currentSceneIndex - 1] : null
-  const nextScene = currentSceneIndex < chapterScenes.length - 1 ? chapterScenes[currentSceneIndex + 1] : null
-  
+    : [];
+
+  const currentSceneIndex = chapterScenes.findIndex((s) => s.id === sceneId);
+  const previousScene =
+    currentSceneIndex > 0 ? chapterScenes[currentSceneIndex - 1] : null;
+  const nextScene =
+    currentSceneIndex < chapterScenes.length - 1
+      ? chapterScenes[currentSceneIndex + 1]
+      : null;
+
   // Encontrar personagens mencionados na cena
-  const mentionedCharacters = scene && scene.content 
-    ? state.characters.filter(character => 
-        character.project_id === project?.id &&
-        scene.content?.toLowerCase().includes(character.name.toLowerCase())
-      )
-    : []
+  const mentionedCharacters =
+    scene && scene.content
+      ? state.characters.filter(
+          (character) =>
+            character.project_id === project?.id &&
+            scene.content?.toLowerCase().includes(character.name.toLowerCase())
+        )
+      : [];
 
   useEffect(() => {
     if (scene) {
       setEditedScene({
         title: scene.title,
-        content: scene.content || '',
-      })
+        content: scene.content || "",
+      });
     }
-  }, [scene])
+  }, [scene]);
 
   const handleSaveScene = async () => {
-    if (!scene || !editedScene.title?.trim()) return
+    if (!scene || !editedScene.title?.trim()) return;
 
-    setIsSaving(true)
+    setIsSaving(true);
     try {
       await updateScene(scene.id, {
         title: editedScene.title,
         content: editedScene.content,
-      })
-      setIsEditing(false)
+      });
+      setIsEditing(false);
     } catch (error) {
-      console.error('Erro ao salvar cena:', error)
+      console.error("Erro ao salvar cena:", error);
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   const getWordCount = (text: string) => {
-    return text.trim().split(/\s+/).filter(word => word.length > 0).length
-  }
+    return text
+      .trim()
+      .split(/\s+/)
+      .filter((word) => word.length > 0).length;
+  };
 
   const getCharacterCount = (text: string) => {
-    return text.length
-  }
+    return text.length;
+  };
 
   const getReadingTime = (text: string) => {
-    const wordsPerMinute = 200
-    const words = getWordCount(text)
-    const minutes = Math.ceil(words / wordsPerMinute)
-    return minutes
-  }
+    const wordsPerMinute = 200;
+    const words = getWordCount(text);
+    const minutes = Math.ceil(words / wordsPerMinute);
+    return minutes;
+  };
 
   const navigateToScene = (targetSceneId: string) => {
     // Esta função seria implementada para navegar para outra cena
-    console.log('Navegar para cena:', targetSceneId)
-  }
+    console.log("Navegar para cena:", targetSceneId);
+  };
 
   if (!scene) {
     return (
@@ -115,7 +134,7 @@ export function SceneEditor({ sceneId, onBack }: SceneEditorProps) {
           Voltar
         </Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -131,7 +150,7 @@ export function SceneEditor({ sceneId, onBack }: SceneEditorProps) {
             <div className="flex items-center space-x-2 mb-1">
               <BookOpen className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">
-                {project?.title || 'Projeto'} → {chapter?.title || 'Capítulo'}
+                {project?.title || "Projeto"} → {chapter?.title || "Capítulo"}
               </span>
             </div>
             <h1 className="text-2xl font-bold flex items-center">
@@ -140,12 +159,12 @@ export function SceneEditor({ sceneId, onBack }: SceneEditorProps) {
             </h1>
           </div>
         </div>
-        
+
         <div className="flex items-center space-x-2">
           {/* Navigation between scenes */}
           <div className="flex items-center space-x-1 mr-4">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               onClick={() => previousScene && navigateToScene(previousScene.id)}
               disabled={!previousScene}
@@ -155,8 +174,8 @@ export function SceneEditor({ sceneId, onBack }: SceneEditorProps) {
             <span className="text-sm text-muted-foreground px-2">
               {currentSceneIndex + 1} de {chapterScenes.length}
             </span>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               onClick={() => nextScene && navigateToScene(nextScene.id)}
               disabled={!nextScene}
@@ -164,17 +183,17 @@ export function SceneEditor({ sceneId, onBack }: SceneEditorProps) {
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
-          
+
           {isEditing ? (
             <>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => setIsEditing(false)}
                 disabled={isSaving}
               >
                 Cancelar
               </Button>
-              <Button 
+              <Button
                 onClick={handleSaveScene}
                 disabled={isSaving || !editedScene.title?.trim()}
               >
@@ -201,13 +220,15 @@ export function SceneEditor({ sceneId, onBack }: SceneEditorProps) {
           <CardTitle className="flex items-center justify-between">
             <span>Conteúdo da Cena</span>
             <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-              <span>{getWordCount(scene.content || '')} palavras</span>
-              <span>{getCharacterCount(scene.content || '')} caracteres</span>
-              <span>~{getReadingTime(scene.content || '')} min leitura</span>
+              <span>{getWordCount(scene.content || "")} palavras</span>
+              <span>{getCharacterCount(scene.content || "")} caracteres</span>
+              <span>~{getReadingTime(scene.content || "")} min leitura</span>
             </div>
           </CardTitle>
           <CardDescription>
-            {isEditing ? 'Edite o título e conteúdo da cena' : 'Visualize e gerencie o conteúdo da cena'}
+            {isEditing
+              ? "Edite o título e conteúdo da cena"
+              : "Visualize e gerencie o conteúdo da cena"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -216,23 +237,39 @@ export function SceneEditor({ sceneId, onBack }: SceneEditorProps) {
               <div>
                 <label className="text-sm font-medium mb-2 block">Título</label>
                 <Input
-                  value={editedScene.title || ''}
-                  onChange={(e) => setEditedScene(prev => ({ ...prev, title: e.target.value }))}
+                  value={editedScene.title || ""}
+                  onChange={(e) =>
+                    setEditedScene((prev) => ({
+                      ...prev,
+                      title: e.target.value,
+                    }))
+                  }
                   placeholder="Título da cena"
                   className="text-lg font-semibold"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Conteúdo</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Conteúdo
+                </label>
                 <Textarea
-                  value={editedScene.content || ''}
-                  onChange={(e) => setEditedScene(prev => ({ ...prev, content: e.target.value }))}
+                  value={editedScene.content || ""}
+                  onChange={(e) =>
+                    setEditedScene((prev) => ({
+                      ...prev,
+                      content: e.target.value,
+                    }))
+                  }
                   placeholder="Escreva o conteúdo da cena: diálogos, ações, descrições, pensamentos dos personagens..."
                   className="min-h-[500px] resize-none font-mono text-sm leading-relaxed"
                 />
                 <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                  <span>{getWordCount(editedScene.content || '')} palavras</span>
-                  <span>{getCharacterCount(editedScene.content || '')} caracteres</span>
+                  <span>
+                    {getWordCount(editedScene.content || "")} palavras
+                  </span>
+                  <span>
+                    {getCharacterCount(editedScene.content || "")} caracteres
+                  </span>
                 </div>
               </div>
             </>
@@ -247,7 +284,10 @@ export function SceneEditor({ sceneId, onBack }: SceneEditorProps) {
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <FileText className="mx-auto h-8 w-8 mb-2" />
-                  <p>Nenhum conteúdo ainda. Clique em "Editar" para escrever a cena.</p>
+                  <p>
+                    Nenhum conteúdo ainda. Clique em "Editar" para escrever a
+                    cena.
+                  </p>
                 </div>
               )}
             </div>
@@ -264,25 +304,27 @@ export function SceneEditor({ sceneId, onBack }: SceneEditorProps) {
             <CardTitle className="text-sm font-medium">Palavras</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{getWordCount(scene.content || '')}</div>
+            <div className="text-2xl font-bold">
+              {getWordCount(scene.content || "")}
+            </div>
             <p className="text-xs text-muted-foreground">
-              {getCharacterCount(scene.content || '')} caracteres
+              {getCharacterCount(scene.content || "")} caracteres
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Leitura</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">~{getReadingTime(scene.content || '')}</div>
-            <p className="text-xs text-muted-foreground">
-              minutos estimados
-            </p>
+            <div className="text-2xl font-bold">
+              ~{getReadingTime(scene.content || "")}
+            </div>
+            <p className="text-xs text-muted-foreground">minutos estimados</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Posição</CardTitle>
@@ -294,16 +336,16 @@ export function SceneEditor({ sceneId, onBack }: SceneEditorProps) {
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Personagens</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mentionedCharacters.length}</div>
-            <p className="text-xs text-muted-foreground">
-              mencionados
-            </p>
+            <div className="text-2xl font-bold">
+              {mentionedCharacters.length}
+            </div>
+            <p className="text-xs text-muted-foreground">mencionados</p>
           </CardContent>
         </Card>
       </div>
@@ -314,7 +356,10 @@ export function SceneEditor({ sceneId, onBack }: SceneEditorProps) {
           <h2 className="text-xl font-semibold">Personagens na Cena</h2>
           <div className="grid gap-3">
             {mentionedCharacters.map((character) => (
-              <Card key={character.id} className="hover:shadow-md transition-shadow cursor-pointer">
+              <Card
+                key={character.id}
+                className="hover:shadow-md transition-shadow cursor-pointer"
+              >
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
@@ -324,14 +369,16 @@ export function SceneEditor({ sceneId, onBack }: SceneEditorProps) {
                       <div>
                         <h3 className="font-semibold">{character.name}</h3>
                         <p className="text-sm text-muted-foreground line-clamp-1">
-                          {character.description || 'Sem descrição'}
+                          {character.description || "Sem descrição"}
                         </p>
                       </div>
                     </div>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       size="sm"
-                      onClick={() => console.log('Ver personagem:', character.id)}
+                      onClick={() =>
+                        console.log("Ver personagem:", character.id)
+                      }
                     >
                       <Target className="h-4 w-4" />
                     </Button>
@@ -349,7 +396,10 @@ export function SceneEditor({ sceneId, onBack }: SceneEditorProps) {
           <h2 className="text-xl font-semibold">Navegação</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {previousScene && (
-              <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigateToScene(previousScene.id)}>
+              <Card
+                className="hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => navigateToScene(previousScene.id)}
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-center space-x-2">
                     <ChevronLeft className="h-4 w-4" />
@@ -368,15 +418,22 @@ export function SceneEditor({ sceneId, onBack }: SceneEditorProps) {
                     </p>
                   )}
                   <div className="flex items-center justify-between text-xs text-muted-foreground mt-3">
-                    <span>{getWordCount(previousScene.content || '')} palavras</span>
-                    <Badge variant="outline">#{previousScene.order_index}</Badge>
+                    <span>
+                      {getWordCount(previousScene.content || "")} palavras
+                    </span>
+                    <Badge variant="outline">
+                      #{previousScene.order_index}
+                    </Badge>
                   </div>
                 </CardContent>
               </Card>
             )}
-            
+
             {nextScene && (
-              <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigateToScene(nextScene.id)}>
+              <Card
+                className="hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => navigateToScene(nextScene.id)}
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-center space-x-2">
                     <CardTitle className="text-lg">Próxima Cena</CardTitle>
@@ -395,7 +452,9 @@ export function SceneEditor({ sceneId, onBack }: SceneEditorProps) {
                     </p>
                   )}
                   <div className="flex items-center justify-between text-xs text-muted-foreground mt-3">
-                    <span>{getWordCount(nextScene.content || '')} palavras</span>
+                    <span>
+                      {getWordCount(nextScene.content || "")} palavras
+                    </span>
                     <Badge variant="outline">#{nextScene.order_index}</Badge>
                   </div>
                 </CardContent>
@@ -416,13 +475,16 @@ export function SceneEditor({ sceneId, onBack }: SceneEditorProps) {
                 {chapter.title}
               </CardTitle>
               <CardDescription>
-                {chapter.description || 'Sem descrição disponível'}
+                {chapter.description || "Sem descrição disponível"}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <span>{chapterScenes.length} cenas no capítulo</span>
-                <span>Atualizado em {new Date(chapter.updated_at).toLocaleDateString('pt-BR')}</span>
+                <span>
+                  Atualizado em{" "}
+                  {new Date(chapter.updated_at).toLocaleDateString("pt-BR")}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -432,21 +494,29 @@ export function SceneEditor({ sceneId, onBack }: SceneEditorProps) {
       {/* Writing Tips */}
       <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
         <CardHeader>
-          <CardTitle className="text-green-900">Dicas para Escrever Cenas</CardTitle>
+          <CardTitle className="text-green-900">
+            Dicas para Escrever Cenas
+          </CardTitle>
         </CardHeader>
         <CardContent className="text-green-800">
           <ul className="space-y-2 text-sm">
             <li className="flex items-start">
               <span className="w-2 h-2 bg-green-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-              <span>Cada cena deve ter um objetivo claro e avançar a história</span>
+              <span>
+                Cada cena deve ter um objetivo claro e avançar a história
+              </span>
             </li>
             <li className="flex items-start">
               <span className="w-2 h-2 bg-green-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-              <span>Mostre, não conte - use ações e diálogos em vez de exposição</span>
+              <span>
+                Mostre, não conte - use ações e diálogos em vez de exposição
+              </span>
             </li>
             <li className="flex items-start">
               <span className="w-2 h-2 bg-green-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-              <span>Comece o mais tarde possível e termine o mais cedo possível</span>
+              <span>
+                Comece o mais tarde possível e termine o mais cedo possível
+              </span>
             </li>
             <li className="flex items-start">
               <span className="w-2 h-2 bg-green-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
@@ -460,7 +530,7 @@ export function SceneEditor({ sceneId, onBack }: SceneEditorProps) {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
-export default SceneEditor
+export default SceneEditor;

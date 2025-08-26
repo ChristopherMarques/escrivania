@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useRef } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { TiptapEditor } from "@/components/editor/tiptap-editor"
+import { useState, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TiptapEditor } from "@/components/editor/tiptap-editor";
 import {
   Dialog,
   DialogContent,
@@ -17,53 +17,60 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { MapPin, Upload, Trash2, ImageIcon } from "lucide-react"
-import type { ILocation } from "@/lib/types"
+} from "@/components/ui/dialog";
+import { MapPin, Upload, Trash2, ImageIcon } from "lucide-react";
+import type { ILocation } from "@/lib/types";
 
 interface LocationSheetProps {
-  location: ILocation
-  onUpdate: (location: ILocation) => void
-  onDelete: (locationId: string) => void
+  location: ILocation;
+  onUpdate: (location: ILocation) => void;
+  onDelete: (locationId: string) => void;
 }
 
-export function LocationSheet({ location, onUpdate, onDelete }: LocationSheetProps) {
-  const [isAddPinOpen, setIsAddPinOpen] = useState(false)
-  const [newPinName, setNewPinName] = useState("")
-  const [newPinDescription, setNewPinDescription] = useState("")
-  const [newPinPosition, setNewPinPosition] = useState<{ x: number; y: number } | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const mapRef = useRef<HTMLDivElement>(null)
+export function LocationSheet({
+  location,
+  onUpdate,
+  onDelete,
+}: LocationSheetProps) {
+  const [isAddPinOpen, setIsAddPinOpen] = useState(false);
+  const [newPinName, setNewPinName] = useState("");
+  const [newPinDescription, setNewPinDescription] = useState("");
+  const [newPinPosition, setNewPinPosition] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
 
   const updateLocation = (updates: Partial<ILocation>) => {
-    onUpdate({ ...location, ...updates, updatedAt: new Date().toISOString() })
-  }
+    onUpdate({ ...location, ...updates, updatedAt: new Date().toISOString() });
+  };
 
   const handleMapUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
+    const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onload = (e) => {
-        const imageUrl = e.target?.result as string
-        updateLocation({ mapImageUrl: imageUrl })
-      }
-      reader.readAsDataURL(file)
+        const imageUrl = e.target?.result as string;
+        updateLocation({ mapImageUrl: imageUrl });
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   const handleMapClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!mapRef.current) return
+    if (!mapRef.current) return;
 
-    const rect = mapRef.current.getBoundingClientRect()
-    const x = ((event.clientX - rect.left) / rect.width) * 100
-    const y = ((event.clientY - rect.top) / rect.height) * 100
+    const rect = mapRef.current.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * 100;
+    const y = ((event.clientY - rect.top) / rect.height) * 100;
 
-    setNewPinPosition({ x, y })
-    setIsAddPinOpen(true)
-  }
+    setNewPinPosition({ x, y });
+    setIsAddPinOpen(true);
+  };
 
   const addPin = () => {
-    if (!newPinName.trim() || !newPinPosition) return
+    if (!newPinName.trim() || !newPinPosition) return;
 
     const newPin = {
       id: `pin-${Date.now()}`,
@@ -71,21 +78,21 @@ export function LocationSheet({ location, onUpdate, onDelete }: LocationSheetPro
       y: newPinPosition.y,
       name: newPinName,
       description: newPinDescription,
-    }
+    };
 
-    const updatedPins = [...(location.pins || []), newPin]
-    updateLocation({ pins: updatedPins })
+    const updatedPins = [...(location.pins || []), newPin];
+    updateLocation({ pins: updatedPins });
 
-    setNewPinName("")
-    setNewPinDescription("")
-    setNewPinPosition(null)
-    setIsAddPinOpen(false)
-  }
+    setNewPinName("");
+    setNewPinDescription("");
+    setNewPinPosition(null);
+    setIsAddPinOpen(false);
+  };
 
   const removePin = (pinId: string) => {
-    const updatedPins = (location.pins || []).filter((pin) => pin.id !== pinId)
-    updateLocation({ pins: updatedPins })
-  }
+    const updatedPins = (location.pins || []).filter((pin) => pin.id !== pinId);
+    updateLocation({ pins: updatedPins });
+  };
 
   return (
     <div className="h-full flex flex-col">
@@ -133,10 +140,14 @@ export function LocationSheet({ location, onUpdate, onDelete }: LocationSheetPro
           <div className="flex-1 p-6">
             <TabsContent value="description" className="mt-0">
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">Descrição Detalhada</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Descrição Detalhada
+                </h3>
                 <TiptapEditor
                   content={location.description}
-                  onChange={(content) => updateLocation({ description: content })}
+                  onChange={(content) =>
+                    updateLocation({ description: content })
+                  }
                   placeholder="Descreva o local em detalhes: aparência, atmosfera, características marcantes..."
                   className="min-h-[400px]"
                 />
@@ -145,7 +156,9 @@ export function LocationSheet({ location, onUpdate, onDelete }: LocationSheetPro
 
             <TabsContent value="history" className="mt-0">
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">História do Local</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  História do Local
+                </h3>
                 <TiptapEditor
                   content={location.history || ""}
                   onChange={(content) => updateLocation({ history: content })}
@@ -157,7 +170,9 @@ export function LocationSheet({ location, onUpdate, onDelete }: LocationSheetPro
 
             <TabsContent value="culture" className="mt-0">
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">Cultura e Sociedade</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Cultura e Sociedade
+                </h3>
                 <TiptapEditor
                   content={location.culture || ""}
                   onChange={(content) => updateLocation({ culture: content })}
@@ -169,7 +184,9 @@ export function LocationSheet({ location, onUpdate, onDelete }: LocationSheetPro
 
             <TabsContent value="map" className="space-y-6 mt-0">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">Mapa Interativo</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Mapa Interativo
+                </h3>
                 <Button
                   onClick={() => fileInputRef.current?.click()}
                   className="bg-gradient-to-r from-purple-500 to-blue-400 hover:from-purple-600 hover:to-blue-500 text-white"
@@ -179,7 +196,13 @@ export function LocationSheet({ location, onUpdate, onDelete }: LocationSheetPro
                 </Button>
               </div>
 
-              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleMapUpload} className="hidden" />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleMapUpload}
+                className="hidden"
+              />
 
               {location.mapImageUrl ? (
                 <div className="space-y-4">
@@ -208,13 +231,15 @@ export function LocationSheet({ location, onUpdate, onDelete }: LocationSheetPro
                             <Card className="w-48 bg-white/90 backdrop-blur-sm border-white/20 shadow-lg">
                               <CardHeader className="pb-2">
                                 <div className="flex items-center justify-between">
-                                  <CardTitle className="text-sm">{pin.name}</CardTitle>
+                                  <CardTitle className="text-sm">
+                                    {pin.name}
+                                  </CardTitle>
                                   <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={(e) => {
-                                      e.stopPropagation()
-                                      removePin(pin.id)
+                                      e.stopPropagation();
+                                      removePin(pin.id);
                                     }}
                                     className="h-6 w-6 p-0 text-red-600 hover:bg-red-50"
                                   >
@@ -224,7 +249,9 @@ export function LocationSheet({ location, onUpdate, onDelete }: LocationSheetPro
                               </CardHeader>
                               {pin.description && (
                                 <CardContent className="pt-0">
-                                  <p className="text-xs text-gray-600">{pin.description}</p>
+                                  <p className="text-xs text-gray-600">
+                                    {pin.description}
+                                  </p>
                                 </CardContent>
                               )}
                             </Card>
@@ -243,10 +270,15 @@ export function LocationSheet({ location, onUpdate, onDelete }: LocationSheetPro
                   {/* Pin List */}
                   {(location.pins || []).length > 0 && (
                     <div>
-                      <h4 className="font-medium text-gray-700 mb-3">Marcadores no Mapa</h4>
+                      <h4 className="font-medium text-gray-700 mb-3">
+                        Marcadores no Mapa
+                      </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {(location.pins || []).map((pin) => (
-                          <Card key={pin.id} className="bg-white/50 backdrop-blur-sm border-white/30">
+                          <Card
+                            key={pin.id}
+                            className="bg-white/50 backdrop-blur-sm border-white/30"
+                          >
                             <CardHeader className="pb-2">
                               <div className="flex items-center justify-between">
                                 <CardTitle className="text-sm flex items-center">
@@ -265,7 +297,9 @@ export function LocationSheet({ location, onUpdate, onDelete }: LocationSheetPro
                             </CardHeader>
                             {pin.description && (
                               <CardContent className="pt-0">
-                                <p className="text-xs text-gray-600">{pin.description}</p>
+                                <p className="text-xs text-gray-600">
+                                  {pin.description}
+                                </p>
                               </CardContent>
                             )}
                           </Card>
@@ -278,7 +312,9 @@ export function LocationSheet({ location, onUpdate, onDelete }: LocationSheetPro
                 <div className="text-center py-12 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
                   <ImageIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                   <p className="text-lg font-medium">Nenhum mapa carregado</p>
-                  <p className="text-sm">Faça upload de uma imagem para criar um mapa interativo</p>
+                  <p className="text-sm">
+                    Faça upload de uma imagem para criar um mapa interativo
+                  </p>
                 </div>
               )}
             </TabsContent>
@@ -291,7 +327,9 @@ export function LocationSheet({ location, onUpdate, onDelete }: LocationSheetPro
         <DialogContent className="sm:max-w-[425px] bg-white/90 backdrop-blur-xl border-white/20">
           <DialogHeader>
             <DialogTitle>Adicionar Marcador</DialogTitle>
-            <DialogDescription>Adicione um ponto de interesse no mapa.</DialogDescription>
+            <DialogDescription>
+              Adicione um ponto de interesse no mapa.
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
@@ -330,5 +368,5 @@ export function LocationSheet({ location, onUpdate, onDelete }: LocationSheetPro
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

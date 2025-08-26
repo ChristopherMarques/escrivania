@@ -5,7 +5,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Chapter, Scene, SceneStatus } from "@/lib/types";
@@ -13,18 +19,26 @@ import { FileText, Book, BarChart3 } from "lucide-react";
 
 interface InspectorPanelProps {
   selectedItem?: {
-    type: 'chapter' | 'scene';
+    type: "chapter" | "scene";
     data: Chapter | Scene;
   };
-  onUpdateItem: (type: 'chapter' | 'scene', id: string, updates: Partial<Chapter | Scene>) => void;
+  onUpdateItem: (
+    type: "chapter" | "scene",
+    id: string,
+    updates: Partial<Chapter | Scene>
+  ) => void;
   className?: string;
 }
 
-const sceneStatusOptions: { value: SceneStatus; label: string; color: string }[] = [
-  { value: 'draft', label: 'Rascunho', color: 'bg-gray-500' },
-  { value: 'in-progress', label: 'Em Progresso', color: 'bg-yellow-500' },
-  { value: 'completed', label: 'Concluído', color: 'bg-green-500' },
-  { value: 'needs-revision', label: 'Precisa Revisão', color: 'bg-red-500' },
+const sceneStatusOptions: {
+  value: SceneStatus;
+  label: string;
+  color: string;
+}[] = [
+  { value: "draft", label: "Rascunho", color: "bg-gray-500" },
+  { value: "in-progress", label: "Em Progresso", color: "bg-yellow-500" },
+  { value: "completed", label: "Concluído", color: "bg-green-500" },
+  { value: "needs-revision", label: "Precisa Revisão", color: "bg-red-500" },
 ];
 
 export function InspectorPanel({
@@ -32,16 +46,16 @@ export function InspectorPanel({
   onUpdateItem,
   className,
 }: InspectorPanelProps) {
-  const [localTitle, setLocalTitle] = React.useState('');
-  const [localSynopsis, setLocalSynopsis] = React.useState('');
-  const [localNotes, setLocalNotes] = React.useState('');
+  const [localTitle, setLocalTitle] = React.useState("");
+  const [localSynopsis, setLocalSynopsis] = React.useState("");
+  const [localNotes, setLocalNotes] = React.useState("");
 
   // Update local state when selected item changes
   React.useEffect(() => {
     if (selectedItem) {
-      setLocalTitle(selectedItem.data.title || '');
-      setLocalSynopsis(selectedItem.data.synopsis || '');
-      setLocalNotes(selectedItem.data.notes || '');
+      setLocalTitle(selectedItem.data.title || "");
+      setLocalSynopsis(selectedItem.data.synopsis || "");
+      setLocalNotes(selectedItem.data.notes || "");
     }
   }, [selectedItem]);
 
@@ -49,7 +63,7 @@ export function InspectorPanel({
   const debouncedUpdate = React.useCallback(
     (field: string, value: string) => {
       if (!selectedItem) return;
-      
+
       const timeoutId = setTimeout(() => {
         onUpdateItem(selectedItem.type, selectedItem.data.id, {
           [field]: value,
@@ -64,22 +78,22 @@ export function InspectorPanel({
 
   const handleTitleChange = (value: string) => {
     setLocalTitle(value);
-    debouncedUpdate('title', value);
+    debouncedUpdate("title", value);
   };
 
   const handleSynopsisChange = (value: string) => {
     setLocalSynopsis(value);
-    debouncedUpdate('synopsis', value);
+    debouncedUpdate("synopsis", value);
   };
 
   const handleNotesChange = (value: string) => {
     setLocalNotes(value);
-    debouncedUpdate('notes', value);
+    debouncedUpdate("notes", value);
   };
 
   const handleStatusChange = (status: SceneStatus) => {
-    if (!selectedItem || selectedItem.type !== 'scene') return;
-    onUpdateItem('scene', selectedItem.data.id, {
+    if (!selectedItem || selectedItem.type !== "scene") return;
+    onUpdateItem("scene", selectedItem.data.id, {
       status,
       updatedAt: new Date(),
     });
@@ -87,7 +101,9 @@ export function InspectorPanel({
 
   if (!selectedItem) {
     return (
-      <div className={`flex flex-col h-full bg-gray-50 dark:bg-gray-900 ${className}`}>
+      <div
+        className={`flex flex-col h-full bg-gray-50 dark:bg-gray-900 ${className}`}
+      >
         <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
           <div className="text-center">
             <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -100,12 +116,16 @@ export function InspectorPanel({
     );
   }
 
-  const isScene = selectedItem.type === 'scene';
-  const scene = isScene ? selectedItem.data as Scene : null;
-  const statusOption = scene ? sceneStatusOptions.find(opt => opt.value === scene.status) : null;
+  const isScene = selectedItem.type === "scene";
+  const scene = isScene ? (selectedItem.data as Scene) : null;
+  const statusOption = scene
+    ? sceneStatusOptions.find((opt) => opt.value === scene.status)
+    : null;
 
   return (
-    <div className={`flex flex-col h-full bg-gray-50 dark:bg-gray-900 ${className}`}>
+    <div
+      className={`flex flex-col h-full bg-gray-50 dark:bg-gray-900 ${className}`}
+    >
       {/* Header */}
       <div className="flex items-center gap-3 p-4 border-b border-gray-200 dark:border-gray-700">
         {isScene ? (
@@ -115,12 +135,12 @@ export function InspectorPanel({
         )}
         <div className="flex-1">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            {isScene ? 'Cena' : 'Capítulo'}
+            {isScene ? "Cena" : "Capítulo"}
           </h2>
           {isScene && scene && (
             <div className="flex items-center gap-2 mt-1">
-              <Badge 
-                variant="secondary" 
+              <Badge
+                variant="secondary"
                 className={`${statusOption?.color} text-white text-xs`}
               >
                 {statusOption?.label}
@@ -165,7 +185,9 @@ export function InspectorPanel({
                     {sceneStatusOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         <div className="flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full ${option.color}`} />
+                          <div
+                            className={`w-2 h-2 rounded-full ${option.color}`}
+                          />
                           {option.label}
                         </div>
                       </SelectItem>
@@ -212,34 +234,49 @@ export function InspectorPanel({
                 {isScene && scene ? (
                   <>
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">Palavras:</span>
-                      <span className="text-sm font-medium">{scene.wordCount || 0}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">Criado em:</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        Palavras:
+                      </span>
                       <span className="text-sm font-medium">
-                        {new Date(scene.createdAt).toLocaleDateString('pt-BR')}
+                        {scene.wordCount || 0}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">Atualizado em:</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        Criado em:
+                      </span>
                       <span className="text-sm font-medium">
-                        {new Date(scene.updatedAt).toLocaleDateString('pt-BR')}
+                        {new Date(scene.createdAt).toLocaleDateString("pt-BR")}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        Atualizado em:
+                      </span>
+                      <span className="text-sm font-medium">
+                        {new Date(scene.updatedAt).toLocaleDateString("pt-BR")}
                       </span>
                     </div>
                   </>
                 ) : (
                   <>
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">Cenas:</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        Cenas:
+                      </span>
                       <span className="text-sm font-medium">
                         {(selectedItem.data as Chapter).scenes?.length || 0}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">Palavras totais:</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        Palavras totais:
+                      </span>
                       <span className="text-sm font-medium">
-                        {(selectedItem.data as Chapter).scenes?.reduce((total, scene) => total + (scene.wordCount || 0), 0) || 0}
+                        {(selectedItem.data as Chapter).scenes?.reduce(
+                          (total, scene) => total + (scene.wordCount || 0),
+                          0
+                        ) || 0}
                       </span>
                     </div>
                   </>

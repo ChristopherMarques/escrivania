@@ -133,12 +133,13 @@ export const TiptapEditor = memo(function TiptapEditor({
   readOnly = false,
 }: TiptapEditorProps) {
   const deviceInfo = useDeviceInfo();
-  
+
   // Memoize debounced onChange function for performance optimization
   const debouncedOnChange = useMemo(
-    () => debounce((content: any) => {
-      onChange?.(content);
-    }, 300), // Increased debounce time for better performance
+    () =>
+      debounce((content: any) => {
+        onChange?.(content);
+      }, 300), // Increased debounce time for better performance
     [onChange]
   );
 
@@ -157,129 +158,132 @@ export const TiptapEditor = memo(function TiptapEditor({
   const [sessionWordCount, setSessionWordCount] = React.useState(0);
 
   // Memoize extensions for better performance
-  const extensions = useMemo(() => [
-    StarterKit.configure({
-      horizontalRule: false,
-      blockquote: false,
-      hardBreak: false,
-      paragraph: {
+  const extensions = useMemo(
+    () => [
+      StarterKit.configure({
+        horizontalRule: false,
+        blockquote: false,
+        hardBreak: false,
+        paragraph: {
+          HTMLAttributes: {
+            class: "tiptap-paragraph",
+          },
+        },
+        bulletList: {
+          keepMarks: true,
+          keepAttributes: false,
+        },
+        orderedList: {
+          keepMarks: true,
+          keepAttributes: false,
+        },
+        gapcursor: false,
+      }),
+      HorizontalRule,
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
+      TaskList,
+      TaskItem.configure({ nested: true }),
+      Highlight.configure({
+        multicolor: true,
         HTMLAttributes: {
-          class: 'tiptap-paragraph',
+          class: "highlight",
         },
-      },
-      bulletList: {
-        keepMarks: true,
-        keepAttributes: false,
-      },
-      orderedList: {
-        keepMarks: true,
-        keepAttributes: false,
-      },
-      gapcursor: false,
-    }),
-    HorizontalRule,
-    TextAlign.configure({ types: ["heading", "paragraph"] }),
-    TaskList,
-    TaskItem.configure({ nested: true }),
-    Highlight.configure({
-      multicolor: true,
-      HTMLAttributes: {
-        class: "highlight",
-      },
-    }),
-    Image.configure({
-      inline: false,
-      allowBase64: true,
-      HTMLAttributes: {
-        class: 'tiptap-image',
-      },
-    }),
-    Typography,
-    Superscript,
-    Subscript,
-    Selection,
-    Color,
-    TextStyle,
-    FontFamily.configure({
-      types: ['textStyle'],
-    }),
-    FontSize.configure({
-      types: ['textStyle'],
-    }),
-    CharacterCount,
-    Placeholder.configure({
-      placeholder,
-      emptyEditorClass: "is-editor-empty",
-    }),
-    Underline,
-    ImageUploadNode.configure({
-      accept: "image/*",
-      maxSize: MAX_FILE_SIZE,
-      limit: 3,
-      upload: handleImageUpload,
-      onError: (error) => console.error("Upload failed:", error),
-    }),
-    Blockquote.configure({
-      HTMLAttributes: {
-        class: "border-l-4 border-border pl-4 italic text-muted-foreground",
-      },
-    }),
-    HardBreak.configure({
-      keepMarks: false,
-      HTMLAttributes: {
-        class: 'tiptap-hard-break',
-      },
-    }),
-    Mention.configure({
-      HTMLAttributes: {
-        class:
-          "mention bg-escrivania-blue-100 text-escrivania-blue-800 px-2 py-1 rounded-full text-sm",
-      },
-      suggestion: {
-        items: ({ query }) => {
-          return [
-            "Protagonist",
-            "Antagonist",
-            "Supporting Character",
-            "Love Interest",
-            "Mentor",
-            "Sidekick",
-          ]
-            .filter((item) =>
-              item.toLowerCase().startsWith(query.toLowerCase())
-            )
-            .slice(0, 5);
+      }),
+      Image.configure({
+        inline: false,
+        allowBase64: true,
+        HTMLAttributes: {
+          class: "tiptap-image",
         },
-      },
-    }),
-    DropCursor.configure({
-      color: "oklch(0.75 0.15 200)",
-      width: 2,
-    }),
-    Gapcursor,
-    Focus.configure({
-      className: "has-focus",
-      mode: "all",
-    }),
-    EnhancedEnter.configure({
-      createNewParagraph: false,
-      allowEmptyParagraphs: false,
-      trimEmptyParagraphs: false,
-    }),
-    ImageTextFlow.configure({
-      autoAddParagraphs: false,
-      enableArrowNavigation: false,
-      enableEnterNavigation: false,
-    }),
-    SmartDeletion.configure({
-      enableSmartBackspace: false,
-      enableSmartDelete: false,
-      enableSmartMerge: false,
-      enableImageDeletion: true,
-    }),
-    MentionExtension,
-    PageFormat,
-  ], [placeholder]);
+      }),
+      Typography,
+      Superscript,
+      Subscript,
+      Selection,
+      Color,
+      TextStyle,
+      FontFamily.configure({
+        types: ["textStyle"],
+      }),
+      FontSize.configure({
+        types: ["textStyle"],
+      }),
+      CharacterCount,
+      Placeholder.configure({
+        placeholder,
+        emptyEditorClass: "is-editor-empty",
+      }),
+      Underline,
+      ImageUploadNode.configure({
+        accept: "image/*",
+        maxSize: MAX_FILE_SIZE,
+        limit: 3,
+        upload: handleImageUpload,
+        onError: (error) => console.error("Upload failed:", error),
+      }),
+      Blockquote.configure({
+        HTMLAttributes: {
+          class: "border-l-4 border-border pl-4 italic text-muted-foreground",
+        },
+      }),
+      HardBreak.configure({
+        keepMarks: false,
+        HTMLAttributes: {
+          class: "tiptap-hard-break",
+        },
+      }),
+      Mention.configure({
+        HTMLAttributes: {
+          class:
+            "mention bg-escrivania-blue-100 text-escrivania-blue-800 px-2 py-1 rounded-full text-sm",
+        },
+        suggestion: {
+          items: ({ query }) => {
+            return [
+              "Protagonist",
+              "Antagonist",
+              "Supporting Character",
+              "Love Interest",
+              "Mentor",
+              "Sidekick",
+            ]
+              .filter((item) =>
+                item.toLowerCase().startsWith(query.toLowerCase())
+              )
+              .slice(0, 5);
+          },
+        },
+      }),
+      DropCursor.configure({
+        color: "oklch(0.75 0.15 200)",
+        width: 2,
+      }),
+      Gapcursor,
+      Focus.configure({
+        className: "has-focus",
+        mode: "all",
+      }),
+      EnhancedEnter.configure({
+        createNewParagraph: false,
+        allowEmptyParagraphs: false,
+        trimEmptyParagraphs: false,
+      }),
+      ImageTextFlow.configure({
+        autoAddParagraphs: false,
+        enableArrowNavigation: false,
+        enableEnterNavigation: false,
+      }),
+      SmartDeletion.configure({
+        enableSmartBackspace: false,
+        enableSmartDelete: false,
+        enableSmartMerge: false,
+        enableImageDeletion: true,
+      }),
+      MentionExtension,
+      PageFormat,
+    ],
+    [placeholder]
+  );
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -297,8 +301,8 @@ export const TiptapEditor = memo(function TiptapEditor({
           deviceInfo.isMobile
             ? "mobile-editor"
             : deviceInfo.isTablet
-            ? "tablet-editor"
-            : "desktop-editor"
+              ? "tablet-editor"
+              : "desktop-editor"
         }`,
       },
       // Performance optimizations
@@ -306,83 +310,98 @@ export const TiptapEditor = memo(function TiptapEditor({
       scrollMargin: 50,
       handleKeyDown: (view, event) => {
         // Melhorar comportamento de navegação com setas
-        if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        if (event.key === "ArrowUp" || event.key === "ArrowDown") {
           // Permitir navegação fluida entre linhas
           return false;
         }
-        
+
         // Permitir que a extensão EnhancedEnter gerencie o Enter
-        if (event.key === 'Enter') {
+        if (event.key === "Enter") {
           return false;
         }
-        
+
         return false;
       },
     },
     // Performance optimizations
     parseOptions: {
-      preserveWhitespace: 'full',
+      preserveWhitespace: "full",
     },
     enableInputRules: true,
     enablePasteRules: true,
     injectCSS: false, // We handle CSS ourselves
     extensions,
-    content: content && typeof content === 'object' && content.type ? content : {
-      type: 'doc',
-      content: [{
-        type: 'paragraph',
-        content: []
-      }]
-    },
-    onUpdate: useCallback(({ editor }: { editor: any }) => {
-      const json = editor.getJSON();
-      debouncedOnChange(json);
+    content:
+      content && typeof content === "object" && content.type
+        ? content
+        : {
+            type: "doc",
+            content: [
+              {
+                type: "paragraph",
+                content: [],
+              },
+            ],
+          },
+    onUpdate: useCallback(
+      ({ editor }: { editor: any }) => {
+        const json = editor.getJSON();
+        debouncedOnChange(json);
 
-      // Update counts with throttling for better performance
-      const stats = editor.storage.characterCount;
-      const words = stats.words();
-      const characters = stats.characters();
+        // Update counts with throttling for better performance
+        const stats = editor.storage.characterCount;
+        const words = stats.words();
+        const characters = stats.characters();
 
-      setWordCount(words);
-      setCharacterCount(characters);
+        setWordCount(words);
+        setCharacterCount(characters);
 
-      // Calculate reading time (average 200 words per minute)
-      setReadingTime(Math.ceil(words / 200));
+        // Calculate reading time (average 200 words per minute)
+        setReadingTime(Math.ceil(words / 200));
 
-      // Count paragraphs
-      const text = editor.getText();
-      const paragraphs = text
-        .split("\n\n")
-        .filter((p: string) => p.trim().length > 0).length;
-      setParagraphCount(paragraphs);
-    }, [debouncedOnChange]),
+        // Count paragraphs
+        const text = editor.getText();
+        const paragraphs = text
+          .split("\n\n")
+          .filter((p: string) => p.trim().length > 0).length;
+        setParagraphCount(paragraphs);
+      },
+      [debouncedOnChange]
+    ),
   });
 
   // Prevent infinite loops by tracking content updates
   const [isUpdatingContent, setIsUpdatingContent] = React.useState(false);
-  
+
   // Sync content with editor when content prop changes
   React.useEffect(() => {
-    if (editor && content !== undefined && !isUpdatingContent && !editor.isFocused) {
+    if (
+      editor &&
+      content !== undefined &&
+      !isUpdatingContent &&
+      !editor.isFocused
+    ) {
       const currentContent = editor.getJSON();
-      
+
       // Extract text for comparison to avoid JSON stringify issues
       const extractText = (contentObj: any): string => {
-        if (!contentObj || !Array.isArray(contentObj.content)) return '';
-        return contentObj.content.map((node: any) => {
-          if (node.type === 'text') return node.text || '';
-          if (node.content) return extractText(node);
-          return '';
-        }).join('');
+        if (!contentObj || !Array.isArray(contentObj.content)) return "";
+        return contentObj.content
+          .map((node: any) => {
+            if (node.type === "text") return node.text || "";
+            if (node.content) return extractText(node);
+            return "";
+          })
+          .join("");
       };
-      
+
       const currentText = extractText(currentContent);
       const newText = extractText(content);
-      
+
       // Only update if text content is actually different
       if (currentText !== newText) {
         setIsUpdatingContent(true);
-        
+
         // Use requestAnimationFrame for better performance
         requestAnimationFrame(() => {
           if (editor && !editor.isDestroyed) {

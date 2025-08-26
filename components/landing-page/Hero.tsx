@@ -130,14 +130,22 @@ export function Hero({
                     className="relative inline-block gradient-text"
                     initial={{ opacity: 0, x: -50, scale: 0.8 }}
                     animate={{ opacity: 1, x: 0, scale: 1 }}
-                    transition={{ duration: 0.8, delay: 0.5, type: "spring" as const }}
+                    transition={{
+                      duration: 0.8,
+                      delay: 0.5,
+                      type: "spring" as const,
+                    }}
                   >
                     Nossa Paixão
                     <motion.div
                       className="absolute -bottom-4 left-0 right-0 h-2 gradient-bg rounded-full"
                       initial={{ scaleX: 0, opacity: 0 }}
                       animate={{ scaleX: 1, opacity: 1 }}
-                      transition={{ duration: 1.2, delay: 1.2, type: "spring" as const }}
+                      transition={{
+                        duration: 1.2,
+                        delay: 1.2,
+                        type: "spring" as const,
+                      }}
                     />
                   </motion.span>
                 </motion.h1>
@@ -165,7 +173,11 @@ export function Hero({
                   <motion.div
                     initial={{ scale: 0, rotate: -10 }}
                     animate={{ scale: 1, rotate: 0 }}
-                    transition={{ delay: 1.0, type: "spring" as const, stiffness: 200 }}
+                    transition={{
+                      delay: 1.0,
+                      type: "spring" as const,
+                      stiffness: 200,
+                    }}
                     whileHover={{
                       scale: 1.05,
                       boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",

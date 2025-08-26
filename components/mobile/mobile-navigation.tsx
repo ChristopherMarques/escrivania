@@ -59,26 +59,28 @@ export const MobileNavigation = memo(function MobileNavigation({
   const deviceInfo = useDeviceInfo();
 
   // Memoize sorted data
-  const sortedChapters = useMemo(() => 
-    chapters.sort((a, b) => a.order_index - b.order_index),
+  const sortedChapters = useMemo(
+    () => chapters.sort((a, b) => a.order_index - b.order_index),
     [chapters]
-  )
+  );
 
-  const sortedCharacters = useMemo(() => 
-    characters.sort((a, b) => a.name.localeCompare(b.name)),
+  const sortedCharacters = useMemo(
+    () => characters.sort((a, b) => a.name.localeCompare(b.name)),
     [characters]
-  )
+  );
 
   const scenesByChapter = useMemo(() => {
-    const sceneMap = new Map<string, Tables<'scenes'>[]>()
-    scenes.forEach(scene => {
-      const chapterScenes = sceneMap.get(scene.chapter_id) || []
-      chapterScenes.push(scene)
-      sceneMap.set(scene.chapter_id, chapterScenes)
-    })
-    sceneMap.forEach(scenes => scenes.sort((a, b) => a.order_index - b.order_index))
-    return sceneMap
-  }, [scenes])
+    const sceneMap = new Map<string, Tables<"scenes">[]>();
+    scenes.forEach((scene) => {
+      const chapterScenes = sceneMap.get(scene.chapter_id) || [];
+      chapterScenes.push(scene);
+      sceneMap.set(scene.chapter_id, chapterScenes);
+    });
+    sceneMap.forEach((scenes) =>
+      scenes.sort((a, b) => a.order_index - b.order_index)
+    );
+    return sceneMap;
+  }, [scenes]);
 
   // Determine sheet width based on device type
   const getSheetWidth = () => {
@@ -90,10 +92,13 @@ export const MobileNavigation = memo(function MobileNavigation({
   // Determine if navigation should be visible
   const shouldShowNavigation = deviceInfo.isMobile || deviceInfo.isTablet;
 
-  const handleItemSelect = useCallback((item: { type: string; id: string }) => {
-    onItemSelect(item);
-    setIsOpen(false);
-  }, [onItemSelect]);
+  const handleItemSelect = useCallback(
+    (item: { type: string; id: string }) => {
+      onItemSelect(item);
+      setIsOpen(false);
+    },
+    [onItemSelect]
+  );
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>

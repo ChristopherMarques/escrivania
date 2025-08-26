@@ -16,21 +16,26 @@ interface FocusModeContextType {
   exitFocusMode: () => void;
 }
 
-const FocusModeContext = React.createContext<FocusModeContextType | undefined>(undefined);
+const FocusModeContext = React.createContext<FocusModeContextType | undefined>(
+  undefined
+);
 
 export function useFocusMode() {
   const context = React.useContext(FocusModeContext);
   if (!context) {
-    throw new Error('useFocusMode must be used within a FocusModeManager');
+    throw new Error("useFocusMode must be used within a FocusModeManager");
   }
   return context;
 }
 
-export function FocusModeManager({ children, className }: FocusModeManagerProps) {
+export function FocusModeManager({
+  children,
+  className,
+}: FocusModeManagerProps) {
   const [isFocusMode, setIsFocusMode] = React.useState(false);
 
   const toggleFocusMode = React.useCallback(() => {
-    setIsFocusMode(prev => !prev);
+    setIsFocusMode((prev) => !prev);
   }, []);
 
   const exitFocusMode = React.useCallback(() => {
@@ -40,24 +45,27 @@ export function FocusModeManager({ children, className }: FocusModeManagerProps)
   // Handle escape key to exit focus mode
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isFocusMode) {
+      if (event.key === "Escape" && isFocusMode) {
         exitFocusMode();
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isFocusMode, exitFocusMode]);
 
-  const contextValue = React.useMemo(() => ({
-    isFocusMode,
-    toggleFocusMode,
-    exitFocusMode,
-  }), [isFocusMode, toggleFocusMode, exitFocusMode]);
+  const contextValue = React.useMemo(
+    () => ({
+      isFocusMode,
+      toggleFocusMode,
+      exitFocusMode,
+    }),
+    [isFocusMode, toggleFocusMode, exitFocusMode]
+  );
 
   return (
     <FocusModeContext.Provider value={contextValue}>
-      <div 
+      <div
         className={cn(
           "relative transition-all duration-300 ease-in-out",
           isFocusMode && "focus-mode-active",

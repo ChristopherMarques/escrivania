@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import { MainLayout } from '@/components/layout/MainLayout'
-import { ProjectProvider } from '@/contexts/ProjectContext'
-import { AuthProvider } from '@/contexts/AuthContext'
+import { MainLayout } from "@/components/layout/MainLayout";
+import { ProjectProvider } from "@/contexts/ProjectContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 export default function Home() {
   return (
@@ -11,5 +11,5 @@ export default function Home() {
         <MainLayout />
       </ProjectProvider>
     </AuthProvider>
-  )
+  );
 }

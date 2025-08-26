@@ -1,9 +1,9 @@
-import { betterAuth } from "better-auth"
-import { Pool } from "pg"
+import { betterAuth } from "better-auth";
+import { Pool } from "pg";
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL!,
-})
+});
 
 export const auth = betterAuth({
   database: pool,
@@ -27,21 +27,21 @@ export const auth = betterAuth({
   },
   secret: process.env.BETTER_AUTH_SECRET!,
   baseURL: process.env.BETTER_AUTH_URL!,
-})
+});
 
 export type User = {
-  id: string
-  email: string
-  name: string
-  avatar_url?: string
-  createdAt: Date
-  updatedAt: Date
-}
+  id: string;
+  email: string;
+  name: string;
+  avatar_url?: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 export type Session = {
-  id: string
-  userId: string
-  expiresAt: Date
-  token: string
-  user: User
-}
+  id: string;
+  userId: string;
+  expiresAt: Date;
+  token: string;
+  user: User;
+};

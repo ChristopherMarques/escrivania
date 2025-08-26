@@ -74,7 +74,7 @@ export function ViewModeToolbar({
           <ArrowLeft className="h-4 w-4 mr-1" />
           Dashboard
         </Button>
-        
+
         {projectTitle && (
           <>
             <Separator orientation="vertical" className="h-4" />
@@ -113,7 +113,7 @@ export function ViewModeToolbar({
       {/* Right Section - Focus Mode and Actions */}
       <div className="flex items-center space-x-2">
         <FocusModeToggle className="h-8 w-8 text-gray-600 hover:text-gray-900 hover:bg-gray-100" />
-        
+
         <Button
           variant="ghost"
           size="sm"

@@ -10,10 +10,14 @@ const config = {
   prefix: "",
   theme: {
     backgroundImage: {
-      "gradient-primary": "linear-gradient(135deg, oklch(0.6 0.2 270) 0%, oklch(0.75 0.15 200) 100%)",
-      "gradient-escrivania": "linear-gradient(135deg, oklch(0.6 0.2 270) 0%, oklch(0.75 0.15 200) 100%)",
-      "gradient-purple": "linear-gradient(135deg, oklch(0.7 0.2 270) 0%, oklch(0.5 0.24 270) 100%)",
-      "gradient-blue": "linear-gradient(135deg, oklch(0.8 0.15 200) 0%, oklch(0.6 0.22 200) 100%)",
+      "gradient-primary":
+        "linear-gradient(135deg, oklch(0.6 0.2 270) 0%, oklch(0.75 0.15 200) 100%)",
+      "gradient-escrivania":
+        "linear-gradient(135deg, oklch(0.6 0.2 270) 0%, oklch(0.75 0.15 200) 100%)",
+      "gradient-purple":
+        "linear-gradient(135deg, oklch(0.7 0.2 270) 0%, oklch(0.5 0.24 270) 100%)",
+      "gradient-blue":
+        "linear-gradient(135deg, oklch(0.8 0.15 200) 0%, oklch(0.6 0.22 200) 100%)",
     },
     container: {
       center: true,
@@ -110,30 +114,30 @@ const config = {
           ring: "oklch(var(--sidebar-ring))",
         },
         // Cores específicas do projeto Escrivania Digital
-        'escrivania': {
+        escrivania: {
           purple: {
-            50: 'oklch(0.95 0.05 270)',
-            100: 'oklch(0.9 0.1 270)',
-            200: 'oklch(0.85 0.15 270)',
-            300: 'oklch(0.8 0.18 270)',
-            400: 'oklch(0.7 0.2 270)',
-            500: 'oklch(0.6 0.2 270)', // Primary purple
-            600: 'oklch(0.55 0.22 270)',
-            700: 'oklch(0.5 0.24 270)',
-            800: 'oklch(0.4 0.26 270)',
-            900: 'oklch(0.3 0.28 270)',
+            50: "oklch(0.95 0.05 270)",
+            100: "oklch(0.9 0.1 270)",
+            200: "oklch(0.85 0.15 270)",
+            300: "oklch(0.8 0.18 270)",
+            400: "oklch(0.7 0.2 270)",
+            500: "oklch(0.6 0.2 270)", // Primary purple
+            600: "oklch(0.55 0.22 270)",
+            700: "oklch(0.5 0.24 270)",
+            800: "oklch(0.4 0.26 270)",
+            900: "oklch(0.3 0.28 270)",
           },
           blue: {
-            50: 'oklch(0.95 0.05 200)',
-            100: 'oklch(0.9 0.08 200)',
-            200: 'oklch(0.85 0.12 200)',
-            300: 'oklch(0.8 0.15 200)',
-            400: 'oklch(0.75 0.15 200)', // Accent blue
-            500: 'oklch(0.7 0.18 200)',
-            600: 'oklch(0.65 0.2 200)',
-            700: 'oklch(0.6 0.22 200)',
-            800: 'oklch(0.5 0.24 200)',
-            900: 'oklch(0.4 0.26 200)',
+            50: "oklch(0.95 0.05 200)",
+            100: "oklch(0.9 0.08 200)",
+            200: "oklch(0.85 0.12 200)",
+            300: "oklch(0.8 0.15 200)",
+            400: "oklch(0.75 0.15 200)", // Accent blue
+            500: "oklch(0.7 0.18 200)",
+            600: "oklch(0.65 0.2 200)",
+            700: "oklch(0.6 0.22 200)",
+            800: "oklch(0.5 0.24 200)",
+            900: "oklch(0.4 0.26 200)",
           },
         },
       },
@@ -200,15 +204,15 @@ const config = {
           "0%": { transform: "translateY(100%)" },
           "100%": { transform: "translateY(0)" },
         },
-        "float": {
+        float: {
           "0%, 100%": { transform: "translateY(0px)" },
           "50%": { transform: "translateY(-20px)" },
         },
-        "gradient": {
+        gradient: {
           "0%, 100%": { backgroundPosition: "0% 50%" },
           "50%": { backgroundPosition: "100% 50%" },
         },
-        "glow": {
+        glow: {
           "0%, 100%": { boxShadow: "0 0 20px rgba(139, 92, 246, 0.3)" },
           "50%": { boxShadow: "0 0 40px rgba(139, 92, 246, 0.6)" },
         },
@@ -220,9 +224,9 @@ const config = {
         "fade-in-up": "fade-in-up 0.6s ease-out",
         "slide-in-from-top": "slide-in-from-top 0.3s ease-out",
         "slide-in-from-bottom": "slide-in-from-bottom 0.3s ease-out",
-        "float": "float 3s ease-in-out infinite",
-        "gradient": "gradient 3s ease infinite",
-        "glow": "glow 2s ease-in-out infinite alternate",
+        float: "float 3s ease-in-out infinite",
+        gradient: "gradient 3s ease infinite",
+        glow: "glow 2s ease-in-out infinite alternate",
       },
     },
   },
