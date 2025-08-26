@@ -1,13 +1,6 @@
 'use client'
 
 import { ProjectDashboard } from '@/components/dashboard/ProjectDashboard'
-import { ChapterEditor } from '@/components/editors/ChapterEditor'
-import { CharacterEditor } from '@/components/editors/CharacterEditor'
-import { SceneEditor } from '@/components/editors/SceneEditor'
-import { SynopsisEditor } from '@/components/editors/SynopsisEditor'
-import { CreateProjectForm } from '@/components/forms/CreateProjectForm'
-import { ProjectSidebar } from '@/components/navigation/ProjectSidebar'
-import { ProjectOverview } from '@/components/project/ProjectOverview'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,8 +13,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/contexts/AuthContext'
 import { useProject } from '@/contexts/ProjectContext'
-import { LogOut, Menu, User, X } from 'lucide-react'
-import React, { useState } from 'react'
+import { LogOut, User, BookOpen, Sparkles } from 'lucide-react'
+import React from 'react'
 
 interface MainLayoutProps {
   children?: React.ReactNode
@@ -30,15 +23,6 @@ interface MainLayoutProps {
 export function MainLayout({ children }: MainLayoutProps) {
   const { state } = useProject()
   const { user, signIn, signOut } = useAuth()
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [createProjectOpen, setCreateProjectOpen] = useState(false)
-  const [currentView, setCurrentView] = useState<string>('dashboard')
-  const [selectedId, setSelectedId] = useState<string | undefined>()
-
-  const handleNavigation = (section: string, id?: string) => {
-    setCurrentView(section)
-    setSelectedId(id)
-  }
 
   const handleSignOut = async () => {
     try {
@@ -58,142 +42,34 @@ export function MainLayout({ children }: MainLayoutProps) {
       .slice(0, 2)
   }
 
-  const renderContent = () => {
-    switch (currentView) {
-      case 'dashboard':
-        return <ProjectDashboard className="p-6" />
-      case 'overview':
-        return (
-          <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">Visão Geral do Projeto</h1>
-            <p className="text-muted-foreground">
-              Aqui você verá estatísticas e resumo do projeto selecionado.
-            </p>
-            {/* TODO: Implementar componente de visão geral */}
-          </div>
-        )
-      case 'chapter':
-        return (
-          <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">Editor de Capítulo</h1>
-            <p className="text-muted-foreground">
-              Editor para o capítulo ID: {selectedId}
-            </p>
-            {/* TODO: Implementar editor de capítulo */}
-          </div>
-        )
-      case 'scene':
-        return (
-          <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">Editor de Cena</h1>
-            <p className="text-muted-foreground">
-              Editor para a cena ID: {selectedId}
-            </p>
-            {/* TODO: Implementar editor de cena */}
-          </div>
-        )
-      case 'character':
-        return (
-          <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">Perfil do Personagem</h1>
-            <p className="text-muted-foreground">
-              Perfil do personagem ID: {selectedId}
-            </p>
-            {/* TODO: Implementar perfil de personagem */}
-          </div>
-        )
-      case 'characters':
-        return (
-          <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">Todos os Personagens</h1>
-            <p className="text-muted-foreground">
-              Lista completa de personagens do projeto.
-            </p>
-            {/* TODO: Implementar lista de personagens */}
-          </div>
-        )
-      case 'synopsis':
-        return (
-          <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">Editor de Sinopse</h1>
-            <p className="text-muted-foreground">
-              Editor para a sinopse ID: {selectedId}
-            </p>
-            {/* TODO: Implementar editor de sinopse */}
-          </div>
-        )
-      case 'create-chapter':
-        return (
-          <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">Criar Novo Capítulo</h1>
-            <p className="text-muted-foreground">
-              Formulário para criar um novo capítulo.
-            </p>
-            {/* TODO: Implementar formulário de criação de capítulo */}
-          </div>
-        )
-      case 'create-character':
-        return (
-          <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">Criar Novo Personagem</h1>
-            <p className="text-muted-foreground">
-              Formulário para criar um novo personagem.
-            </p>
-            {/* TODO: Implementar formulário de criação de personagem */}
-          </div>
-        )
-      case 'create-synopsis':
-        return (
-          <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">Criar Nova Sinopse</h1>
-            <p className="text-muted-foreground">
-              Formulário para criar uma nova sinopse.
-            </p>
-            {/* TODO: Implementar formulário de criação de sinopse */}
-          </div>
-        )
-      case 'project-settings':
-        return (
-          <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">Configurações do Projeto</h1>
-            <p className="text-muted-foreground">
-              Configurações e opções do projeto atual.
-            </p>
-            {/* TODO: Implementar configurações do projeto */}
-          </div>
-        )
-      default:
-        return children || <ProjectDashboard className="p-6" />
-    }
-  }
+
 
   return (
-    <div className="h-screen flex flex-col">
-      {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 items-center px-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="mr-2"
-          >
-            {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-          </Button>
-          
-          <div className="flex-1">
-            <h1 className="text-lg font-semibold">
-              {state.currentProject ? state.currentProject.title : 'Projetos Literários'}
-            </h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+      {/* Simple Header */}
+      <header className="border-b border-white/20 bg-white/60 backdrop-blur-xl">
+        <div className="flex h-16 items-center justify-between px-6">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-br from-escrivania-purple-100 to-escrivania-blue-100 rounded-xl">
+              <Sparkles className="h-6 w-6 text-escrivania-purple-600" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-escrivania-purple-600 to-escrivania-blue-600 bg-clip-text text-transparent">
+                Escrivania Digital
+              </h1>
+              <p className="text-sm text-muted-foreground">Hub Criativo para Escritores</p>
+            </div>
           </div>
           
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                  <Avatar className="h-10 w-10">
                     <AvatarImage src="" alt={user.name || 'Usuário'} />
-                    <AvatarFallback>{getUserInitials(user.name)}</AvatarFallback>
+                    <AvatarFallback className="bg-gradient-to-br from-escrivania-purple-100 to-escrivania-blue-100 text-escrivania-purple-700">
+                      {getUserInitials(user.name)}
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -219,69 +95,21 @@ export function MainLayout({ children }: MainLayoutProps) {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button onClick={signIn}>
+            <Button 
+              onClick={signIn}
+              className="bg-gradient-to-r from-escrivania-purple-500 to-escrivania-blue-500 hover:from-escrivania-purple-600 hover:to-escrivania-blue-600 text-white"
+            >
+              <User className="mr-2 h-4 w-4" />
               Entrar
             </Button>
           )}
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        {sidebarOpen && (
-          <ProjectSidebar 
-            className="flex-shrink-0" 
-            onNavigate={handleNavigation}
-          />
-        )}
-        
-        {/* Content Area */}
-        <main className="flex-1 overflow-auto">
-          {currentView === 'dashboard' && <ProjectDashboard className="p-6" />}
-          {currentView === 'overview' && (
-            <ProjectOverview 
-              projectId={state.currentProject?.id || ''}
-              onNavigate={handleNavigation}
-            />
-          )}
-          {currentView === 'chapter' && selectedId && (
-            <ChapterEditor 
-              chapterId={selectedId} 
-              onBack={() => setCurrentView('overview')}
-            />
-          )}
-          {currentView === 'scene' && selectedId && (
-            <SceneEditor 
-              sceneId={selectedId}
-              onBack={() => setCurrentView('overview')}
-            />
-          )}
-          {currentView === 'character' && selectedId && (
-            <CharacterEditor 
-              characterId={selectedId}
-              onBack={() => setCurrentView('characters')}
-            />
-          )}
-          {currentView === 'synopsis' && selectedId && (
-            <SynopsisEditor 
-              synopsisId={selectedId}
-              onBack={() => setCurrentView('overview')}
-            />
-          )}
-          {!['dashboard', 'overview', 'chapter', 'scene', 'character', 'synopsis'].includes(currentView) && renderContent()}
-        </main>
-      </div>
-
-      {/* Modals */}
-      <CreateProjectForm 
-        open={createProjectOpen}
-        onOpenChange={setCreateProjectOpen}
-        onSuccess={() => {
-          console.log('Projeto criado com sucesso!')
-          setCurrentView('dashboard')
-        }}
-      />
+      {/* Main Content - Just the Dashboard */}
+      <main className="flex-1">
+        <ProjectDashboard />
+      </main>
     </div>
   )
 }

@@ -1,20 +1,22 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { 
-  Inter, 
-  Poppins, 
-  Roboto, 
-  Open_Sans, 
-  Lato, 
-  Montserrat, 
-  Playfair_Display, 
-  Merriweather, 
-  Crimson_Text, 
-  Libre_Baskerville 
-} from "next/font/google"
-import { ProjectsProvider } from "@/lib/contexts/projects-context"
 import { ActiveProjectProvider } from "@/lib/contexts/active-project-context"
+import { ProjectsProvider } from "@/lib/contexts/projects-context"
 import { SettingsProvider } from "@/lib/contexts/settings-context"
+import { ReactQueryProvider } from "@/lib/react-query"
+import { AuthProvider } from "@/contexts/AuthContext"
+import type { Metadata } from "next"
+import {
+  Crimson_Text,
+  Inter,
+  Lato,
+  Libre_Baskerville,
+  Merriweather,
+  Montserrat,
+  Open_Sans,
+  Playfair_Display,
+  Poppins,
+  Roboto
+} from "next/font/google"
+import type React from "react"
 import "./globals.css"
 
 const inter = Inter({
@@ -112,11 +114,15 @@ export default function RootLayout({
       `}
     >
       <body className="font-sans antialiased">
-        <SettingsProvider>
-          <ProjectsProvider>
-            <ActiveProjectProvider>{children}</ActiveProjectProvider>
-          </ProjectsProvider>
-        </SettingsProvider>
+        <ReactQueryProvider>
+          <AuthProvider>
+            <SettingsProvider>
+              <ProjectsProvider>
+                <ActiveProjectProvider>{children}</ActiveProjectProvider>
+              </ProjectsProvider>
+            </SettingsProvider>
+          </AuthProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   )

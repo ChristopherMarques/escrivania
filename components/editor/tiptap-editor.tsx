@@ -1,13 +1,13 @@
 "use client";
 
 import { useEditor } from "@tiptap/react";
+import { debounce } from "lodash";
 import * as React from "react";
+const { useCallback, useMemo, useEffect, memo } = React;
 
 // --- Tiptap Core Extensions ---
 import { Extension } from "@tiptap/core";
 import CharacterCount from "@tiptap/extension-character-count";
-import Color from "@tiptap/extension-color";
-import { Highlight } from "@tiptap/extension-highlight";
 import { Image } from "@tiptap/extension-image";
 import { TaskItem, TaskList } from "@tiptap/extension-list";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -23,26 +23,26 @@ import { StarterKit } from "@tiptap/starter-kit";
 
 // --- New Extensions ---
 import { Blockquote } from "@tiptap/extension-blockquote";
-import { Code } from "@tiptap/extension-code";
-import { CodeBlock } from "@tiptap/extension-code-block";
 import DropCursor from "@tiptap/extension-dropcursor";
 import { Focus } from "@tiptap/extension-focus";
+import { FontFamily } from "@tiptap/extension-font-family";
+import { FontSize } from "@tiptap/extension-font-size";
+import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { HardBreak } from "@tiptap/extension-hard-break";
-import { Link } from "@tiptap/extension-link";
+import { Highlight } from "@tiptap/extension-highlight";
 import { Mention } from "@tiptap/extension-mention";
-import {
-  Table,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from "@tiptap/extension-table";
-import { Youtube } from "@tiptap/extension-youtube";
-import { TextStyleKit } from "@tiptap/extension-text-style";
+import { Color, TextStyle } from "@tiptap/extension-text-style";
 // History extension removed - using StarterKit's built-in history
 
 // --- Tiptap Node ---
 import { HorizontalRule } from "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension";
 import { ImageUploadNode } from "@/components/tiptap-node/image-upload-node/image-upload-node-extension";
+
+// --- Custom Extensions ---
+import { EnhancedEnter } from "@/lib/extensions/enhanced-enter";
+import { ImageTextFlow } from "@/lib/extensions/image-text-flow";
+import { PageFormat } from "@/lib/extensions/page-format";
+import { SmartDeletion } from "@/lib/extensions/smart-deletion";
 
 // --- Utils ---
 import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils";
@@ -123,7 +123,7 @@ const MentionExtension = Extension.create({
   },
 });
 
-export function TiptapEditor({
+export const TiptapEditor = memo(function TiptapEditor({
   content,
   onChange,
   placeholder = "Comece a escrever sua história aqui...",
@@ -133,6 +133,21 @@ export function TiptapEditor({
   readOnly = false,
 }: TiptapEditorProps) {
   const deviceInfo = useDeviceInfo();
+  
+  // Memoize debounced onChange function for performance optimization
+  const debouncedOnChange = useMemo(
+    () => debounce((content: any) => {
+      onChange?.(content);
+    }, 300), // Increased debounce time for better performance
+    [onChange]
+  );
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      debouncedOnChange.cancel();
+    };
+  }, [debouncedOnChange]);
   const [wordCount, setWordCount] = React.useState(0);
   const [characterCount, setCharacterCount] = React.useState(0);
   const [readingTime, setReadingTime] = React.useState(0);
@@ -140,6 +155,131 @@ export function TiptapEditor({
   const [writingGoal, setWritingGoal] = React.useState(500); // Meta de palavras
   const [sessionStartTime] = React.useState(Date.now());
   const [sessionWordCount, setSessionWordCount] = React.useState(0);
+
+  // Memoize extensions for better performance
+  const extensions = useMemo(() => [
+    StarterKit.configure({
+      horizontalRule: false,
+      blockquote: false,
+      hardBreak: false,
+      paragraph: {
+        HTMLAttributes: {
+          class: 'tiptap-paragraph',
+        },
+      },
+      bulletList: {
+        keepMarks: true,
+        keepAttributes: false,
+      },
+      orderedList: {
+        keepMarks: true,
+        keepAttributes: false,
+      },
+      gapcursor: false,
+    }),
+    HorizontalRule,
+    TextAlign.configure({ types: ["heading", "paragraph"] }),
+    TaskList,
+    TaskItem.configure({ nested: true }),
+    Highlight.configure({
+      multicolor: true,
+      HTMLAttributes: {
+        class: "highlight",
+      },
+    }),
+    Image.configure({
+      inline: false,
+      allowBase64: true,
+      HTMLAttributes: {
+        class: 'tiptap-image',
+      },
+    }),
+    Typography,
+    Superscript,
+    Subscript,
+    Selection,
+    Color,
+    TextStyle,
+    FontFamily.configure({
+      types: ['textStyle'],
+    }),
+    FontSize.configure({
+      types: ['textStyle'],
+    }),
+    CharacterCount,
+    Placeholder.configure({
+      placeholder,
+      emptyEditorClass: "is-editor-empty",
+    }),
+    Underline,
+    ImageUploadNode.configure({
+      accept: "image/*",
+      maxSize: MAX_FILE_SIZE,
+      limit: 3,
+      upload: handleImageUpload,
+      onError: (error) => console.error("Upload failed:", error),
+    }),
+    Blockquote.configure({
+      HTMLAttributes: {
+        class: "border-l-4 border-border pl-4 italic text-muted-foreground",
+      },
+    }),
+    HardBreak.configure({
+      keepMarks: false,
+      HTMLAttributes: {
+        class: 'tiptap-hard-break',
+      },
+    }),
+    Mention.configure({
+      HTMLAttributes: {
+        class:
+          "mention bg-escrivania-blue-100 text-escrivania-blue-800 px-2 py-1 rounded-full text-sm",
+      },
+      suggestion: {
+        items: ({ query }) => {
+          return [
+            "Protagonist",
+            "Antagonist",
+            "Supporting Character",
+            "Love Interest",
+            "Mentor",
+            "Sidekick",
+          ]
+            .filter((item) =>
+              item.toLowerCase().startsWith(query.toLowerCase())
+            )
+            .slice(0, 5);
+        },
+      },
+    }),
+    DropCursor.configure({
+      color: "oklch(0.75 0.15 200)",
+      width: 2,
+    }),
+    Gapcursor,
+    Focus.configure({
+      className: "has-focus",
+      mode: "all",
+    }),
+    EnhancedEnter.configure({
+      createNewParagraph: false,
+      allowEmptyParagraphs: false,
+      trimEmptyParagraphs: false,
+    }),
+    ImageTextFlow.configure({
+      autoAddParagraphs: false,
+      enableArrowNavigation: false,
+      enableEnterNavigation: false,
+    }),
+    SmartDeletion.configure({
+      enableSmartBackspace: false,
+      enableSmartDelete: false,
+      enableSmartMerge: false,
+      enableImageDeletion: true,
+    }),
+    MentionExtension,
+    PageFormat,
+  ], [placeholder]);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -150,163 +290,55 @@ export function TiptapEditor({
         autocomplete: "off",
         autocorrect: "off",
         autocapitalize: "off",
+        spellcheck: "true",
         "aria-label":
           "Área principal de conteúdo, comece a digitar para inserir texto.",
-        class: `enhanced-writer-editor ${className} ${deviceInfo.isMobile ? 'mobile-editor' : deviceInfo.isTablet ? 'tablet-editor' : 'desktop-editor'}`,
+        class: `enhanced-writer-editor ${className} ${
+          deviceInfo.isMobile
+            ? "mobile-editor"
+            : deviceInfo.isTablet
+            ? "tablet-editor"
+            : "desktop-editor"
+        }`,
+      },
+      // Performance optimizations
+      scrollThreshold: 100,
+      scrollMargin: 50,
+      handleKeyDown: (view, event) => {
+        // Melhorar comportamento de navegação com setas
+        if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+          // Permitir navegação fluida entre linhas
+          return false;
+        }
+        
+        // Permitir que a extensão EnhancedEnter gerencie o Enter
+        if (event.key === 'Enter') {
+          return false;
+        }
+        
+        return false;
       },
     },
-    extensions: [
-      StarterKit.configure({
-        horizontalRule: false,
-        link: false, // Disabled to use custom Link extension
-        blockquote: false, // Disabled to use custom Blockquote extension
-        codeBlock: false, // Disabled to use custom CodeBlock extension
-        hardBreak: false, // Disabled to use custom HardBreak extension
-        // history is enabled by default in StarterKit
-        bulletList: {
-          keepMarks: true,
-          keepAttributes: false,
-        },
-        orderedList: {
-          keepMarks: true,
-          keepAttributes: false,
-        },
-      }),
-      // Core Extensions
-      HorizontalRule,
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
-      TaskList,
-      TaskItem.configure({ nested: true }),
-      Highlight.configure({
-        multicolor: true,
-        HTMLAttributes: {
-          class: "highlight",
-        },
-      }),
-      Image,
-      Typography,
-      Superscript,
-      Subscript,
-      Selection,
-      Color,
-      CharacterCount,
-      Placeholder.configure({
-        placeholder,
-        emptyEditorClass: "is-editor-empty",
-      }),
-      Underline,
-      ImageUploadNode.configure({
-        accept: "image/*",
-        maxSize: MAX_FILE_SIZE,
-        limit: 3,
-        upload: handleImageUpload,
-        onError: (error) => console.error("Upload failed:", error),
-      }),
-      // New Extensions - Marks
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: {
-          class: "text-escrivania-blue-600 underline cursor-pointer",
-        },
-      }),
-      Code.configure({
-        HTMLAttributes: {
-          class:
-            "bg-muted text-muted-foreground px-1 py-0.5 rounded text-sm font-mono",
-        },
-      }),
-      // New Extensions - Nodes
-      Blockquote.configure({
-        HTMLAttributes: {
-          class: "border-l-4 border-border pl-4 italic text-muted-foreground",
-        },
-      }),
-      CodeBlock.configure({
-        HTMLAttributes: {
-          class:
-            "bg-secondary text-secondary-foreground p-4 rounded-lg font-mono text-sm overflow-x-auto",
-        },
-      }),
-      HardBreak,
-      Mention.configure({
-        HTMLAttributes: {
-          class:
-            "mention bg-escrivania-blue-100 text-escrivania-blue-800 px-2 py-1 rounded-full text-sm",
-        },
-        suggestion: {
-          items: ({ query }) => {
-            return [
-              "Protagonist",
-              "Antagonist",
-              "Supporting Character",
-              "Love Interest",
-              "Mentor",
-              "Sidekick",
-            ]
-              .filter((item) =>
-                item.toLowerCase().startsWith(query.toLowerCase())
-              )
-              .slice(0, 5);
-          },
-        },
-      }),
-      Table.configure({
-        resizable: true,
-        HTMLAttributes: {
-          class: "border-collapse border border-border w-full",
-        },
-      }),
-      TableRow.configure({
-        HTMLAttributes: {
-          class: "border border-border",
-        },
-      }),
-      TableHeader.configure({
-        HTMLAttributes: {
-          class: "border border-border bg-muted font-semibold p-2",
-        },
-      }),
-      TableCell.configure({
-        HTMLAttributes: {
-          class: "border border-gray-300 p-2",
-        },
-      }),
-      Youtube.configure({
-        width: deviceInfo.isMobile ? 320 : 
-               deviceInfo.isTablet ? 480 : 
-               deviceInfo.isMacbook ? 560 : // Otimizado para MacBook Pro M1 13"
-               deviceInfo.isNotebook ? 640 : 
-               720, // Desktop grandes
-        height: deviceInfo.isMobile ? 240 : 
-                deviceInfo.isTablet ? 360 : 
-                deviceInfo.isMacbook ? 315 : // Proporção 16:9 para MacBook Pro M1
-                deviceInfo.isNotebook ? 480 : 
-                540, // Desktop grandes
-        HTMLAttributes: {
-          class: "youtube-embed rounded-lg",
-        },
-      }),
-      // New Extensions - Functionality
-      DropCursor.configure({
-        color: "oklch(0.75 0.15 200)", // Usando a cor azul do projeto
-        width: 2,
-      }),
-      Focus.configure({
-        className: "has-focus",
-        mode: "all",
-      }),
-      // History extension removed - using StarterKit's built-in history
-      // Text Style Extensions
-      TextStyleKit,
-      // Custom Extensions
-      MentionExtension,
-    ],
-    content,
-    onUpdate: ({ editor }) => {
+    // Performance optimizations
+    parseOptions: {
+      preserveWhitespace: 'full',
+    },
+    enableInputRules: true,
+    enablePasteRules: true,
+    injectCSS: false, // We handle CSS ourselves
+    extensions,
+    content: content && typeof content === 'object' && content.type ? content : {
+      type: 'doc',
+      content: [{
+        type: 'paragraph',
+        content: []
+      }]
+    },
+    onUpdate: useCallback(({ editor }: { editor: any }) => {
       const json = editor.getJSON();
-      onChange(json);
+      debouncedOnChange(json);
 
-      // Update counts
+      // Update counts with throttling for better performance
       const stats = editor.storage.characterCount;
       const words = stats.words();
       const characters = stats.characters();
@@ -321,16 +353,47 @@ export function TiptapEditor({
       const text = editor.getText();
       const paragraphs = text
         .split("\n\n")
-        .filter((p) => p.trim().length > 0).length;
+        .filter((p: string) => p.trim().length > 0).length;
       setParagraphCount(paragraphs);
-    },
+    }, [debouncedOnChange]),
   });
 
+  // Prevent infinite loops by tracking content updates
+  const [isUpdatingContent, setIsUpdatingContent] = React.useState(false);
+  
+  // Sync content with editor when content prop changes
   React.useEffect(() => {
-    if (editor && content !== editor.getJSON()) {
-      editor.commands.setContent(content);
+    if (editor && content !== undefined && !isUpdatingContent && !editor.isFocused) {
+      const currentContent = editor.getJSON();
+      
+      // Extract text for comparison to avoid JSON stringify issues
+      const extractText = (contentObj: any): string => {
+        if (!contentObj || !Array.isArray(contentObj.content)) return '';
+        return contentObj.content.map((node: any) => {
+          if (node.type === 'text') return node.text || '';
+          if (node.content) return extractText(node);
+          return '';
+        }).join('');
+      };
+      
+      const currentText = extractText(currentContent);
+      const newText = extractText(content);
+      
+      // Only update if text content is actually different
+      if (currentText !== newText) {
+        setIsUpdatingContent(true);
+        
+        // Use requestAnimationFrame for better performance
+        requestAnimationFrame(() => {
+          if (editor && !editor.isDestroyed) {
+            editor.commands.setContent(content);
+          }
+          // Reset flag after a short delay
+          setTimeout(() => setIsUpdatingContent(false), 100);
+        });
+      }
     }
-  }, [content, editor]);
+  }, [editor, content, isUpdatingContent]);
 
   // Calculate writing session stats
   const sessionDuration = Math.floor((Date.now() - sessionStartTime) / 60000); // minutes
@@ -358,36 +421,37 @@ export function TiptapEditor({
     [editor]
   );
 
-  if (!editor) {
-    return null;
-  }
-
-  const getMinHeight = () => {
+  // Memoize responsive calculations - moved before conditional return
+  const minHeight = useMemo(() => {
     if (deviceInfo.isMobile) return "min-h-[400px]";
     if (deviceInfo.isTablet) return "min-h-[500px]";
     if (deviceInfo.isMacbook) return "min-h-[550px]"; // Otimizado para MacBook Pro M1 13"
     if (deviceInfo.isNotebook) return "min-h-[580px]";
     return "min-h-[650px]"; // Desktop grandes
-  };
+  }, [deviceInfo]);
 
-  const getToolbarVisibility = () => {
+  const toolbarVisibility = useMemo(() => {
     if (readOnly) return false;
     if (deviceInfo.isMobile) return false; // Hide toolbar on mobile for cleaner interface
     return true; // Show toolbar on tablet, notebook, macbook and desktop
-  };
+  }, [readOnly, deviceInfo.isMobile]);
 
-  const getStatsVisibility = () => {
+  const statsVisibility = useMemo(() => {
     if (readOnly) return false;
     if (deviceInfo.isMobile) return false; // Hide stats on mobile
     if (deviceInfo.isTablet) return false; // Hide stats on tablet
     return true; // Show stats on notebook, macbook and desktop
-  };
+  }, [readOnly, deviceInfo.isMobile, deviceInfo.isTablet]);
+
+  if (!editor) {
+    return null;
+  }
 
   return (
     <div
       className={cn(
-        "flex flex-col w-full h-full max-h-screen",
-        getMinHeight(),
+        "flex flex-col w-full h-full",
+        minHeight,
         "bg-background rounded-lg dark:bg-gray-900",
         "overflow-hidden",
         deviceInfo.isMobile && "text-sm",
@@ -399,7 +463,7 @@ export function TiptapEditor({
       )}
     >
       {/* Toolbar - Hidden on mobile and read-only mode */}
-      {getToolbarVisibility() && (
+      {toolbarVisibility && (
         <div className="flex-shrink-0">
           <WriterToolbarContent
             editor={editor}
@@ -411,19 +475,21 @@ export function TiptapEditor({
       )}
 
       {/* Editor Content */}
-      <div className={cn(
-        "flex-1 overflow-hidden",
-        deviceInfo.isMobile && "p-2",
-        deviceInfo.isTablet && "p-3",
-        deviceInfo.isMacbook && "p-4", // Padding otimizado para MacBook Pro M1
-        deviceInfo.isNotebook && "p-4",
-        deviceInfo.isDesktop && "p-6" // Mais espaço em desktops grandes
-      )}>
+      <div
+        className={cn(
+          "flex-1 overflow-hidden h-full",
+          deviceInfo.isMobile && "p-2",
+          deviceInfo.isTablet && "p-3",
+          deviceInfo.isMacbook && "p-4", // Padding otimizado para MacBook Pro M1
+          deviceInfo.isNotebook && "p-4",
+          deviceInfo.isDesktop && "p-6" // Mais espaço em desktops grandes
+        )}
+      >
         <EditorContentWrapper editor={editor} />
       </div>
 
       {/* Stats Panel - Hidden on mobile/tablet and read-only mode */}
-      {getStatsVisibility() && (
+      {statsVisibility && (
         <div className="flex-shrink-0">
           <WriterStatsPanel
             wordCount={wordCount}
@@ -439,4 +505,4 @@ export function TiptapEditor({
       )}
     </div>
   );
-}
+});

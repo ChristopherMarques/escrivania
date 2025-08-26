@@ -12,9 +12,13 @@ import { TiptapEditor } from "@/components/editor/tiptap-editor"
 interface SplitScreenManagerProps {
   isOpen: boolean
   onClose: () => void
-  project: any
-  currentScene: any
-  onSceneUpdate: (content: any) => void
+  project: {
+    characters: { id: string; name: string }[]
+    locations: { id: string; name: string }[]
+    manuscript: { scenes: { id: string; title: string }[] }[]
+  }
+  currentScene: { id: string; title: string } | null
+  onSceneUpdate: (content: unknown) => void
 }
 
 type ReferenceType = "character" | "location" | "scene" | "notes"
@@ -23,7 +27,7 @@ interface ReferenceItem {
   type: ReferenceType
   id: string
   title: string
-  data: any
+  data: unknown
 }
 
 export function SplitScreenManager({ isOpen, onClose, project, currentScene, onSceneUpdate }: SplitScreenManagerProps) {
@@ -36,19 +40,19 @@ export function SplitScreenManager({ isOpen, onClose, project, currentScene, onS
 
     switch (type) {
       case "character":
-        const character = project.characters.find((c: any) => c.id === id)
+        const character = project.characters.find((c: { id: string; name: string }) => c.id === id)
         if (character) {
           item = { type, id, title: character.name, data: character }
         }
         break
       case "location":
-        const location = project.locations.find((l: any) => l.id === id)
+        const location = project.locations.find((l: { id: string; name: string }) => l.id === id)
         if (location) {
           item = { type, id, title: location.name, data: location }
         }
         break
       case "scene":
-        const scene = project.manuscript.flatMap((ch: any) => ch.scenes).find((s: any) => s.id === id)
+        const scene = project.manuscript.flatMap((ch: { scenes: { id: string; title: string }[] }) => ch.scenes).find((s: { id: string; title: string }) => s.id === id)
         if (scene) {
           item = { type, id, title: scene.title, data: scene }
         }
@@ -116,11 +120,17 @@ export function SplitScreenManager({ isOpen, onClose, project, currentScene, onS
             <TiptapEditor
               content={item.data.content}
               onChange={(content) => {
-                // Update notes
+                // Update notes with change detection to prevent loops
                 setReferenceItems((prev) =>
-                  prev.map((ref) =>
-                    ref.type === "notes" && ref.id === item.id ? { ...ref, data: { ...ref.data, content } } : ref,
-                  ),
+                  prev.map((ref) => {
+                    if (ref.type === "notes" && ref.id === item.id) {
+                      const currentContent = ref.data?.content;
+                      if (JSON.stringify(content) !== JSON.stringify(currentContent)) {
+                        return { ...ref, data: { ...ref.data, content } };
+                      }
+                    }
+                    return ref;
+                  }),
                 )
               }}
               characters={project.characters}
@@ -163,22 +173,22 @@ export function SplitScreenManager({ isOpen, onClose, project, currentScene, onS
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="notes:quick">📝 Notas Rápidas</SelectItem>
-                  {project.characters.map((char: any) => (
+                  {project.characters.map((char: { id: string; name: string }) => (
                     <SelectItem key={char.id} value={`character:${char.id}`}>
                       <User className="w-4 h-4 mr-2 inline" />
                       {char.name}
                     </SelectItem>
                   ))}
-                  {project.locations.map((loc: any) => (
+                  {project.locations.map((loc: { id: string; name: string }) => (
                     <SelectItem key={loc.id} value={`location:${loc.id}`}>
                       <MapPin className="w-4 h-4 mr-2 inline" />
                       {loc.name}
                     </SelectItem>
                   ))}
-                  {project.manuscript.flatMap((ch: any) =>
+                  {project.manuscript.flatMap((ch: { scenes: { id: string; title: string }[] }) =>
                     ch.scenes
-                      .filter((scene: any) => scene.id !== currentScene?.id)
-                      .map((scene: any) => (
+                      .filter((scene: { id: string; title: string }) => scene.id !== currentScene?.id)
+                      .map((scene: { id: string; title: string }) => (
                         <SelectItem key={scene.id} value={`scene:${scene.id}`}>
                           <FileText className="w-4 h-4 mr-2 inline" />
                           {scene.title}

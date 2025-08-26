@@ -1,24 +1,24 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
+import { Textarea } from '@/components/ui/textarea'
+import type { Chapter } from '@/contexts/ProjectContext'
+import { useProject } from '@/contexts/ProjectContext'
 import {
+  ArrowLeft,
+  BookOpen,
+  Clock,
+  Edit3,
+  FileText,
   Plus,
   Save,
-  FileText,
-  Edit3,
   Trash2,
-  ArrowLeft,
-  Clock,
-  BookOpen,
 } from 'lucide-react'
-import { useProject } from '@/contexts/ProjectContext'
-import type { Chapter, Scene } from '@/contexts/ProjectContext'
+import { useEffect, useState } from 'react'
 
 interface ChapterEditorProps {
   chapterId: string
@@ -70,7 +70,7 @@ export function ChapterEditor({ chapterId, onBack }: ChapterEditorProps) {
     try {
       await createScene({
         title: newSceneTitle,
-        content: '',
+        content: {},
         chapter_id: chapter.id,
         order_index: chapterScenes.length,
       })

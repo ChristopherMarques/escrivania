@@ -1,71 +1,90 @@
 "use client";
 
-import { EditorContent, Editor } from "@tiptap/react";
-import { cn } from "@/lib/utils";
 import { useDeviceInfo } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
+import { Editor, EditorContent } from "@tiptap/react";
+import { memo, useMemo } from "react";
 
 interface EditorContentWrapperProps {
   editor: Editor | null;
   className?: string;
 }
 
-export function EditorContentWrapper({
+const EditorContentWrapperComponent = ({
   editor,
   className,
-}: EditorContentWrapperProps) {
+}: EditorContentWrapperProps) => {
   const deviceInfo = useDeviceInfo();
   
-  const getResponsiveClasses = () => {
+  // Memoize responsive classes calculation for performance
+  const responsiveClasses = useMemo(() => {
+    const baseClasses = [
+      "w-full",
+      "h-full",
+      "focus:outline-none",
+      "prose",
+      "prose-gray",
+      "dark:prose-invert",
+      "max-w-none",
+      "prose-headings:font-bold",
+      "prose-p:leading-relaxed",
+      "prose-pre:bg-gray-100",
+      "dark:prose-pre:bg-gray-800",
+      "prose-code:bg-gray-100",
+      "dark:prose-code:bg-gray-800",
+      "prose-code:px-1",
+      "prose-code:py-0.5",
+      "prose-code:rounded",
+    ];
+
     if (deviceInfo.isMobile) {
-      return "prose-sm px-3 py-4 min-h-[350px]";
+      return [...baseClasses, "prose-sm"];
+    } else if (deviceInfo.isTablet) {
+      return [...baseClasses, "prose"];
+    } else if (deviceInfo.isMacbook) {
+      return [...baseClasses, "prose-lg"];
+    } else if (deviceInfo.isNotebook) {
+      return [...baseClasses, "prose-lg"];
+    } else {
+      return [...baseClasses, "prose-xl"];
     }
-    if (deviceInfo.isTablet) {
-      return "prose px-4 py-6 min-h-[450px]";
-    }
-    if (deviceInfo.isMacbook) {
-      return "prose-lg px-5 py-6 min-h-[500px]"; // Otimizado para MacBook Pro M1
-    }
-    if (deviceInfo.isNotebook) {
-      return "prose-lg px-6 py-7 min-h-[550px]";
-    }
-    return "prose-xl px-8 py-8 min-h-[600px]"; // Desktop grandes
-  };
+  }, [deviceInfo]);
+
+  // Memoize editor content classes
+  const editorContentClasses = useMemo(() => cn(
+    responsiveClasses,
+    "max-w-none mx-auto",
+    "dark:prose-invert",
+    "prose-headings:font-bold prose-headings:tracking-tight",
+    "prose-h1:text-3xl prose-h1:mb-6 prose-h1:mt-8",
+    "prose-h2:text-2xl prose-h2:mb-4 prose-h2:mt-6",
+    "prose-h3:text-xl prose-h3:mb-3 prose-h3:mt-5",
+    "prose-p:mb-4 prose-p:leading-relaxed",
+    "prose-strong:font-semibold",
+    "prose-em:italic",
+    "prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm",
+    "prose-blockquote:border-l-4 prose-blockquote:border-gray-300 prose-blockquote:pl-4 prose-blockquote:italic",
+    "prose-ul:list-disc prose-ol:list-decimal",
+    "prose-li:mb-1",
+    "prose-a:text-blue-600 prose-a:underline hover:prose-a:text-blue-800",
+    "focus-within:outline-none"
+  ), [responsiveClasses]);
   
   return (
     <div
       className={cn(
-        "flex-1 overflow-y-auto bg-white dark:bg-gray-900",
+        "flex-1 h-full overflow-y-auto bg-white dark:bg-gray-900",
         "transition-all duration-200",
         className
       )}
     >
       <EditorContent
         editor={editor}
-        className={cn(
-          getResponsiveClasses(),
-          "max-w-none mx-auto",
-          "dark:prose-invert",
-          "prose-headings:font-bold prose-headings:tracking-tight",
-          "prose-h1:text-3xl prose-h1:mb-6 prose-h1:mt-8",
-          "prose-h2:text-2xl prose-h2:mb-4 prose-h2:mt-6",
-          "prose-h3:text-xl prose-h3:mb-3 prose-h3:mt-5",
-          "prose-p:text-gray-700 dark:prose-p:text-gray-300",
-          "prose-p:leading-relaxed prose-p:mb-4",
-          "prose-strong:text-gray-900 dark:prose-strong:text-gray-100",
-          "prose-em:text-gray-800 dark:prose-em:text-gray-200",
-          "prose-code:bg-gray-100 dark:prose-code:bg-gray-800",
-          "prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded",
-          "prose-code:text-sm prose-code:font-medium",
-          "prose-blockquote:border-l-4 prose-blockquote:border-blue-500",
-          "prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-blue-900/20",
-          "prose-blockquote:px-4 prose-blockquote:py-2 prose-blockquote:rounded-r",
-          "prose-ul:list-disc prose-ol:list-decimal",
-          "prose-li:mb-1 prose-li:leading-relaxed",
-          "prose-a:text-blue-600 dark:prose-a:text-blue-400",
-          "prose-a:no-underline hover:prose-a:underline",
-          "focus:outline-none"
-        )}
+        className={cn(editorContentClasses, "h-full min-h-full")}
       />
     </div>
   );
-}
+};
+
+// Export memoized component for performance
+export const EditorContentWrapper = memo(EditorContentWrapperComponent);
