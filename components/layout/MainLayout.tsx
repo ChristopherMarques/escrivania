@@ -58,7 +58,7 @@ export function MainLayout() {
       <Header onSignIn={signIn} />
 
       {/* Hero Section - Otimizado para mobile */}
-      <div className={`${isMobile ? "min-h-[85vh]" : "min-h-screen"}`}>
+      <div className={`${isMobile ? "min-h-[85vh]" : "min-h-screen"} pt-20`}>
         <Hero onSignIn={signIn} />
       </div>
 
