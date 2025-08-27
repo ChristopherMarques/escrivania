@@ -1,6 +1,37 @@
 # Escrivania Digital 📝
 
-Uma aplicação moderna e completa para escritores de ficção brasileira, desenvolvida com Next.js, React e TypeScript. A Escrivania Digital oferece um ambiente profissional e intuitivo para criação, organização e gerenciamento de projetos literários.
+<div align="center">
+
+![Status](https://img.shields.io/badge/Status-Em_Desenvolvimento-orange?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-0.1.0-blue?style=for-the-badge)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+
+[![Next.js](https://img.shields.io/badge/Next.js-15.2.4-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19.1-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+
+</div>
+
+**Uma plataforma completa e moderna para escritores criarem, organizarem e gerenciarem seus projetos literários com eficiência e elegância.**
+
+A Escrivania Digital é um ambiente profissional de escrita que combina um editor de texto avançado com ferramentas poderosas de organização narrativa, construção de universo e acompanhamento de produtividade.
+
+## 📋 Índice
+
+- [📸 Preview](#-preview)
+- [🚀 Funcionalidades Principais](#-funcionalidades-principais)
+- [✨ Destaques do Projeto](#-destaques-do-projeto)
+- [🛠️ Stack Tecnológica](#️-stack-tecnológica)
+- [🚀 Início Rápido](#-início-rápido)
+- [🎯 Próximas Funcionalidades](#-próximas-funcionalidades)
+- [🤝 Contribuição](#-contribuição)
+- [📄 Licença](#-licença)
+
+## 📸 Preview
+
+> 🚧 **Em desenvolvimento** - Screenshots e demo em breve!
 
 ## 🚀 Funcionalidades Principais
 
@@ -64,117 +95,94 @@ Uma aplicação moderna e completa para escritores de ficção brasileira, desen
 - **Gerenciamento de estado** robusto com Context API
 - **Integração com banco de dados** PostgreSQL via Supabase
 
-## 🛠️ Tecnologias Utilizadas
+## 🛠️ Stack Tecnológica
 
-### Frontend
-- **Next.js 14** - Framework React com App Router
-- **React 18** - Biblioteca de interface de usuário
-- **TypeScript** - Tipagem estática para JavaScript
-- **Tailwind CSS** - Framework de CSS utilitário
-- **Shadcn/UI** - Componentes de interface modernos
+| Categoria | Tecnologia | Versão | Descrição |
+|-----------|------------|--------|-----------|
+| **Framework** | Next.js | 15.2.4 | Framework React com App Router e SSR |
+| **Frontend** | React | 19.1 | Biblioteca de interface de usuário |
+| **Linguagem** | TypeScript | 5.0+ | Tipagem estática para JavaScript |
+| **Estilização** | Tailwind CSS | 3.4+ | Framework CSS utilitário |
+| **Componentes** | Shadcn/UI | Latest | Componentes de interface modernos |
+| **Editor** | Tiptap | Latest | Editor de texto rico e extensível |
+| **Backend** | Supabase | Latest | BaaS com PostgreSQL e autenticação |
+| **Autenticação** | Better Auth | Latest | Sistema de auth moderno e seguro |
+| **Gerenciador** | pnpm | Latest | Gerenciador de pacotes eficiente |
 
-### Editor
-- **Tiptap** - Editor de texto rico e extensível
-- **Extensões personalizadas** para funcionalidades específicas
-- **Suporte a markdown** e formatação avançada
-
-### Backend e Dados
-- **Supabase** - Backend-as-a-Service com PostgreSQL
-- **Better Auth** - Sistema de autenticação moderno
-- **Row Level Security (RLS)** para segurança de dados
-
-### Ferramentas de Desenvolvimento
-- **pnpm** - Gerenciador de pacotes eficiente
-- **ESLint** - Linting de código
-- **PostCSS** - Processamento de CSS
-
-## 📦 Instalação e Configuração
+## 🚀 Início Rápido
 
 ### Pré-requisitos
-- Node.js 18+ 
+- Node.js 18+
 - pnpm
 - Conta no Supabase
 
-### Passos de Instalação
+### Instalação
 
-1. **Clone o repositório**
 ```bash
+# Clone o repositório
 git clone <url-do-repositorio>
 cd escrivania
-```
 
-2. **Instale as dependências**
-```bash
+# Instale as dependências
 pnpm install
-```
 
-3. **Configure as variáveis de ambiente**
-```bash
+# Configure as variáveis de ambiente
 cp .env.example .env.local
-```
+# Edite .env.local com suas credenciais do Supabase
 
-Edite o arquivo `.env.local` com suas credenciais do Supabase:
-```env
-NEXT_PUBLIC_SUPABASE_URL=sua_url_do_supabase
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_anonima
-SUPABASE_SERVICE_ROLE_KEY=sua_chave_de_servico
-DATABASE_URL=sua_url_do_banco_postgresql
-```
-
-4. **Configure o banco de dados**
-```bash
+# Configure o banco de dados
 node setup-supabase-schema.js
 node setup-better-auth-db.js
-```
 
-5. **Execute o projeto**
-```bash
+# Execute o projeto
 pnpm dev
 ```
 
-O aplicativo estará disponível em `http://localhost:3000`
+🌐 **Aplicação disponível em:** `http://localhost:3000`
 
-## 🎯 Roadmap
+## 🎯 Próximas Funcionalidades
 
-### Funcionalidades Planejadas
-- [ ] **Exportação de manuscritos** (PDF, DOCX, EPUB)
-- [ ] **Sistema de versões** (snapshots) para controle de mudanças
-- [ ] **Colaboração em tempo real** entre escritores
-- [ ] **Integração com serviços de nuvem** para backup
-- [ ] **Análise de texto** com IA para sugestões de melhoria
+### 📋 Em Desenvolvimento
+- [ ] **Exportação de manuscritos** (PDF, DOCX)
+- [ ] **Sistema de versões** para controle de mudanças
 - [ ] **Templates de gêneros** literários
-- [ ] **Sistema de comentários** e revisões
 - [ ] **Cronologia de eventos** da história
 - [ ] **Mapa de relacionamentos** entre personagens
-- [ ] **Gerador de nomes** e características
 
-### Melhorias Técnicas
-- [ ] **Integração completa** Better Auth + Supabase RLS
+### 🔧 Melhorias Técnicas
 - [ ] **Otimização de performance** para projetos grandes
 - [ ] **Modo offline** com sincronização
-- [ ] **Testes automatizados** completos
 - [ ] **PWA** para instalação como app nativo
+- [ ] **Testes automatizados** completos
+
+## ✨ Destaques do Projeto
+
+- 🎯 **Editor Otimizado**: TipTap com extensões personalizadas para escrita fluida
+- 📊 **Estatísticas em Tempo Real**: Acompanhe seu progresso com métricas detalhadas
+- 🏗️ **Organização Narrativa**: Estruture capítulos, cenas e elementos da história
+- 👥 **Construção de Universo**: Gerencie personagens, locais e relacionamentos
+- 💾 **Salvamento Automático**: Nunca perca seu trabalho
+- 🎨 **Interface Moderna**: Design responsivo e intuitivo
+- 🔒 **Segurança**: Autenticação robusta e proteção de dados
 
 ## 🤝 Contribuição
 
-Contribuições são bem-vindas! Por favor:
-
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-funcionalidade`)
-3. Commit suas mudanças (`git commit -m 'Adiciona nova funcionalidade'`)
-4. Push para a branch (`git push origin feature/nova-funcionalidade`)
-5. Abra um Pull Request
+Contribuições são bem-vindas! Sinta-se à vontade para:
+- 🐛 Reportar bugs
+- 💡 Sugerir novas funcionalidades
+- 🔧 Enviar pull requests
+- 📖 Melhorar a documentação
 
 ## 📄 Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
 
-## 📞 Suporte
-
-Para dúvidas, sugestões ou problemas:
-- Abra uma issue no GitHub
-- Entre em contato através do email de suporte
-
 ---
 
-**Escrivania Digital** - Transformando ideias em histórias extraordinárias ✨
+<div align="center">
+
+**Escrivania Digital** - *Transformando ideias em histórias extraordinárias* ✨
+
+[🌟 Dar uma estrela](https://github.com/seu-usuario/escrivania) • [🐛 Reportar Bug](https://github.com/seu-usuario/escrivania/issues) • [💡 Solicitar Feature](https://github.com/seu-usuario/escrivania/issues)
+
+</div>
