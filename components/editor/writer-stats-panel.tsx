@@ -1,7 +1,7 @@
 "use client";
 
-import { Clock, FileText, Hash, Target, Timer, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Clock, FileText, Hash, Target, Timer, TrendingUp } from "lucide-react";
 
 interface WriterStatsPanelProps {
   wordCount: number;
@@ -76,23 +76,23 @@ export function WriterStatsPanel({
   return (
     <div
       className={cn(
-        "bg-gray-50 border-t border-gray-200 p-4",
-        "dark:bg-gray-800 dark:border-gray-700",
+        "relative overflow-hidden p-4 border-t border-primary/30",
+        "bg-background",
+        "shadow-lg ",
         className
       )}
     >
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
             <div
               key={index}
               className={cn(
-                "flex items-center gap-2 p-3 rounded-lg border transition-all duration-200",
-                "hover:border-gray-300 hover:shadow-sm hover:scale-105",
-                "dark:border-gray-600 dark:hover:border-gray-500",
-                "bg-white dark:bg-gray-700",
-                "cursor-default"
+                "flex items-center gap-2 p-3 rounded-xl border border-border transition-all duration-200",
+                "hover:border-primary/30 hover:shadow-lg hover:scale-105",
+                "bg-background hover:bg-primary/5",
+                "cursor-default group"
               )}
             >
               <div
@@ -105,16 +105,16 @@ export function WriterStatsPanel({
                 <Icon className={cn("w-3.5 h-3.5", stat.color)} />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                <div className="text-sm font-semibold text-foreground truncate">
                   {stat.value}
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                <div className="text-xs text-muted-foreground truncate">
                   {stat.label}
                 </div>
                 {stat.showProgress && (
-                  <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1 dark:bg-gray-600">
+                  <div className="w-full bg-muted rounded-full h-1.5 mt-1">
                     <div
-                      className="bg-gradient-to-r from-green-500 to-emerald-500 h-1.5 rounded-full transition-all duration-500 ease-out"
+                      className="bg-primary h-1.5 rounded-full transition-all duration-500 ease-out"
                       style={{ width: `${Math.min(stat.progress, 100)}%` }}
                     />
                   </div>

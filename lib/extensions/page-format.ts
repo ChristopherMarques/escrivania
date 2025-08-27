@@ -137,22 +137,19 @@ export const PageFormat = Extension.create<PageFormatOptions>({
   addGlobalAttributes() {
     return [
       {
-        types: this.options.types,
+        types: ["doc"],
         attributes: {
           pageSize: {
             default: "default",
             parseHTML: (element) => {
-              const pageSize =
-                element.getAttribute("data-page-size") || "default";
-              this.storage.pageSize = pageSize as PageSize;
-              return pageSize;
+              return element.getAttribute("data-page-size") || "default";
             },
             renderHTML: (attributes) => {
-              const pageSize =
-                attributes.pageSize || this.storage.pageSize || "default";
-              this.storage.pageSize = pageSize as PageSize;
+              if (!attributes.pageSize) {
+                return {};
+              }
               return {
-                "data-page-size": pageSize,
+                "data-page-size": attributes.pageSize,
               };
             },
           },
@@ -186,6 +183,22 @@ export const PageFormat = Extension.create<PageFormatOptions>({
           injectCSS(allCSS, "page-format-styles");
 
           return result;
+        },
+      setPageSize:
+        (pageSize: PageSize) =>
+        ({ tr, dispatch, editor }) => {
+          if (dispatch) {
+            this.storage.pageSize = pageSize;
+
+            // Update the document attribute
+            const { doc } = tr;
+            const attrs = { ...doc.attrs, pageSize };
+            tr.setDocAttribute("pageSize", pageSize);
+
+            // Force editor update
+            editor.view.updateState(editor.view.state.apply(tr));
+          }
+          return true;
         },
     };
   },

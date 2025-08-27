@@ -84,7 +84,7 @@ export function useAutoSave(
         ...prev,
         hasUnsavedChanges: false,
         isSaving: false,
-        lastSaved: new Date(),
+        lastSaved: typeof window !== "undefined" ? new Date() : null,
         lastError: null,
       }));
 
@@ -110,7 +110,10 @@ export function useAutoSave(
   const markAsChanged = useCallback(() => {
     if (!enabled) return;
 
-    lastChangeTimeRef.current = Date.now();
+    // Use a stable timestamp to avoid hydration issues
+    if (typeof window !== "undefined") {
+      lastChangeTimeRef.current = Date.now();
+    }
     setState((prev) => ({ ...prev, hasUnsavedChanges: true }));
 
     // Clear existing timeout
@@ -138,7 +141,7 @@ export function useAutoSave(
     setState((prev) => ({
       ...prev,
       hasUnsavedChanges: false,
-      lastSaved: new Date(),
+      lastSaved: typeof window !== "undefined" ? new Date() : null,
       lastError: null,
     }));
   }, []);

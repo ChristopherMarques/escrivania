@@ -1,20 +1,12 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
-import type { ViewMode } from "@/lib/types";
-import {
-  ArrowLeft,
-  Edit3,
-  Grid3X3,
-  List,
-  Eye,
-  EyeOff,
-  Home,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
 import { FocusModeToggle } from "@/components/focus-mode/focus-mode-manager";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import type { ViewMode } from "@/lib/types";
+import { cn } from "@/lib/utils";
+import { ArrowLeft, Edit3, Grid3X3, List } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface ViewModeToolbarProps {
   viewMode: ViewMode;
@@ -59,34 +51,38 @@ export function ViewModeToolbar({
   return (
     <div
       className={cn(
-        "flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200 shadow-sm",
+        "flex items-center justify-between px-6 py-3 bg-background border-b border-border shadow-lg",
+        "relative overflow-hidden",
         className
       )}
     >
-      {/* Left Section - Back Button and Project Title */}
-      <div className="flex items-center space-x-3">
+      {/* Left Section - Back Button */}
+      <div className="flex items-center relative z-10">
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
           onClick={handleBackToDashboard}
-          className="h-8 px-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+          className="h-8 px-3 border-primary text-primary hover:bg-primary/10 hover:border-primary/70 transition-all duration-200 shadow-sm hover:shadow-md rounded-lg"
         >
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Dashboard
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Voltar
         </Button>
-
-        {projectTitle && (
-          <>
-            <Separator orientation="vertical" className="h-4" />
-            <h1 className="text-sm font-medium text-gray-900 truncate max-w-xs">
-              {projectTitle}
-            </h1>
-          </>
-        )}
       </div>
 
-      {/* Center Section - View Mode Toggles */}
-      <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
+      {/* Center Section - Project Title */}
+      {projectTitle && (
+        <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+          <div className="flex items-center space-x-2 bg-background border border-border px-4 py-2 rounded-full shadow-sm">
+            <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+            <h1 className="text-base font-semibold text-primary truncate max-w-md">
+              {projectTitle}
+            </h1>
+          </div>
+        </div>
+      )}
+
+      {/* Right Section - View Mode Toggles */}
+      <div className="flex items-center space-x-1 bg-background rounded-lg p-1 border border-border shadow-sm relative z-10">
         {VIEW_MODE_OPTIONS.map(({ mode, label, icon: Icon, description }) => {
           const isActive = viewMode === mode;
           return (
@@ -96,10 +92,10 @@ export function ViewModeToolbar({
               size="sm"
               onClick={() => onViewModeChange(mode)}
               className={cn(
-                "h-8 px-3 text-xs font-medium transition-all",
+                "h-8 px-3 text-xs font-medium transition-all duration-200 rounded-md",
                 isActive
-                  ? "bg-white shadow-sm text-gray-900"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-white/50"
+                  ? "bg-primary text-primary-foreground shadow-sm hover:shadow-md"
+                  : "text-muted-foreground hover:text-primary hover:bg-primary/10 border-0"
               )}
               title={description}
             >
@@ -110,19 +106,10 @@ export function ViewModeToolbar({
         })}
       </div>
 
-      {/* Right Section - Focus Mode and Actions */}
-      <div className="flex items-center space-x-2">
-        <FocusModeToggle className="h-8 w-8 text-gray-600 hover:text-gray-900 hover:bg-gray-100" />
-
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.push("/dashboard")}
-          className="h-8 px-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-          title="Ir para o Dashboard"
-        >
-          <Home className="h-4 w-4" />
-        </Button>
+      {/* Far Right Section - Theme and Focus Mode */}
+      <div className="flex items-center space-x-2 relative z-10">
+        <ThemeToggle className="h-8 w-8 border-primary text-primary hover:bg-primary/10 hover:border-primary/70 transition-all duration-200 shadow-sm hover:shadow-md rounded-lg" />
+        <FocusModeToggle className="h-8 w-8 border-primary text-primary hover:bg-primary/10 hover:border-primary/70 transition-all duration-200 shadow-sm hover:shadow-md rounded-lg" />
       </div>
     </div>
   );

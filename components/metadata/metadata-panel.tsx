@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { Tables } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import { BarChart3, Edit, FileText, MapPin, Save, User, X } from "lucide-react";
-import { useState, memo, useMemo, useCallback } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 
 // Tipos específicos para o painel de metadados
 type SceneWithChapter = Tables<"scenes"> & {
@@ -125,6 +125,10 @@ export const MetadataPanel = memo(function MetadataPanel({
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "N/A";
+    // Format date to Brazilian format (client-side only to avoid hydration mismatch)
+    if (typeof window === "undefined") {
+      return dateString; // Return raw date on server
+    }
     return new Date(dateString).toLocaleDateString("pt-BR");
   };
 
@@ -138,22 +142,24 @@ export const MetadataPanel = memo(function MetadataPanel({
 
   if (!selectedItem || !selectedData) {
     return (
-      <div
-        className={cn(
-          "flex flex-col h-full bg-white/40 backdrop-blur-sm border-l border-white/20",
-          className
-        )}
-      >
-        <div className="p-4 border-b border-white/20">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="h-5 w-5 text-gray-600" />
-            <h2 className="font-semibold text-foreground">Metadados</h2>
+      <div className={cn("flex flex-col h-full relative", className)}>
+        {/* Background */}
+        <div className="absolute inset-0 bg-background" />
+        <div className="absolute inset-0 border-l border-border shadow-xl" />
+
+        {/* Content */}
+        <div className="relative z-10 flex flex-col h-full">
+          <div className="p-4 border-b border-white/30">
+            <div className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-primary" />
+              <h2 className="font-semibold text-primary">Metadados</h2>
+            </div>
           </div>
-        </div>
-        <div className="flex-1 flex items-center justify-center text-gray-500">
-          <div className="text-center">
-            <BarChart3 className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-            <p className="text-sm">Selecione um item para ver os metadados</p>
+          <div className="flex-1 flex items-center justify-center text-gray-500">
+            <div className="text-center">
+              <BarChart3 className="h-12 w-12 mx-auto mb-4 text-primary/50" />
+              <p className="text-sm">Selecione um item para ver os metadados</p>
+            </div>
           </div>
         </div>
       </div>
@@ -161,185 +167,204 @@ export const MetadataPanel = memo(function MetadataPanel({
   }
 
   return (
-    <div
-      className={cn(
-        "flex flex-col h-full bg-white/40 backdrop-blur-sm border-l border-white/20",
-        className
-      )}
-    >
-      {/* Header */}
-      <div className="p-4 border-b border-white/20">
-        <div className="flex items-center gap-2">
+    <div className={cn("flex flex-col h-full relative", className)}>
+      {/* Background */}
+      <div className="absolute inset-0 bg-background" />
+      <div className="absolute inset-0 border-l border-border shadow-xl" />
+
+      {/* Content */}
+      <div className="relative z-10 flex flex-col h-full">
+        {/* Header */}
+        <div className="p-4 border-b border-border bg-background">
           <div className="flex items-center gap-2">
-            {getIcon}
-            <h2 className="font-semibold text-foreground">Metadados</h2>
-          </div>
-          {!isEditing ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleEdit}
-              className="h-8 w-8 p-0"
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
-          ) : (
-            <div className="flex gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleSave}
-                className="h-8 w-8 p-0 text-green-600 hover:bg-green-100"
-              >
-                <Save className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCancel}
-                className="h-8 w-8 p-0 text-red-600 hover:bg-red-100"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+            <div className="flex items-center gap-2 text-primary">
+              {getIcon}
+              <h2 className="font-semibold ">Metadados</h2>
             </div>
-          )}
+            {!isEditing ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleEdit}
+                className="h-8 w-8 p-0 text-primary"
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+            ) : (
+              <div className="flex gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleSave}
+                  className="h-8 w-8 p-0 text-green-600 hover:bg-green-100"
+                >
+                  <Save className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCancel}
+                  className="h-8 w-8 p-0 text-red-600 hover:bg-red-100"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
-      <ScrollArea className="flex-1">
-        <div className="p-4 space-y-4">
-          {/* Basic Info */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center gap-2">
-                {getIcon}
-                {getTypeLabel}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <Label className="text-xs text-gray-600">Título</Label>
-                {isEditing ? (
-                  <Input
-                    value={editData.title || editData.name || ""}
-                    onChange={(e) =>
-                      setEditData({
-                        ...editData,
-                        [selectedItem.type === "character" ||
-                        selectedItem.type === "location"
-                          ? "name"
-                          : "title"]: e.target.value,
-                      })
-                    }
-                    className="mt-1"
-                  />
-                ) : (
-                  <p className="text-sm font-medium">
-                    {"title" in selectedData
-                      ? selectedData.title
-                      : selectedData.name}
-                  </p>
-                )}
-              </div>
-
-              {selectedItem?.type === "scene" &&
-                "chapterTitle" in selectedData &&
-                selectedData.chapterTitle && (
-                  <div>
-                    <Label className="text-xs text-gray-600">Capítulo</Label>
-                    <p className="text-sm">{selectedData.chapterTitle}</p>
-                  </div>
-                )}
-
-              <div>
-                <Label className="text-xs text-gray-600">Descrição</Label>
-                {isEditing ? (
-                  <Textarea
-                    value={editData.description || ""}
-                    onChange={(e) =>
-                      setEditData({ ...editData, description: e.target.value })
-                    }
-                    className="mt-1"
-                    rows={3}
-                  />
-                ) : (
-                  <p className="text-sm text-gray-700">
-                    {"description" in selectedData
-                      ? selectedData.description || "Sem descrição"
-                      : "Sem descrição"}
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Statistics */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <BarChart3 className="h-4 w-4" />
-                Estatísticas
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {"content" in selectedData && selectedData.content && (
-                <div className="flex justify-between">
-                  <span className="text-xs text-gray-600">Palavras:</span>
-                  <span className="text-sm font-medium">
-                    {getWordCount(selectedData.content || "")}
-                  </span>
-                </div>
-              )}
-
-              {selectedItem.type === "chapter" && (
-                <div className="flex justify-between">
-                  <span className="text-xs text-gray-600">Cenas:</span>
-                  <span className="text-sm font-medium">
-                    {
-                      scenes.filter(
-                        (scene) => scene.chapter_id === selectedItem.id
-                      ).length
-                    }
-                  </span>
-                </div>
-              )}
-
-              <div className="flex justify-between">
-                <span className="text-xs text-gray-600">Criado:</span>
-                <span className="text-sm">
-                  {formatDate(selectedData.created_at)}
-                </span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-xs text-gray-600">Atualizado:</span>
-                <span className="text-sm">
-                  {formatDate(selectedData.updated_at)}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-
-          {selectedItem.type === "character" && (
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">
-                  Detalhes do Personagem
+        <ScrollArea className="flex-1">
+          <div className="p-4 space-y-4">
+            {/* Basic Info */}
+            <Card className="bg-background border-border shadow-lg hover:shadow-xl transition-all duration-200">
+              <CardHeader className="pb-3 bg-background border-b border-border">
+                <CardTitle className="text-sm flex items-center gap-2 text-primary">
+                  {getIcon}
+                  {getTypeLabel}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {/* Idade removida - propriedade não existe no schema */}
+                <div>
+                  <Label className="text-xs text-muted-foreground">
+                    Título
+                  </Label>
+                  {isEditing ? (
+                    <Input
+                      value={editData.title || editData.name || ""}
+                      onChange={(e) =>
+                        setEditData({
+                          ...editData,
+                          [selectedItem.type === "character" ||
+                          selectedItem.type === "location"
+                            ? "name"
+                            : "title"]: e.target.value,
+                        })
+                      }
+                      className="mt-1"
+                    />
+                  ) : (
+                    <p className="text-sm font-medium text-foreground/60">
+                      {"title" in selectedData
+                        ? selectedData.title
+                        : selectedData.name}
+                    </p>
+                  )}
+                </div>
 
-                {/* Papel removido - propriedade não existe no schema */}
+                {selectedItem?.type === "scene" &&
+                  "chapterTitle" in selectedData &&
+                  selectedData.chapterTitle && (
+                    <div>
+                      <Label className="text-xs text-muted-foreground">
+                        Capítulo
+                      </Label>
+                      <p className="text-sm text-foreground/60">
+                        {selectedData.chapterTitle}
+                      </p>
+                    </div>
+                  )}
+
+                <div>
+                  <Label className="text-xs text-muted-foreground">
+                    Descrição
+                  </Label>
+                  {isEditing ? (
+                    <Textarea
+                      value={editData.description || ""}
+                      onChange={(e) =>
+                        setEditData({
+                          ...editData,
+                          description: e.target.value,
+                        })
+                      }
+                      className="mt-1"
+                      rows={3}
+                    />
+                  ) : (
+                    <p className="text-sm text-foreground/60">
+                      {"description" in selectedData
+                        ? selectedData.description || "Sem descrição"
+                        : "Sem descrição"}
+                    </p>
+                  )}
+                </div>
               </CardContent>
             </Card>
-          )}
 
-          {/* Location removido - tabela não existe no schema do Supabase */}
+            {/* Statistics */}
+            <Card className="bg-background border-border shadow-lg hover:shadow-xl transition-all duration-200">
+              <CardHeader className="pb-3 bg-background border-b border-border">
+                <CardTitle className="text-sm flex items-center gap-2 text-primary">
+                  <BarChart3 className="h-4 w-4" />
+                  Estatísticas
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {"content" in selectedData && selectedData.content && (
+                  <div className="flex justify-between">
+                    <span className="text-xs text-muted-foreground">
+                      Palavras:
+                    </span>
+                    <span className="text-sm font-medium text-foreground/60">
+                      {getWordCount(selectedData.content || "")}
+                    </span>
+                  </div>
+                )}
 
-          {/* Tags/Status removidos - propriedades não existem no schema do Supabase */}
-        </div>
-      </ScrollArea>
+                {selectedItem.type === "chapter" && (
+                  <div className="flex justify-between">
+                    <span className="text-xs text-muted-foreground">
+                      Cenas:
+                    </span>
+                    <span className="text-sm font-medium text-foreground/60">
+                      {
+                        scenes.filter(
+                          (scene) => scene.chapter_id === selectedItem.id
+                        ).length
+                      }
+                    </span>
+                  </div>
+                )}
+
+                <div className="flex justify-between">
+                  <span className="text-xs text-muted-foreground">Criado:</span>
+                  <span className="text-sm text-foreground/60">
+                    {formatDate(selectedData.created_at)}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-xs text-muted-foreground">
+                    Atualizado:
+                  </span>
+                  <span className="text-sm text-foreground/60">
+                    {formatDate(selectedData.updated_at)}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {selectedItem.type === "character" && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm">
+                    Detalhes do Personagem
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {/* Idade removida - propriedade não existe no schema */}
+
+                  {/* Papel removido - propriedade não existe no schema */}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Location removido - tabela não existe no schema do Supabase */}
+
+            {/* Tags/Status removidos - propriedades não existem no schema do Supabase */}
+          </div>
+        </ScrollArea>
+      </div>
     </div>
   );
 });

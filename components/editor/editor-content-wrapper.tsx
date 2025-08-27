@@ -77,14 +77,38 @@ const EditorContentWrapperComponent = ({
   return (
     <div
       className={cn(
-        "flex-1 h-full overflow-y-auto bg-white dark:bg-gray-900",
-        "transition-all duration-200",
+        "w-full h-full flex-1 relative cursor-text bg-transparent",
+        "transition-all duration-300 ease-in-out",
+        "hover:bg-white/20 rounded-lg",
+        deviceInfo.isMobile && "text-sm leading-relaxed p-4",
+        deviceInfo.isTablet && "text-base leading-relaxed p-6",
+        deviceInfo.isMacbook && "text-base leading-relaxed p-8",
+        deviceInfo.isNotebook && "text-lg leading-relaxed p-8",
+        deviceInfo.isDesktop && "text-lg leading-relaxed p-10",
         className
       )}
+      onClick={() => {
+        // Expand clickable area - focus editor when clicking anywhere in the container
+        if (editor && !editor.isFocused) {
+          editor.commands.focus("end");
+        }
+      }}
     >
       <EditorContent
         editor={editor}
-        className={cn(editorContentClasses, "h-full min-h-full")}
+        className={cn(
+          "w-full h-full min-h-full",
+          "prose prose-lg max-w-none",
+          "focus:outline-none",
+          "[&_.ProseMirror]:min-h-full",
+          "[&_.ProseMirror]:p-0",
+          "[&_.ProseMirror]:outline-none",
+          "[&_.ProseMirror]:border-none",
+          "[&_.ProseMirror]:focus:outline-none",
+          "[&_.ProseMirror]:cursor-text",
+          "[&_.ProseMirror]:leading-loose",
+          "[&_.ProseMirror]:font-normal"
+        )}
       />
     </div>
   );

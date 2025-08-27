@@ -1,23 +1,35 @@
 "use client";
 
-import { useState, memo, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
+import {
+  Book,
+  BookOpen,
   ChevronDown,
   ChevronRight,
-  Plus,
+  File,
   FileText,
-  User,
+  Folder,
+  FolderOpen,
   MapPin,
-  BookOpen,
+  Plus,
+  User,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { memo, useCallback, useMemo } from "react";
 
 import type { Tables } from "@/lib/supabase";
 
@@ -87,175 +99,228 @@ export const NavigationPanel = memo(function NavigationPanel({
   return (
     <div
       className={cn(
-        "flex flex-col h-full bg-white/40 backdrop-blur-sm border-r border-white/20",
+        "flex flex-col h-full relative overflow-hidden",
+        "bg-background border-r border-border shadow-xl",
         className
       )}
     >
-      {/* Header */}
-      <div className="p-4 border-b border-white/20">
-        <div className="flex items-center gap-2">
-          <BookOpen className="h-5 w-5 text-escrivania-purple-600" />
-          <h2 className="font-semibold text-foreground">Navegação</h2>
-        </div>
-      </div>
-
-      <ScrollArea className="flex-1">
-        <div className="p-4 space-y-6">
-          {/* Manuscript Section */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-gray-700">
-                Manuscrito
-              </h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onAddChapter}
-                className="h-6 w-6 p-0 hover:bg-escrivania-purple-100"
-              >
-                <Plus className="h-3 w-3" />
-              </Button>
+      {/* Content */}
+      <div className="relative z-10 flex flex-col h-full">
+        {/* Header */}
+        <div className="p-4 border-b border-border bg-background">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 flex-1">
+              <div className="p-1.5 rounded-lg border border-primary/20">
+                <BookOpen className="h-4 w-4 text-primary" />
+              </div>
+              <h2 className="font-semibold text-primary">Navegação</h2>
             </div>
 
-            <div className="space-y-1">
-              {sortedChapters.map((chapter) => {
-                const chapterScenes = scenesByChapter.get(chapter.id) || [];
+            {/* Main Add Button */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 w-8 p-0 border-primary text-primary hover:bg-primary/10 hover:border-primary/70 transition-all duration-200 shadow-sm hover:shadow-md rounded-md"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel className="text-xs font-medium text-gray-500">
+                  Adicionar novo
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={onAddChapter}
+                  className="cursor-pointer"
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  Novo Capítulo
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={onAddCharacter}
+                  className="cursor-pointer"
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  Novo Personagem
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={onAddLocation}
+                  className="cursor-pointer"
+                >
+                  <MapPin className="mr-2 h-4 w-4" />
+                  Novo Local
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
 
-                return (
-                  <Collapsible
-                    key={chapter.id}
-                    open={expandedChapters.has(chapter.id)}
-                    onOpenChange={() => onToggleChapter(chapter.id)}
-                  >
-                    <div className="flex items-center">
-                      <CollapsibleTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0 hover:bg-escrivania-purple-100"
-                        >
-                          {expandedChapters.has(chapter.id) ? (
-                            <ChevronDown className="h-3 w-3" />
-                          ) : (
-                            <ChevronRight className="h-3 w-3" />
-                          )}
-                        </Button>
-                      </CollapsibleTrigger>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className={cn(
-                          "flex-1 justify-start px-2 h-8 text-sm",
-                          isSelected("chapter", chapter.id)
-                            ? "bg-escrivania-purple-100 text-escrivania-purple-700"
-                            : "hover:bg-escrivania-purple-50"
-                        )}
-                        onClick={() =>
-                          onItemSelect({ type: "chapter", id: chapter.id })
-                        }
-                      >
-                        <FileText className="mr-2 h-3 w-3" />
-                        <span className="truncate">{chapter.title}</span>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onAddScene(chapter.id)}
-                        className="h-6 w-6 p-0 hover:bg-escrivania-purple-100"
-                      >
-                        <Plus className="h-3 w-3" />
-                      </Button>
-                    </div>
+        <ScrollArea className="flex-1">
+          <div className="p-4 space-y-6">
+            {/* Manuscript Section */}
+            <div>
+              <div className="flex items-center mb-3 p-2 rounded-lg bg-background">
+                <Book className="h-4 w-4 mr-2 text-primary" />
+                <h3 className="text-md font-semibold text-primary">
+                  Manuscrito
+                </h3>
+              </div>
 
-                    <CollapsibleContent className="ml-6 space-y-1">
-                      {chapterScenes.map((scene) => (
+              <div className="space-y-1">
+                {sortedChapters.map((chapter) => {
+                  const chapterScenes = scenesByChapter.get(chapter.id) || [];
+
+                  return (
+                    <Collapsible
+                      key={chapter.id}
+                      open={expandedChapters.has(chapter.id)}
+                      onOpenChange={() => onToggleChapter(chapter.id)}
+                    >
+                      <div className="flex items-center group">
+                        <CollapsibleTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 border border-primary/20 text-primary hover:bg-primary/10 hover:border-primary/40 transition-all duration-200"
+                          >
+                            {expandedChapters.has(chapter.id) ? (
+                              <ChevronDown className="h-3 w-3 text-primary" />
+                            ) : (
+                              <ChevronRight className="h-3 w-3 text-primary" />
+                            )}
+                          </Button>
+                        </CollapsibleTrigger>
                         <Button
-                          key={scene.id}
                           variant="ghost"
                           size="sm"
                           className={cn(
-                            "w-full justify-start h-8 px-2 text-sm",
-                            isSelected("scene", scene.id)
-                              ? "bg-escrivania-purple-100 text-escrivania-purple-700"
-                              : "hover:bg-escrivania-purple-50"
+                            "flex-1 justify-start px-2 h-8 text-sm transition-all duration-200",
+                            isSelected("chapter", chapter.id)
+                              ? "bg-primary/10 text-primary border border-primary/20 shadow-sm"
+                              : "hover:bg-primary/5 border border-transparent hover:border-primary/20"
                           )}
                           onClick={() =>
-                            onItemSelect({ type: "scene", id: scene.id })
+                            onItemSelect({ type: "chapter", id: chapter.id })
                           }
                         >
-                          <div className="w-2 h-2 rounded-full bg-gray-400 mr-2" />
-                          <span className="truncate">{scene.title}</span>
+                          {expandedChapters.has(chapter.id) ? (
+                            <FolderOpen className="mr-2 h-3 w-3 text-primary" />
+                          ) : (
+                            <Folder className="mr-2 h-3 w-3 text-primary" />
+                          )}
+                          <span className="truncate">{chapter.title}</span>
                         </Button>
-                      ))}
-                    </CollapsibleContent>
-                  </Collapsible>
-                );
-              })}
-            </div>
-          </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0 border border-primary/20 text-primary hover:bg-primary/10 hover:border-primary/40 transition-all duration-200 opacity-0 group-hover:opacity-100"
+                            >
+                              <Plus className="h-3 w-3 text-primary" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-40">
+                            <DropdownMenuItem
+                              onClick={() => onAddScene(chapter.id)}
+                              className="cursor-pointer"
+                            >
+                              <FileText className="mr-2 h-3 w-3" />
+                              Nova Cena
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
 
-          {/* Characters Section */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-gray-700">
-                Personagens
-              </h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onAddCharacter}
-                className="h-6 w-6 p-0 hover:bg-escrivania-blue-100"
-              >
-                <Plus className="h-3 w-3" />
-              </Button>
+                      <CollapsibleContent className="ml-6 space-y-1">
+                        {chapterScenes.map((scene) => (
+                          <Button
+                            key={scene.id}
+                            variant="ghost"
+                            size="sm"
+                            className={cn(
+                              "w-full justify-start h-8 px-2 text-sm transition-all duration-200",
+                              isSelected("scene", scene.id)
+                                ? "bg-primary/10 text-primary border border-primary/20 shadow-sm"
+                                : "hover:bg-primary/5 border border-transparent hover:border-primary/20"
+                            )}
+                            onClick={() =>
+                              onItemSelect({ type: "scene", id: scene.id })
+                            }
+                          >
+                            <File className="mr-2 h-3 w-3 text-primary" />
+                            <span className="truncate">{scene.title}</span>
+                          </Button>
+                        ))}
+                      </CollapsibleContent>
+                    </Collapsible>
+                  );
+                })}
+              </div>
             </div>
 
-            <div className="space-y-1">
-              {sortedCharacters.map((character) => (
+            {/* Characters Section */}
+            <div>
+              <div className="flex items-center mb-3 p-2 rounded-lg bg-background">
+                <User className="h-4 w-4 mr-2 text-primary" />
+                <h3 className="text-md font-semibold text-primary">
+                  Personagens
+                </h3>
+              </div>
+
+              <div className="space-y-1">
+                {sortedCharacters.map((character) => (
+                  <Button
+                    key={character.id}
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      "w-full justify-start h-8 px-2 text-sm transition-all duration-200",
+                      isSelected("character", character.id)
+                        ? "bg-primary/10 text-primary border border-primary/20 shadow-sm"
+                        : "hover:bg-primary/5 border border-transparent hover:border-primary/20"
+                    )}
+                    onClick={() =>
+                      onItemSelect({ type: "character", id: character.id })
+                    }
+                  >
+                    <User className="h-3 w-3 mr-2 text-primary" />
+                    <span className="truncate">{character.name}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Locations Section */}
+            <div>
+              <div className="flex items-center justify-between mb-3 p-2 rounded-lg bg-background">
+                <div className="flex items-center">
+                  <MapPin className="h-4 w-4 mr-2 text-primary" />
+                  <h3 className="text-md font-semibold text-primary">Locais</h3>
+                </div>
                 <Button
-                  key={character.id}
                   variant="ghost"
                   size="sm"
-                  className={cn(
-                    "w-full justify-start h-8 px-2 text-sm",
-                    isSelected("character", character.id)
-                      ? "bg-escrivania-blue-100 text-escrivania-blue-700"
-                      : "hover:bg-escrivania-blue-50"
-                  )}
-                  onClick={() =>
-                    onItemSelect({ type: "character", id: character.id })
-                  }
+                  onClick={onAddLocation}
+                  className="h-6 w-6 p-0 border border-primary/20 text-primary hover:bg-primary/10 hover:border-primary/40 transition-all duration-200"
                 >
-                  <User className="h-3 w-3 mr-2" />
-                  <span className="truncate">{character.name}</span>
+                  <Plus className="h-3 w-3 text-primary" />
                 </Button>
-              ))}
-            </div>
-          </div>
+              </div>
 
-          {/* Locations Section */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-gray-700">Locais</h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onAddLocation}
-                className="h-6 w-6 p-0 hover:bg-green-100"
-              >
-                <Plus className="h-3 w-3" />
-              </Button>
-            </div>
-
-            <div className="space-y-1">
-              {/* Locations will be implemented later */}
-              <div className="text-sm text-gray-500 italic px-2">
-                Nenhum local cadastrado
+              <div className="space-y-1">
+                {/* Locations will be implemented later */}
+                <div className="text-sm text-gray-500 italic px-2">
+                  Em breve...
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </ScrollArea>
+        </ScrollArea>
+      </div>
     </div>
   );
 });

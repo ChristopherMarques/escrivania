@@ -170,7 +170,7 @@ export function CharacterSheet({
         <div className="flex items-start space-x-4">
           <Avatar className="w-16 h-16 ring-2 ring-purple-200">
             <AvatarImage src={character.avatarUrl || "/placeholder.svg"} />
-            <AvatarFallback className="bg-gradient-escrivania text-escrivania-purple-700 text-lg">
+            <AvatarFallback className="bg-primary/10 text-primary text-lg border border-primary/20">
               {character.name.charAt(0)}
             </AvatarFallback>
           </Avatar>
@@ -325,7 +325,7 @@ export function CharacterSheet({
                 <Button
                   onClick={generatePortrait}
                   disabled={isGeneratingPortrait}
-                  className="bg-gradient-to-r from-purple-500 to-blue-400 hover:from-purple-600 hover:to-blue-500 text-white"
+                  className="bg-primary text-primary-foreground border border-primary/20 hover:bg-primary/90 hover:border-primary/30"
                 >
                   <Wand2 className="w-4 h-4 mr-2" />
                   {isGeneratingPortrait ? "Gerando..." : "Gerar Retrato IA"}
@@ -427,7 +427,7 @@ export function CharacterSheet({
                 </h3>
                 <Button
                   onClick={() => setIsAddRelationshipOpen(true)}
-                  className="bg-gradient-to-r from-purple-500 to-blue-400 hover:from-purple-600 hover:to-blue-500 text-white"
+                  className="bg-primary text-primary-foreground border border-primary/20 hover:bg-primary/90 hover:border-primary/30"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Adicionar Relação
@@ -462,7 +462,7 @@ export function CharacterSheet({
                                   "/placeholder.svg"
                                 }
                               />
-                              <AvatarFallback className="bg-gradient-to-br from-purple-100 to-blue-100 text-purple-700">
+                              <AvatarFallback className="bg-primary/10 text-primary border border-primary/20">
                                 {relatedCharacter.name.charAt(0)}
                               </AvatarFallback>
                             </Avatar>
@@ -593,7 +593,7 @@ export function CharacterSheet({
             <Button
               onClick={addRelationship}
               disabled={!selectedCharacterForRelation || !selectedRelationType}
-              className="bg-gradient-to-r from-purple-500 to-blue-400 hover:from-purple-600 hover:to-blue-500 text-white"
+              className="bg-primary text-primary-foreground border border-primary/20 hover:bg-primary/90 hover:border-primary/30"
             >
               Adicionar Relação
             </Button>

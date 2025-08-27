@@ -1,23 +1,33 @@
 "use client";
 
-import React, { useState } from "react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { useProject } from "@/contexts/ProjectContext";
+import { cn } from "@/lib/utils";
 import {
+  Book,
   BookOpen,
-  FileText,
-  Users,
-  Settings,
   ChevronDown,
   ChevronRight,
-  Plus,
+  File,
+  FileText,
+  Folder,
+  FolderOpen,
   Home,
-  Edit3,
+  Plus,
+  Settings,
+  User,
 } from "lucide-react";
-import { useProject } from "@/contexts/ProjectContext";
-import type { Project, Chapter } from "@/contexts/ProjectContext";
+import { useState } from "react";
 
 interface ProjectSidebarProps {
   className?: string;
@@ -100,13 +110,56 @@ export function ProjectSidebar({ className, onNavigate }: ProjectSidebarProps) {
               >
                 {currentProject.title}
               </h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleNavigation("project-settings")}
-              >
-                <Settings className="h-3 w-3" />
-              </Button>
+              <div className="flex items-center gap-1">
+                {/* Quick Add Menu */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 hover:bg-accent"
+                    >
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-44">
+                    <DropdownMenuLabel className="text-xs">
+                      Adicionar novo
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => handleNavigation("create-chapter")}
+                      className="cursor-pointer"
+                    >
+                      <FileText className="mr-2 h-3 w-3" />
+                      Capítulo
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleNavigation("create-character")}
+                      className="cursor-pointer"
+                    >
+                      <User className="mr-2 h-3 w-3 text-blue-500" />
+                      Personagem
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleNavigation("create-synopsis")}
+                      className="cursor-pointer"
+                    >
+                      <FileText className="mr-2 h-3 w-3 text-green-500" />
+                      Sinopse
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0"
+                  onClick={() => handleNavigation("project-settings")}
+                >
+                  <Settings className="h-3 w-3" />
+                </Button>
+              </div>
             </div>
             <p className="text-xs text-muted-foreground line-clamp-2">
               {currentProject.description || "Sem descrição"}
@@ -140,17 +193,11 @@ export function ProjectSidebar({ className, onNavigate }: ProjectSidebarProps) {
 
           {/* Capítulos */}
           <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center mb-2">
+              <Book className="h-3 w-3 mr-1 text-muted-foreground" />
               <h4 className="text-sm font-medium text-muted-foreground">
                 Capítulos
               </h4>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleNavigation("create-chapter")}
-              >
-                <Plus className="h-3 w-3" />
-              </Button>
             </div>
 
             <div className="space-y-1">
@@ -174,6 +221,11 @@ export function ProjectSidebar({ className, onNavigate }: ProjectSidebarProps) {
                             handleNavigation("chapter", chapter.id)
                           }
                         >
+                          {isExpanded ? (
+                            <FolderOpen className="mr-1 h-3 w-3 text-blue-600" />
+                          ) : (
+                            <Folder className="mr-1 h-3 w-3 text-blue-600" />
+                          )}
                           <span className="truncate text-xs">
                             {chapter.title}
                           </span>
@@ -207,7 +259,7 @@ export function ProjectSidebar({ className, onNavigate }: ProjectSidebarProps) {
                                 handleNavigation("scene", scene.id)
                               }
                             >
-                              <FileText className="mr-1 h-3 w-3" />
+                              <File className="mr-1 h-3 w-3 text-blue-500" />
                               <span className="truncate">{scene.title}</span>
                             </Button>
                           ))}
@@ -224,17 +276,11 @@ export function ProjectSidebar({ className, onNavigate }: ProjectSidebarProps) {
 
           {/* Personagens */}
           <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center mb-2">
+              <User className="h-3 w-3 mr-1 text-muted-foreground" />
               <h4 className="text-sm font-medium text-muted-foreground">
                 Personagens
               </h4>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleNavigation("create-character")}
-              >
-                <Plus className="h-3 w-3" />
-              </Button>
             </div>
 
             <div className="space-y-1">
@@ -251,7 +297,7 @@ export function ProjectSidebar({ className, onNavigate }: ProjectSidebarProps) {
                     className="w-full justify-start px-2 h-8 text-xs"
                     onClick={() => handleNavigation("character", character.id)}
                   >
-                    <Users className="mr-2 h-3 w-3" />
+                    <User className="mr-2 h-3 w-3 text-blue-500" />
                     <span className="truncate">{character.name}</span>
                   </Button>
                 ))
@@ -274,17 +320,11 @@ export function ProjectSidebar({ className, onNavigate }: ProjectSidebarProps) {
 
           {/* Sinopses */}
           <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center mb-2">
+              <FileText className="h-3 w-3 mr-1 text-muted-foreground" />
               <h4 className="text-sm font-medium text-muted-foreground">
                 Sinopses
               </h4>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleNavigation("create-synopsis")}
-              >
-                <Plus className="h-3 w-3" />
-              </Button>
             </div>
 
             <div className="space-y-1">
@@ -301,7 +341,7 @@ export function ProjectSidebar({ className, onNavigate }: ProjectSidebarProps) {
                     className="w-full justify-start px-2 h-8 text-xs"
                     onClick={() => handleNavigation("synopsis", synopsis.id)}
                   >
-                    <Edit3 className="mr-2 h-3 w-3" />
+                    <FileText className="mr-2 h-3 w-3 text-green-500" />
                     <span className="truncate">{synopsis.title}</span>
                   </Button>
                 ))

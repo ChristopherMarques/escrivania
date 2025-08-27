@@ -138,9 +138,73 @@
   border-radius: 8px;
 }
 
-/* Smooth cursor movement */
+/* Enhanced Editor Styles with Theme Colors */
 .ProseMirror {
-  caret-color: #3b82f6;
+  caret-color: var(--primary);
+  line-height: 1.75;
+  font-size: 16px;
+  color: var(--foreground);
+  min-height: 100%;
+  padding: 2rem;
+  outline: none;
+  border: none;
+  background: transparent;
+  cursor: text;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Enhanced clickable area */
+.ProseMirror-wrapper {
+  min-height: 100%;
+  cursor: text;
+}
+
+/* Better text selection with theme colors */
+.ProseMirror ::selection {
+  background: var(--primary);
+  background: linear-gradient(
+    135deg,
+    var(--primary) / 0.3,
+    var(--secondary) / 0.2
+  );
+  color: var(--foreground);
+}
+
+/* Enhanced focus styles */
+.ProseMirror.has-focus {
+  box-shadow: 0 0 0 2px var(--primary) / 0.2;
+  border-radius: 12px;
+}
+
+/* Improved cursor visibility */
+.ProseMirror .ProseMirror-cursor {
+  border-left: 2px solid var(--primary);
+  animation: ProseMirror-cursor-blink 1.2s ease-in-out infinite;
+}
+
+/* Better paragraph spacing */
+.ProseMirror p {
+  margin: 0.75em 0;
+  line-height: 1.8;
+}
+
+.ProseMirror p:first-child {
+  margin-top: 0;
+}
+
+.ProseMirror p:last-child {
+  margin-bottom: 0;
+}
+
+/* Enhanced placeholder styling */
+.ProseMirror .is-editor-empty:first-child::before {
+  color: var(--muted-foreground);
+  font-style: italic;
+  pointer-events: none;
+  height: 0;
+  float: left;
 }
 
 /* Better text selection */
@@ -185,82 +249,113 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #f9f9f9;
-  --foreground: #202020;
-  --card: #fcfcfc;
-  --card-foreground: #202020;
-  --popover: #fcfcfc;
-  --popover-foreground: #202020;
-  /* Updated primary colors to match Escrivania Digital brand with exact colors */
-  --primary: #9192fa;
+  --background: #ffffff;
+  --foreground: #09090b;
+  --card: #fdfdfd;
+  --card-foreground: #09090b;
+  --popover: #fdfdfd;
+  --popover-foreground: #09090b;
+  --primary: #9396f4;
   --primary-foreground: #ffffff;
-  --secondary: #74cffa;
-  --secondary-foreground: #ffffff;
-  --muted: #efefef;
-  --muted-foreground: #646464;
-  --accent: #e8e8e8;
-  --accent-foreground: #202020;
-  --destructive: #e54d2e;
+  --secondary: #7cd9f8;
+  --secondary-foreground: #09090b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --accent: #f4f4f5;
+  --accent-foreground: #09090b;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #d8d8d8;
-  --input: #d8d8d8;
-  --ring: #9192fa;
-  /* Updated chart colors to use brand palette */
-  --chart-1: #9192fa;
-  --chart-2: #74cffa;
-  --chart-3: #e8e8e8;
-  --chart-4: #b4b6fc;
-  --chart-5: #a7e0fc;
-  --radius: 0.625rem;
-  --sidebar: #fbfbfb;
-  --sidebar-foreground: #252525;
-  --sidebar-primary: #9192fa;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #9396f4;
+  --chart-1: #9396f4;
+  --chart-2: #7cd9f8;
+  --chart-3: #a5b4fc;
+  --chart-4: #38bdf8;
+  --chart-5: #c7d2fe;
+  --sidebar: #fafafa;
+  --sidebar-foreground: #09090b;
+  --sidebar-primary: #9396f4;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f7f7f7;
-  --sidebar-accent-foreground: #343434;
-  --sidebar-border: #ebebeb;
-  --sidebar-ring: #9192fa;
-  --font-inter: "Inter", sans-serif;
-  --font-poppins: "Poppins", serif;
+  --sidebar-accent: #f4f4f5;
+  --sidebar-accent-foreground: #09090b;
+  --sidebar-border: #e4e4e7;
+  --sidebar-ring: #9396f4;
+  --font-sans: Inter;
+  --font-serif: Lora;
+  --font-mono: Fira Code;
+  --radius: 1rem;
+  --shadow-2xs: 0px 4px 8px 0px hsl(0 0% 0% / 0.01);
+  --shadow-xs: 0px 4px 8px 0px hsl(0 0% 0% / 0.01);
+  --shadow-sm:
+    0px 4px 8px 0px hsl(0 0% 0% / 0.02), 0px 1px 2px -1px hsl(0 0% 0% / 0.02);
+  --shadow:
+    0px 4px 8px 0px hsl(0 0% 0% / 0.02), 0px 1px 2px -1px hsl(0 0% 0% / 0.02);
+  --shadow-md:
+    0px 4px 8px 0px hsl(0 0% 0% / 0.02), 0px 2px 4px -1px hsl(0 0% 0% / 0.02);
+  --shadow-lg:
+    0px 4px 8px 0px hsl(0 0% 0% / 0.02), 0px 4px 6px -1px hsl(0 0% 0% / 0.02);
+  --shadow-xl:
+    0px 4px 8px 0px hsl(0 0% 0% / 0.02), 0px 8px 10px -1px hsl(0 0% 0% / 0.02);
+  --shadow-2xl: 0px 4px 8px 0px hsl(0 0% 0% / 0.05);
+  --tracking-normal: 0px;
+  --spacing: 0.25rem;
 }
 
 .dark {
-  --background: #111111;
-  --foreground: #eeeeee;
-  --card: #191919;
-  --card-foreground: #eeeeee;
-  --popover: #191919;
-  --popover-foreground: #eeeeee;
-  /* Updated dark mode primary colors with brand palette */
-  --primary: #9192fa;
-  --primary-foreground: #ffffff;
-  --secondary: #74cffa;
-  --secondary-foreground: #ffffff;
-  --muted: #222222;
-  --muted-foreground: #b4b4b4;
-  --accent: #2a2a2a;
-  --accent-foreground: #eeeeee;
-  --destructive: #e54d2e;
-  --destructive-foreground: #ffffff;
-  --border: #201e18;
-  --input: #484848;
-  --ring: #9192fa;
-  /* Updated dark mode chart colors */
-  --chart-1: #9192fa;
-  --chart-2: #74cffa;
-  --chart-3: #2a2a2a;
-  --chart-4: #7a7cfc;
-  --chart-5: #8dd5fc;
-  --sidebar: #18181b;
-  --sidebar-foreground: #f4f4f5;
-  --sidebar-primary: #9192fa;
-  --sidebar-primary-foreground: #ffffff;
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #111113;
+  --card-foreground: #fafafa;
+  --popover: #111113;
+  --popover-foreground: #fafafa;
+  --primary: #9396f4;
+  --primary-foreground: #09090b;
+  --secondary: #7cd9f8;
+  --secondary-foreground: #09090b;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --accent: #27272a;
+  --accent-foreground: #fafafa;
+  --destructive: #7f1d1d;
+  --destructive-foreground: #fafafa;
+  --border: #27272a;
+  --input: #27272a;
+  --ring: #9396f4;
+  --chart-1: #9396f4;
+  --chart-2: #7cd9f8;
+  --chart-3: #a5b4fc;
+  --chart-4: #38bdf8;
+  --chart-5: #c7d2fe;
+  --sidebar: #0c0c0e;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #9396f4;
+  --sidebar-primary-foreground: #09090b;
   --sidebar-accent: #27272a;
-  --sidebar-accent-foreground: #f4f4f5;
+  --sidebar-accent-foreground: #fafafa;
   --sidebar-border: #27272a;
-  --sidebar-ring: #9192fa;
-  --font-inter: "Inter", sans-serif;
-  --font-poppins: "Poppins", serif;
+  --sidebar-ring: #9396f4;
+  --font-sans: Inter;
+  --font-serif: Lora;
+  --font-mono: Fira Code;
+  --radius: 1rem;
+  --shadow-2xs: 0px 4px 8px 0px hsl(0 0% 0% / 0.05);
+  --shadow-xs: 0px 4px 8px 0px hsl(0 0% 0% / 0.05);
+  --shadow-sm:
+    0px 4px 8px 0px hsl(0 0% 0% / 0.1), 0px 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow:
+    0px 4px 8px 0px hsl(0 0% 0% / 0.1), 0px 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow-md:
+    0px 4px 8px 0px hsl(0 0% 0% / 0.1), 0px 2px 4px -1px hsl(0 0% 0% / 0.1);
+  --shadow-lg:
+    0px 4px 8px 0px hsl(0 0% 0% / 0.1), 0px 4px 6px -1px hsl(0 0% 0% / 0.1);
+  --shadow-xl:
+    0px 4px 8px 0px hsl(0 0% 0% / 0.1), 0px 8px 10px -1px hsl(0 0% 0% / 0.1);
+  --shadow-2xl: 0px 4px 8px 0px hsl(0 0% 0% / 0.25);
+}
+
+body {
+  letter-spacing: var(--tracking-normal);
 }
 
 @theme inline {

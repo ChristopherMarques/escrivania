@@ -327,7 +327,12 @@ function GoalCard({ goal, onEdit, onDelete, onProgressUpdate }: GoalCardProps) {
         {goal.deadline && (
           <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
             <Calendar className="h-3 w-3" />
-            <span>Prazo: {goal.deadline.toLocaleDateString("pt-BR")}</span>
+            <span>
+              Prazo:{" "}
+              {typeof window !== "undefined"
+                ? goal.deadline.toLocaleDateString("pt-BR")
+                : goal.deadline.toISOString().split("T")[0]}
+            </span>
           </div>
         )}
 

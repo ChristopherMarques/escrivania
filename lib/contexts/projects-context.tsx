@@ -142,9 +142,14 @@ export function ProjectsProvider({ children }: { children: React.ReactNode }) {
     projectData: Omit<Project, "id" | "createdAt" | "updatedAt">
   ) => {
     const now = new Date().toISOString().split("T")[0];
+    // Use crypto.randomUUID() for better uniqueness and avoid hydration issues
+    const id =
+      typeof crypto !== "undefined" && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `project-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`;
     const newProject: Project = {
       ...projectData,
-      id: Date.now().toString(),
+      id,
       createdAt: now,
       updatedAt: now,
     };

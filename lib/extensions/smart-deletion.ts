@@ -44,7 +44,7 @@ export const SmartDeletion = Extension.create<SmartDeletionOptions>({
       new Plugin({
         key: new PluginKey("smartDeletion"),
         props: {
-          handleKeyDown: (_view, event) => {
+          handleKeyDown: (view, event) => {
             const { state, dispatch } = view;
             const { selection, schema } = state;
             const { $from, empty } = selection;

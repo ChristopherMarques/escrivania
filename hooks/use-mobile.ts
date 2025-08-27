@@ -61,21 +61,17 @@ function getDeviceInfo(width: number, height: number): DeviceInfo {
 }
 
 export function useDeviceInfo(): DeviceInfo {
-  const [deviceInfo, setDeviceInfo] = React.useState<DeviceInfo>(() => {
-    if (typeof window === "undefined") {
-      return getDeviceInfo(1024, 768); // Default fallback for SSR
-    }
-    return getDeviceInfo(window.innerWidth, window.innerHeight);
-  });
+  // Always start with SSR-safe default values
+  const [deviceInfo, setDeviceInfo] = React.useState<DeviceInfo>(
+    getDeviceInfo(1024, 768) // Default fallback for SSR
+  );
 
   React.useEffect(() => {
-    if (typeof window === "undefined") return;
-
     const updateDeviceInfo = () => {
       setDeviceInfo(getDeviceInfo(window.innerWidth, window.innerHeight));
     };
 
-    // Initial update
+    // Initial update on client
     updateDeviceInfo();
 
     // Listen for resize events

@@ -27,8 +27,7 @@ import DropCursor from "@tiptap/extension-dropcursor";
 import { Focus } from "@tiptap/extension-focus";
 import { FontFamily } from "@tiptap/extension-font-family";
 import { FontSize } from "@tiptap/extension-font-size";
-import { Gapcursor } from "@tiptap/extension-gapcursor";
-import { HardBreak } from "@tiptap/extension-hard-break";
+// Removed Gapcursor - using StarterKit version
 import { Highlight } from "@tiptap/extension-highlight";
 import { Mention } from "@tiptap/extension-mention";
 import { Color, TextStyle } from "@tiptap/extension-text-style";
@@ -39,10 +38,9 @@ import { HorizontalRule } from "@/components/tiptap-node/horizontal-rule-node/ho
 import { ImageUploadNode } from "@/components/tiptap-node/image-upload-node/image-upload-node-extension";
 
 // --- Custom Extensions ---
-import { EnhancedEnter } from "@/lib/extensions/enhanced-enter";
+// Removed EnhancedEnter and SmartDeletion - using StarterKit defaults
 import { ImageTextFlow } from "@/lib/extensions/image-text-flow";
 import { PageFormat } from "@/lib/extensions/page-format";
-import { SmartDeletion } from "@/lib/extensions/smart-deletion";
 
 // --- Utils ---
 import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils";
@@ -163,7 +161,15 @@ export const TiptapEditor = memo(function TiptapEditor({
       StarterKit.configure({
         horizontalRule: false,
         blockquote: false,
-        hardBreak: false,
+        // Keep default history for undo/redo functionality
+        history: {
+          depth: 100,
+          newGroupDelay: 500,
+        },
+        // Keep default hardBreak for line breaks
+        hardBreak: {
+          keepMarks: false,
+        },
         paragraph: {
           HTMLAttributes: {
             class: "tiptap-paragraph",
@@ -177,7 +183,8 @@ export const TiptapEditor = memo(function TiptapEditor({
           keepMarks: true,
           keepAttributes: false,
         },
-        gapcursor: false,
+        // Enable gapcursor for better navigation
+        gapcursor: true,
       }),
       HorizontalRule,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
@@ -226,12 +233,7 @@ export const TiptapEditor = memo(function TiptapEditor({
           class: "border-l-4 border-border pl-4 italic text-muted-foreground",
         },
       }),
-      HardBreak.configure({
-        keepMarks: false,
-        HTMLAttributes: {
-          class: "tiptap-hard-break",
-        },
-      }),
+      // Remove duplicate HardBreak - using StarterKit's version
       Mention.configure({
         HTMLAttributes: {
           class:
@@ -258,27 +260,18 @@ export const TiptapEditor = memo(function TiptapEditor({
         color: "oklch(0.75 0.15 200)",
         width: 2,
       }),
-      Gapcursor,
+      // Remove duplicate Gapcursor - using StarterKit's version
       Focus.configure({
         className: "has-focus",
         mode: "all",
       }),
-      EnhancedEnter.configure({
-        createNewParagraph: false,
-        allowEmptyParagraphs: false,
-        trimEmptyParagraphs: false,
-      }),
+      // Remove EnhancedEnter - using StarterKit's default behavior
       ImageTextFlow.configure({
         autoAddParagraphs: false,
         enableArrowNavigation: false,
         enableEnterNavigation: false,
       }),
-      SmartDeletion.configure({
-        enableSmartBackspace: false,
-        enableSmartDelete: false,
-        enableSmartMerge: false,
-        enableImageDeletion: true,
-      }),
+      // Remove SmartDeletion - using StarterKit's default behavior
       MentionExtension,
       PageFormat,
     ],
@@ -309,17 +302,7 @@ export const TiptapEditor = memo(function TiptapEditor({
       scrollThreshold: 100,
       scrollMargin: 50,
       handleKeyDown: (view, event) => {
-        // Melhorar comportamento de navegação com setas
-        if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-          // Permitir navegação fluida entre linhas
-          return false;
-        }
-
-        // Permitir que a extensão EnhancedEnter gerencie o Enter
-        if (event.key === "Enter") {
-          return false;
-        }
-
+        // Let TipTap handle all key events naturally
         return false;
       },
     },
@@ -414,11 +397,18 @@ export const TiptapEditor = memo(function TiptapEditor({
     }
   }, [editor, content, isUpdatingContent]);
 
-  // Calculate writing session stats
-  const sessionDuration = Math.floor((Date.now() - sessionStartTime) / 60000); // minutes
-  const wordsPerMinute =
-    sessionDuration > 0 ? Math.round(sessionWordCount / sessionDuration) : 0;
+  // Calculate writing session stats (client-side only to avoid hydration mismatch)
+  const [sessionDuration, setSessionDuration] = React.useState(0);
+  const [wordsPerMinute, setWordsPerMinute] = React.useState(0);
   const goalProgress = Math.round((wordCount / writingGoal) * 100);
+
+  React.useEffect(() => {
+    const duration = Math.floor((Date.now() - sessionStartTime) / 60000); // minutes
+    setSessionDuration(duration);
+    setWordsPerMinute(
+      duration > 0 ? Math.round(sessionWordCount / duration) : 0
+    );
+  }, [sessionStartTime, sessionWordCount]);
 
   // Update session word count when content changes
   React.useEffect(() => {
@@ -469,9 +459,8 @@ export const TiptapEditor = memo(function TiptapEditor({
   return (
     <div
       className={cn(
-        "flex flex-col w-full h-full",
+        "flex flex-col w-full h-full relative",
         minHeight,
-        "bg-background rounded-lg dark:bg-gray-900",
         "overflow-hidden",
         deviceInfo.isMobile && "text-sm",
         deviceInfo.isTablet && "text-base",
@@ -481,47 +470,74 @@ export const TiptapEditor = memo(function TiptapEditor({
         className
       )}
     >
-      {/* Toolbar - Hidden on mobile and read-only mode */}
-      {toolbarVisibility && (
-        <div className="flex-shrink-0">
-          <WriterToolbarContent
-            editor={editor}
-            wordCount={wordCount}
-            characterCount={characterCount}
-            readingTime={readingTime}
-          />
-        </div>
-      )}
-
-      {/* Editor Content */}
+      {/* Editor Background - Clean design without borders */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/98 via-white/95 to-white/90 backdrop-blur-sm" />
       <div
-        className={cn(
-          "flex-1 overflow-hidden h-full",
-          deviceInfo.isMobile && "p-2",
-          deviceInfo.isTablet && "p-3",
-          deviceInfo.isMacbook && "p-4", // Padding otimizado para MacBook Pro M1
-          deviceInfo.isNotebook && "p-4",
-          deviceInfo.isDesktop && "p-6" // Mais espaço em desktops grandes
-        )}
-      >
-        <EditorContentWrapper editor={editor} />
-      </div>
+        className="absolute inset-0 opacity-5"
+        style={{
+          background: `linear-gradient(135deg, var(--primary)/0.04 0%, var(--secondary)/0.02 50%, var(--primary)/0.04 100%)`,
+        }}
+      />
 
-      {/* Stats Panel - Hidden on mobile/tablet and read-only mode */}
-      {statsVisibility && (
-        <div className="flex-shrink-0">
-          <WriterStatsPanel
-            wordCount={wordCount}
-            characterCount={characterCount}
-            readingTime={readingTime}
-            writingGoal={writingGoal}
-            sessionWordCount={sessionWordCount}
-            sessionDuration={sessionDuration}
-            wordsPerMinute={wordsPerMinute}
-            goalProgress={goalProgress}
-          />
+      {/* Gradient Blobs for Visual Enhancement */}
+      <div
+        className="absolute top-4 right-4 w-32 h-32 rounded-full blur-3xl animate-pulse opacity-20"
+        style={{
+          background: `linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)`,
+        }}
+      />
+      <div
+        className="absolute bottom-8 left-8 w-24 h-24 rounded-full blur-2xl animate-pulse opacity-15"
+        style={{
+          background: `linear-gradient(45deg, var(--secondary) 0%, var(--primary) 100%)`,
+          animationDelay: "1.5s",
+        }}
+      />
+
+      {/* Content */}
+      <div className="relative z-10 flex flex-col w-full h-full">
+        {/* Toolbar - Hidden on mobile and read-only mode */}
+        {toolbarVisibility && (
+          <div className="flex-shrink-0">
+            <WriterToolbarContent
+              editor={editor}
+              wordCount={wordCount}
+              characterCount={characterCount}
+              readingTime={readingTime}
+            />
+          </div>
+        )}
+
+        {/* Editor Content */}
+        <div
+          className={cn(
+            "flex-1 overflow-hidden h-full",
+            deviceInfo.isMobile && "p-2",
+            deviceInfo.isTablet && "p-3",
+            deviceInfo.isMacbook && "p-4", // Padding otimizado para MacBook Pro M1
+            deviceInfo.isNotebook && "p-4",
+            deviceInfo.isDesktop && "p-6" // Mais espaço em desktops grandes
+          )}
+        >
+          <EditorContentWrapper editor={editor} />
         </div>
-      )}
+
+        {/* Stats Panel - Hidden on mobile/tablet and read-only mode */}
+        {statsVisibility && (
+          <div className="flex-shrink-0">
+            <WriterStatsPanel
+              wordCount={wordCount}
+              characterCount={characterCount}
+              readingTime={readingTime}
+              writingGoal={writingGoal}
+              sessionWordCount={sessionWordCount}
+              sessionDuration={sessionDuration}
+              wordsPerMinute={wordsPerMinute}
+              goalProgress={goalProgress}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 });

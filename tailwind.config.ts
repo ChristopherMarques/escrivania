@@ -147,8 +147,8 @@ const config = {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
-        serif: ["var(--font-poppins)", "Georgia", "serif"],
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"], // Alterado de --font-inter para --font-sans
+        serif: ["var(--font-serif)", "Georgia", "serif"], // Alterado de --font-poppins para --font-serif
         mono: ["var(--font-mono)", "monospace"],
       },
       spacing: {
@@ -230,7 +230,7 @@ const config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [import("tailwindcss-animate")],
 };
 
-module.exports = config;
+export default config;

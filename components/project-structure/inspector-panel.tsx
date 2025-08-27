@@ -246,7 +246,11 @@ export function InspectorPanel({
                         Criado em:
                       </span>
                       <span className="text-sm font-medium">
-                        {new Date(scene.createdAt).toLocaleDateString("pt-BR")}
+                        {typeof window !== "undefined"
+                          ? new Date(scene.createdAt).toLocaleDateString(
+                              "pt-BR"
+                            )
+                          : scene.createdAt}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -254,7 +258,11 @@ export function InspectorPanel({
                         Atualizado em:
                       </span>
                       <span className="text-sm font-medium">
-                        {new Date(scene.updatedAt).toLocaleDateString("pt-BR")}
+                        {typeof window !== "undefined"
+                          ? new Date(scene.updatedAt).toLocaleDateString(
+                              "pt-BR"
+                            )
+                          : scene.updatedAt}
                       </span>
                     </div>
                   </>

@@ -38,13 +38,13 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
 
   const getProjectStats = (projectId: string) => {
     const projectChapters = state.chapters.filter(
-      (c) => c.projectId === projectId
+      (c) => c.project_id === projectId
     );
     const projectScenes = state.scenes.filter((s) =>
-      projectChapters.some((c) => c.id === s.chapterId)
+      projectChapters.some((c) => c.id === s.chapter_id)
     );
     const projectCharacters = state.characters.filter(
-      (c) => c.projectId === projectId
+      (c) => c.project_id === projectId
     );
 
     return {
@@ -101,8 +101,9 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
       <div className="relative z-10 p-6">
         {showCreateForm ? (
           <CreateProjectForm
+            open={showCreateForm}
+            onOpenChange={setShowCreateForm}
             onSuccess={handleCreateSuccess}
-            onCancel={() => setShowCreateForm(false)}
           />
         ) : (
           <div className="max-w-7xl mx-auto">

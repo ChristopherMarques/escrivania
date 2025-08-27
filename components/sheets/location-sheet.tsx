@@ -189,7 +189,7 @@ export function LocationSheet({
                 </h3>
                 <Button
                   onClick={() => fileInputRef.current?.click()}
-                  className="bg-gradient-to-r from-purple-500 to-blue-400 hover:from-purple-600 hover:to-blue-500 text-white"
+                  className="bg-primary text-primary-foreground border border-primary/20 hover:bg-primary/90 hover:border-primary/30"
                 >
                   <Upload className="w-4 h-4 mr-2" />
                   Upload Mapa
@@ -360,7 +360,7 @@ export function LocationSheet({
             <Button
               onClick={addPin}
               disabled={!newPinName.trim()}
-              className="bg-gradient-to-r from-purple-500 to-blue-400 hover:from-purple-600 hover:to-blue-500 text-white"
+              className="bg-primary text-primary-foreground border border-primary/20 hover:bg-primary/90 hover:border-primary/30"
             >
               Adicionar Marcador
             </Button>

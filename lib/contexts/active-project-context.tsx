@@ -471,9 +471,13 @@ export function ActiveProjectProvider({
       .find((s) => s.id === sceneId);
     if (scene) {
       const now = new Date().toISOString();
+      const id =
+        typeof crypto !== "undefined" && crypto.randomUUID
+          ? `scene-${crypto.randomUUID()}`
+          : `scene-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`;
       const newScene: IScene = {
         ...scene,
-        id: `scene-${Date.now()}`,
+        id,
         title: `${scene.title} (Cópia)`,
         createdAt: now,
         updatedAt: now,
@@ -489,9 +493,13 @@ export function ActiveProjectProvider({
     characterData: Omit<ICharacter, "id" | "createdAt" | "updatedAt">
   ) => {
     const now = new Date().toISOString();
+    const id =
+      typeof crypto !== "undefined" && crypto.randomUUID
+        ? `character-${crypto.randomUUID()}`
+        : `character-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`;
     const newCharacter: ICharacter = {
       ...characterData,
-      id: `character-${Date.now()}`,
+      id,
       createdAt: now,
       updatedAt: now,
     };
@@ -514,9 +522,13 @@ export function ActiveProjectProvider({
     locationData: Omit<ILocation, "id" | "createdAt" | "updatedAt">
   ) => {
     const now = new Date().toISOString();
+    const id =
+      typeof crypto !== "undefined" && crypto.randomUUID
+        ? `location-${crypto.randomUUID()}`
+        : `location-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`;
     const newLocation: ILocation = {
       ...locationData,
-      id: `location-${Date.now()}`,
+      id,
       createdAt: now,
       updatedAt: now,
     };

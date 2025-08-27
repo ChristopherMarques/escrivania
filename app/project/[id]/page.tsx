@@ -1,5 +1,6 @@
 "use client";
 
+import { SceneHeader } from "@/components/editor/scene-header";
 import { TiptapEditor } from "@/components/editor/tiptap-editor";
 import {
   FocusModeManager,
@@ -13,6 +14,7 @@ import { NavigationPanel } from "@/components/navigation/navigation-panel";
 import { ViewModeToolbar } from "@/components/navigation/view-mode-toolbar";
 import { CorkboardView } from "@/components/project-structure/corkboard-view";
 import { Button } from "@/components/ui/button";
+import { useAutoSave, useAutoSaveStatus } from "@/hooks/use-auto-save";
 import { useDeviceInfo } from "@/hooks/use-mobile";
 import {
   IntegratedProjectProvider,
@@ -22,8 +24,7 @@ import { useSettings } from "@/lib/contexts/settings-context";
 import type { ViewMode } from "@/lib/types";
 import { BookOpen, FileText, Grid3X3, List } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { memo, use, useCallback, useMemo, useState, useRef } from "react";
-import { useAutoSave, useAutoSaveStatus } from "@/hooks/use-auto-save";
+import { memo, use, useCallback, useMemo, useRef, useState } from "react";
 
 const ProjectEditorContent = memo(function ProjectEditorContent() {
   const router = useRouter();
@@ -50,6 +51,7 @@ const ProjectEditorContent = memo(function ProjectEditorContent() {
   const deviceInfo = useDeviceInfo();
 
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [isNavCollapsed, setIsNavCollapsed] = useState(false);
 
   // Memoized data with proper fallbacks
   const memoizedChapters = useMemo(() => chapters || [], [chapters]);
@@ -82,6 +84,10 @@ const ProjectEditorContent = memo(function ProjectEditorContent() {
   const handleAddCharacter = useCallback(async () => {
     await createCharacter("Novo Personagem");
   }, [createCharacter]);
+
+  const toggleNavigation = useCallback(() => {
+    setIsNavCollapsed((prev) => !prev);
+  }, []);
 
   const handleSceneSelect = useCallback(
     (sceneId: string) => {
@@ -226,6 +232,8 @@ const ProjectEditorContent = memo(function ProjectEditorContent() {
         setIsMobileNavOpen={setIsMobileNavOpen}
         handleSceneSelect={handleSceneSelect}
         autoSaveStatus={autoSaveStatus}
+        isNavCollapsed={isNavCollapsed}
+        toggleNavigation={toggleNavigation}
       />
     </FocusModeManager>
   );
@@ -267,11 +275,20 @@ const ProjectEditorInner = memo(function ProjectEditorInner({
   setIsMobileNavOpen,
   handleSceneSelect,
   autoSaveStatus,
+  isNavCollapsed,
+  toggleNavigation,
 }: any) {
   const { isFocusMode, exitFocusMode, toggleFocusMode } = useFocusMode();
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden relative">
+      {/* Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 -left-40 w-96 h-96 bg-gradient-to-tr from-escrivania-purple-500/8 to-escrivania-blue-500/8 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 right-1/3 w-72 h-72 bg-gradient-to-tl from-escrivania-blue-500/12 to-escrivania-purple-500/12 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-gradient-to-br from-escrivania-purple-500/6 to-escrivania-blue-500/6 rounded-full blur-3xl" />
+      </div>
+
       {/* Focus Mode Overlay */}
       <FocusModeOverlay
         isOpen={isFocusMode}
@@ -302,21 +319,62 @@ const ProjectEditorInner = memo(function ProjectEditorInner({
 
       {/* Desktop Navigation Panel */}
       {!deviceInfo.isMobile && (
-        <div className="w-64 flex-shrink-0">
-          <NavigationPanel
-            project={project}
-            chapters={memoizedChapters}
-            scenes={memoizedScenes}
-            characters={memoizedCharacters}
-            selectedItem={selectedItem}
-            onItemSelect={handleItemSelect}
-            onAddChapter={handleAddChapter}
-            onAddScene={handleAddScene}
-            onAddCharacter={handleAddCharacter}
-            onAddLocation={() => {}}
-            expandedChapters={state.expandedChapters}
-            onToggleChapter={toggleChapter}
-          />
+        <div
+          className={`${isNavCollapsed ? "w-16" : "w-64"} flex-shrink-0 transition-all duration-300 ease-in-out relative`}
+        >
+          {/* Navigation Panel */}
+          <div
+            className={`${isNavCollapsed ? "opacity-0 pointer-events-none" : "opacity-100"} transition-all duration-300 ease-in-out h-full`}
+          >
+            <NavigationPanel
+              project={project}
+              chapters={memoizedChapters}
+              scenes={memoizedScenes}
+              characters={memoizedCharacters}
+              selectedItem={selectedItem}
+              onItemSelect={handleItemSelect}
+              onAddChapter={handleAddChapter}
+              onAddScene={handleAddScene}
+              onAddCharacter={handleAddCharacter}
+              onAddLocation={() => {}}
+              expandedChapters={state.expandedChapters}
+              onToggleChapter={toggleChapter}
+            />
+          </div>
+          {/* Collapsed State Mini Navigation */}
+          {isNavCollapsed && (
+            <div className="absolute inset-0 bg-gradient-to-br from-white/90 via-white/70 to-white/50 backdrop-blur-md border-r border-white/60 flex flex-col items-center py-6 gap-4 shadow-lg">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-[var(--primary)]/20 to-[var(--secondary)]/20 border border-white/40 shadow-sm">
+                <BookOpen className="h-5 w-5 text-[var(--primary)]" />
+              </div>
+              <div className="flex flex-col gap-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-11 w-11 rounded-xl hover:bg-gradient-to-r hover:from-[var(--primary)]/10 hover:to-[var(--secondary)]/10 border border-transparent hover:border-[var(--primary)]/20 transition-all duration-200"
+                  onClick={() => setViewMode("writing")}
+                >
+                  <FileText className="h-4 w-4 text-[var(--primary)]" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-11 w-11 rounded-xl hover:bg-gradient-to-r hover:from-[var(--primary)]/10 hover:to-[var(--secondary)]/10 border border-transparent hover:border-[var(--primary)]/20 transition-all duration-200"
+                  onClick={() => setViewMode("corkboard")}
+                >
+                  <Grid3X3 className="h-4 w-4 text-[var(--primary)]" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-11 w-11 rounded-xl hover:bg-gradient-to-r hover:from-[var(--primary)]/10 hover:to-[var(--secondary)]/10 border border-transparent hover:border-[var(--primary)]/20 transition-all duration-200"
+                  onClick={() => setViewMode("outline")}
+                >
+                  <List className="h-4 w-4 text-[var(--primary)]" />
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -337,22 +395,22 @@ const ProjectEditorInner = memo(function ProjectEditorInner({
             {viewMode === "writing" ? (
               selectedItem?.type === "scene" && currentScene ? (
                 <div className="h-full flex flex-col">
-                  {/* Auto-save status indicator */}
-                  <div className="flex-shrink-0 px-4 py-2 border-b bg-muted/30">
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm text-muted-foreground">
-                        {currentScene.title}
-                      </div>
-                      <div className={`text-xs ${autoSaveStatus.statusColor}`}>
-                        {autoSaveStatus.statusText}
-                      </div>
-                    </div>
-                  </div>
+                  {/* Scene Header with Auto-save status and New Scene button */}
+                  <SceneHeader
+                    sceneTitle={currentScene.title}
+                    autoSaveStatus={autoSaveStatus}
+                    onNewScene={() => {
+                      const chapterId = currentScene.chapter_id;
+                      if (chapterId) {
+                        handleAddScene(chapterId);
+                      }
+                    }}
+                  />
                   <TiptapEditor
                     content={currentScene.content || {}}
                     onChange={handleEditorChange}
                     placeholder="Comece a escrever sua cena..."
-                    className="flex-1"
+                    className="flex-1 border-0"
                     characters={memoizedCharacters}
                     locations={[]}
                   />
