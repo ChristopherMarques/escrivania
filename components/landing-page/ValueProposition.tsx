@@ -1,8 +1,9 @@
 "use client";
 
+import { useDeviceInfo } from "@/hooks/use-mobile";
 import { motion } from "framer-motion";
 import { BookOpen, Edit3, Heart, Sparkles, Users } from "lucide-react";
-import { ValuePropositionProps, FeatureItem } from "./types";
+import { FeatureItem } from "./types";
 
 const features: FeatureItem[] = [
   {
@@ -38,13 +39,15 @@ const collaborativeFeatures = [
   "📈 Plataforma que evolui com você",
 ];
 
-export function ValueProposition({}: ValuePropositionProps) {
+export function ValueProposition() {
+  const { isMobile } = useDeviceInfo();
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2,
+        staggerChildren: isMobile ? 0.1 : 0.2,
         delayChildren: 0.1,
       },
     },
@@ -53,8 +56,8 @@ export function ValueProposition({}: ValuePropositionProps) {
   const itemVariants = {
     hidden: {
       opacity: 0,
-      y: 50,
-      scale: 0.9,
+      y: isMobile ? 20 : 50,
+      scale: isMobile ? 0.95 : 0.9,
     },
     visible: {
       opacity: 1,
@@ -62,8 +65,8 @@ export function ValueProposition({}: ValuePropositionProps) {
       scale: 1,
       transition: {
         type: "spring" as const,
-        stiffness: 100,
-        damping: 12,
+        stiffness: isMobile ? 80 : 100,
+        damping: isMobile ? 20 : 12,
       },
     },
   };
@@ -146,9 +149,9 @@ export function ValueProposition({}: ValuePropositionProps) {
                     variants={{
                       hidden: {
                         opacity: 0,
-                        y: 30,
-                        x: -20,
-                        scale: 0.9,
+                        y: isMobile ? 15 : 30,
+                        x: isMobile ? 0 : -20,
+                        scale: isMobile ? 0.95 : 0.9,
                       },
                       visible: {
                         opacity: 1,
@@ -157,51 +160,61 @@ export function ValueProposition({}: ValuePropositionProps) {
                         scale: 1,
                         transition: {
                           type: "spring" as const,
-                          stiffness: 100,
-                          delay: index * 0.1,
+                          stiffness: isMobile ? 60 : 100,
+                          damping: isMobile ? 20 : 12,
+                          delay: index * (isMobile ? 0.05 : 0.1),
                         },
                       },
                     }}
-                    whileHover={{
-                      scale: 1.03,
-                      x: 5,
-                      boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
-                    }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={
+                      isMobile
+                        ? {}
+                        : {
+                            x: 5,
+                            boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
+                          }
+                    }
                   >
                     <motion.div
                       className="p-3 gradient-bg rounded-lg flex-shrink-0"
-                      initial={{ scale: 0, rotate: -180 }}
+                      initial={{ scale: 0, rotate: isMobile ? 0 : -180 }}
                       whileInView={{ scale: 1, rotate: 0 }}
                       transition={{
-                        delay: 0.4 + index * 0.1,
+                        delay: 0.4 + index * (isMobile ? 0.05 : 0.1),
                         type: "spring" as const,
-                        stiffness: 200,
+                        stiffness: isMobile ? 100 : 200,
+                        damping: isMobile ? 20 : 15,
                       }}
                       viewport={{ once: true }}
                     >
                       <item.icon className="h-6 w-6 text-white" />
                     </motion.div>
                     <motion.div
-                      initial={{ opacity: 0, x: -10 }}
+                      initial={{ opacity: 0, x: isMobile ? 0 : -10 }}
                       whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.5 + index * 0.1 }}
+                      transition={{
+                        delay: 0.5 + index * (isMobile ? 0.03 : 0.1),
+                      }}
                       viewport={{ once: true }}
                     >
                       <motion.h3
                         className="text-xl font-semibold mb-2 text-foreground"
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: isMobile ? 5 : 10 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.6 + index * 0.1 }}
+                        transition={{
+                          delay: 0.6 + index * (isMobile ? 0.03 : 0.1),
+                        }}
                         viewport={{ once: true }}
                       >
                         {item.title}
                       </motion.h3>
                       <motion.p
                         className="text-muted-foreground leading-relaxed"
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: isMobile ? 5 : 10 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.7 + index * 0.1 }}
+                        transition={{
+                          delay: 0.7 + index * (isMobile ? 0.03 : 0.1),
+                        }}
                         viewport={{ once: true }}
                       >
                         {item.description}
@@ -233,7 +246,6 @@ export function ValueProposition({}: ValuePropositionProps) {
               <motion.div
                 className="relative p-8 bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl border border-primary/20"
                 whileHover={{
-                  scale: 1.02,
                   boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.1)",
                 }}
                 transition={{ type: "spring" as const, stiffness: 300 }}
@@ -255,15 +267,16 @@ export function ValueProposition({}: ValuePropositionProps) {
                   >
                     <motion.div
                       className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-4"
-                      initial={{ scale: 0, rotate: -180 }}
+                      initial={{ scale: 0, rotate: isMobile ? 0 : -180 }}
                       whileInView={{ scale: 1, rotate: 0 }}
                       transition={{
                         delay: 0.7,
                         type: "spring" as const,
-                        stiffness: 200,
+                        stiffness: isMobile ? 100 : 200,
+                        damping: isMobile ? 20 : 15,
                       }}
                       viewport={{ once: true }}
-                      whileHover={{ scale: 1.05 }}
+                      whileHover={isMobile ? {} : {}}
                     >
                       <Heart className="h-5 w-5 text-primary" />
                       <span className="text-primary font-semibold">
@@ -272,12 +285,17 @@ export function ValueProposition({}: ValuePropositionProps) {
                     </motion.div>
                     <motion.h3
                       className="text-3xl font-bold gradient-text mb-4"
-                      initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                      initial={{
+                        opacity: 0,
+                        y: isMobile ? 10 : 20,
+                        scale: isMobile ? 0.95 : 0.9,
+                      }}
                       whileInView={{ opacity: 1, y: 0, scale: 1 }}
                       transition={{
                         delay: 0.8,
                         type: "spring" as const,
-                        stiffness: 100,
+                        stiffness: isMobile ? 60 : 100,
+                        damping: isMobile ? 20 : 15,
                       }}
                       viewport={{ once: true }}
                     >
@@ -285,9 +303,12 @@ export function ValueProposition({}: ValuePropositionProps) {
                     </motion.h3>
                     <motion.p
                       className="text-lg text-foreground/80 leading-relaxed"
-                      initial={{ opacity: 0, y: 20 }}
+                      initial={{ opacity: 0, y: isMobile ? 10 : 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.9 }}
+                      transition={{
+                        delay: 0.9,
+                        duration: isMobile ? 0.4 : 0.6,
+                      }}
                       viewport={{ once: true }}
                     >
                       Somos a única plataforma onde você pode solicitar
@@ -319,8 +340,8 @@ export function ValueProposition({}: ValuePropositionProps) {
                         variants={{
                           hidden: {
                             opacity: 0,
-                            x: -30,
-                            scale: 0.8,
+                            x: isMobile ? -10 : -30,
+                            scale: isMobile ? 0.95 : 0.8,
                           },
                           visible: {
                             opacity: 1,
@@ -328,22 +349,27 @@ export function ValueProposition({}: ValuePropositionProps) {
                             scale: 1,
                             transition: {
                               type: "spring" as const,
-                              stiffness: 100,
+                              stiffness: isMobile ? 60 : 100,
+                              damping: isMobile ? 20 : 15,
                             },
                           },
                         }}
-                        whileHover={{
-                          scale: 1.02,
-                          x: 5,
-                          backgroundColor: "rgba(255, 255, 255, 0.1)",
-                        }}
-                        whileTap={{ scale: 0.98 }}
+                        whileHover={
+                          isMobile
+                            ? {}
+                            : {
+                                x: 5,
+                                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                              }
+                        }
                       >
                         <motion.span
                           className="text-lg"
                           initial={{ opacity: 0 }}
                           whileInView={{ opacity: 1 }}
-                          transition={{ delay: 1.1 + index * 0.1 }}
+                          transition={{
+                            delay: 1.1 + index * (isMobile ? 0.05 : 0.1),
+                          }}
                           viewport={{ once: true }}
                         >
                           {feature}

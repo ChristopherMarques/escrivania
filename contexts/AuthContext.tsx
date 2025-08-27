@@ -1,12 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, ReactNode } from "react";
+import type { Session, User } from "@/lib/auth-client";
 import {
-  useSession,
   signIn as betterAuthSignIn,
   signOut as betterAuthSignOut,
+  useSession,
 } from "@/lib/auth-client";
-import type { Session, User } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { ReactNode, createContext, useContext } from "react";
 
 interface AuthContextType {
   user: User | null;
@@ -20,6 +21,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { data: session, isPending: loading } = useSession();
+  const router = useRouter();
+
   const user = session?.user || null;
 
   const signIn = () => {
@@ -29,7 +32,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    await betterAuthSignOut();
+    await betterAuthSignOut().then(() => {
+      router.push("/");
+    });
   };
 
   return (

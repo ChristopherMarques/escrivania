@@ -1,23 +1,32 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useDeviceInfo } from "@/hooks/use-mobile";
+import { motion } from "framer-motion";
 import { Cloud, Download, FileText, Globe, Share, Zap } from "lucide-react";
-import { useRef } from "react";
-import { RoadmapProps } from "./types";
 
 const roadmapItems = [
   {
-    quarter: "Q1 2024",
+    quarter: "Set 2025",
+    title: "Beta Fechada",
+    description:
+      "Lançamento da versão beta com funcionalidades principais para usuários selecionados",
+    icon: Zap,
+    status: "in-progress",
+    statusText: "Em desenvolvimento",
+    statusColor: "yellow",
+  },
+  {
+    quarter: "Q4 2025",
     title: "Export PDF Profissional",
     description:
       "Exporte seus manuscritos em PDF com formatação profissional para editoras",
     icon: FileText,
-    status: "completed",
-    statusText: "Em desenvolvimento",
-    statusColor: "green",
+    status: "planned",
+    statusText: "Planejado",
+    statusColor: "blue",
   },
   {
-    quarter: "Q2 2024",
+    quarter: "Q1 2026",
     title: "Export DOCX",
     description:
       "Compatibilidade total com Microsoft Word para colaboração e submissões",
@@ -27,7 +36,7 @@ const roadmapItems = [
     statusColor: "blue",
   },
   {
-    quarter: "Q2 2024",
+    quarter: "Q1 2026",
     title: "Integração Google Drive",
     description:
       "Sincronização automática com Google Docs e Drive para backup na nuvem",
@@ -37,7 +46,7 @@ const roadmapItems = [
     statusColor: "blue",
   },
   {
-    quarter: "Q3 2024",
+    quarter: "Q2 2026",
     title: "Colaboração em Tempo Real",
     description: "Trabalhe em equipe com outros escritores simultaneamente",
     icon: Share,
@@ -46,7 +55,7 @@ const roadmapItems = [
     statusColor: "blue",
   },
   {
-    quarter: "Q4 2024",
+    quarter: "Q3 2026",
     title: "Assistente de Escrita IA",
     description:
       "Sugestões inteligentes para melhorar seu texto e superar bloqueios criativos",
@@ -56,7 +65,7 @@ const roadmapItems = [
     statusColor: "blue",
   },
   {
-    quarter: "Q1 2025",
+    quarter: "Q4 2026",
     title: "Marketplace de Histórias",
     description:
       "Plataforma para publicar e monetizar suas histórias diretamente",
@@ -86,67 +95,35 @@ const getStatusBadge = (statusColor: string, statusText: string) => {
   );
 };
 
-export function Roadmap({
-  roadmapInView,
-  roadmapSpring,
-  roadmapScale,
-}: RoadmapProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"],
-  });
+export function Roadmap() {
+  const { isMobile } = useDeviceInfo();
 
-  // Efeito de scale suave - começa pequeno e cresce até o tamanho original
-  const scaleProgress = useTransform(
-    scrollYProgress,
-    [0, 0.3, 0.7, 1],
-    [0.7, 1, 1, 0.9]
-  );
-  const y = useTransform(scrollYProgress, [0, 1], [50, -50]);
-  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
+  // Removed parallax effects to prevent jittery animations during scroll
 
   return (
     <motion.section
-      ref={containerRef}
       className="py-24 lg:py-32 bg-gradient-to-br from-background via-primary/5 to-background relative overflow-hidden"
-      style={{
-        scale: scaleProgress,
-        opacity: opacity,
-      }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: isMobile ? 0.6 : 0.8 }}
     >
-      {/* Parallax Background Elements */}
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5"
-        style={{ y: useTransform(scrollYProgress, [0, 1], [0, -100]) }}
-      />
-      <motion.div
-        className="absolute top-1/3 left-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl"
-        style={{ y: useTransform(scrollYProgress, [0, 1], [30, -80]) }}
-      />
-      <motion.div
-        className="absolute bottom-1/3 right-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl"
-        style={{ y: useTransform(scrollYProgress, [0, 1], [-30, 80]) }}
-      />
+      {/* Static Background Elements */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5" />
+      <div className="absolute top-1/3 left-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/3 right-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
       <div className="container mx-auto px-6 relative z-10">
         <div className="max-w-7xl mx-auto">
           <motion.div
             className="text-center mb-20"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: isMobile ? 0.5 : 0.8 }}
             viewport={{ once: true }}
           >
-            <motion.h2
-              className="text-4xl lg:text-6xl font-bold mb-8 gradient-text"
-              style={{ y, opacity }}
-            >
-              Roadmap 2024/2025
+            <motion.h2 className="text-4xl lg:text-6xl font-bold mb-8 gradient-text">
+              Roadmap 2025/2026
             </motion.h2>
-            <motion.p
-              className="text-xl text-foreground/70 leading-relaxed max-w-3xl mx-auto"
-              style={{ y: useTransform(scrollYProgress, [0, 1], [50, -50]) }}
-            >
+            <motion.p className="text-xl text-foreground/70 leading-relaxed max-w-3xl mx-auto">
               O futuro da escrita digital brasileira está sendo construído
             </motion.p>
           </motion.div>
@@ -154,33 +131,34 @@ export function Roadmap({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {roadmapItems.map((item, index) => {
               const Icon = item.icon;
-              const cardY = useTransform(
-                scrollYProgress,
-                [0, 1],
-                [50 + index * 20, -50 - index * 20]
-              );
 
               return (
                 <motion.div
                   key={index}
                   className="relative group"
-                  initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                  initial={{
+                    opacity: 0,
+                    y: isMobile ? 15 : 50,
+                    scale: isMobile ? 0.98 : 0.9,
+                  }}
                   whileInView={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{
-                    duration: 0.6,
-                    delay: index * 0.1,
+                    duration: isMobile ? 0.25 : 0.6,
+                    delay: index * (isMobile ? 0.02 : 0.1),
                     type: "spring" as const,
-                    stiffness: 100,
+                    stiffness: isMobile ? 100 : 100,
                   }}
                   viewport={{ once: true }}
-                  style={{ y: cardY }}
                 >
                   <motion.div
                     className="bg-white/80 dark:bg-card/80 backdrop-blur-sm rounded-2xl p-8 border border-border/50 shadow-lg hover:shadow-2xl transition-all duration-500 h-full"
-                    whileHover={{
-                      scale: 1.05,
-                      y: -10,
-                    }}
+                    whileHover={
+                      isMobile
+                        ? {}
+                        : {
+                            y: -10,
+                          }
+                    }
                   >
                     {/* Quarter Badge */}
                     <div className="absolute top-4 right-4">
@@ -192,8 +170,8 @@ export function Roadmap({
                     {/* Icon */}
                     <motion.div
                       className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors duration-300"
-                      whileHover={{ rotate: 360, scale: 1.1 }}
-                      transition={{ duration: 0.6 }}
+                      whileHover={isMobile ? {} : { rotate: 360 }}
+                      transition={{ duration: isMobile ? 0.2 : 0.6 }}
                     >
                       <Icon className="w-8 h-8 text-primary" />
                     </motion.div>

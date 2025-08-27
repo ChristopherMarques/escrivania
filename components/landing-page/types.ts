@@ -4,40 +4,10 @@ export interface LandingPageProps {
 
 export interface HeaderProps {
   onSignIn: () => void;
-  theme: string | undefined;
-  setTheme: (theme: string) => void;
 }
 
 export interface HeroProps {
   onSignIn: () => void;
-  heroInView?: boolean;
-  heroSpring?: any;
-  heroScale?: any;
-  heroOpacity?: any;
-  scrollY?: any;
-}
-
-export interface ValuePropositionProps {
-  // Props específicas se necessário
-}
-
-export interface FeaturesProps {
-  featuresInView: boolean;
-  featuresSpring: any;
-  featuresRotate: any;
-}
-
-export interface RoadmapProps {
-  roadmapInView: boolean;
-  roadmapSpring: any;
-  roadmapScale: any;
-}
-
-export interface CTAProps {
-  onSignIn: () => void;
-  ctaInView: boolean;
-  ctaSpring: any;
-  ctaRotate: any;
 }
 
 export interface StatItem {
@@ -59,4 +29,27 @@ export interface RoadmapItem {
   description: string;
   features: string[];
   status: "completed" | "in-progress" | "planned";
+}
+
+export interface FeaturesProps {
+  featuresInView?: boolean;
+  featuresSpring?: any;
+  featuresRotate?: number;
+}
+
+export interface PricingProps {
+  pricingSpring?: any;
+}
+
+export interface RoadmapProps {
+  roadmapInView?: boolean;
+  roadmapSpring?: any;
+  roadmapScale?: any;
+}
+
+export interface CTAProps {
+  onSignIn: () => void;
+  ctaInView?: boolean;
+  ctaSpring?: any;
+  ctaRotate?: number;
 }

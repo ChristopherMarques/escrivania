@@ -1,10 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { useDeviceInfo } from "@/hooks/use-mobile";
+import { motion } from "framer-motion";
 import { ArrowRight, BookOpen, Heart, Users } from "lucide-react";
-import { CTAProps, StatItem } from "./types";
+import { StatItem } from "./types";
 
 const finalStats: StatItem[] = [
   {
@@ -27,46 +27,21 @@ const finalStats: StatItem[] = [
   },
 ];
 
-export function CTA({ onSignIn, ctaInView, ctaSpring, ctaRotate }: CTAProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"],
-  });
-
-  const titleY = useTransform(scrollYProgress, [0, 1], [100, -100]);
-  const subtitleY = useTransform(scrollYProgress, [0, 1], [50, -50]);
-  const buttonY = useTransform(scrollYProgress, [0, 1], [30, -30]);
-  const statsY = useTransform(scrollYProgress, [0, 1], [20, -20]);
-  const backgroundY = useTransform(scrollYProgress, [0, 1], [0, -150]);
-  const scaleProgress = useTransform(
-    scrollYProgress,
-    [0, 0.3, 0.7, 1],
-    [0.85, 1, 1, 1.03]
-  );
+export function CTA({ onSignIn }: { onSignIn: () => void }) {
+  const { isMobile } = useDeviceInfo();
 
   return (
     <motion.section
-      ref={containerRef}
       className="py-24 lg:py-32 bg-gradient-to-br from-primary/10 via-background to-primary/5 relative overflow-hidden"
-      style={{
-        y: ctaSpring,
-        scale: scaleProgress,
-      }}
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.8 }}
     >
-      {/* Parallax Background Elements */}
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-primary/10"
-        style={{ y: backgroundY }}
-      />
-      <motion.div
-        className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"
-        style={{ y: useTransform(scrollYProgress, [0, 1], [50, -100]) }}
-      />
-      <motion.div
-        className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"
-        style={{ y: useTransform(scrollYProgress, [0, 1], [-50, 100]) }}
-      />
+      {/* Background Elements */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-primary/10" />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
       <div className="container mx-auto px-6 relative z-10">
         <div className="max-w-6xl mx-auto">
           <motion.div
@@ -76,16 +51,10 @@ export function CTA({ onSignIn, ctaInView, ctaSpring, ctaRotate }: CTAProps) {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <motion.h2
-              className="text-4xl lg:text-6xl font-bold mb-8 gradient-text"
-              style={{ y: titleY, transformStyle: "preserve-3d" }}
-            >
+            <motion.h2 className="text-4xl lg:text-6xl font-bold mb-8 gradient-text">
               Comece Sua Jornada Literária
             </motion.h2>
-            <motion.p
-              className="text-xl text-foreground/70 leading-relaxed max-w-3xl mx-auto mb-12"
-              style={{ y: subtitleY }}
-            >
+            <motion.p className="text-xl text-foreground/70 leading-relaxed max-w-3xl mx-auto mb-12">
               Junte-se a centenas de escritores que já estão criando suas
               histórias na Escrivania Digital
             </motion.p>
@@ -96,10 +65,9 @@ export function CTA({ onSignIn, ctaInView, ctaSpring, ctaRotate }: CTAProps) {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
               viewport={{ once: true }}
-              style={{ y: buttonY }}
             >
               <motion.div
-                whileHover={{ scale: 1.05 }}
+                whileHover={!isMobile ? { scale: 1.05 } : {}}
                 whileTap={{ scale: 0.95 }}
               >
                 <Button
@@ -131,32 +99,28 @@ export function CTA({ onSignIn, ctaInView, ctaSpring, ctaRotate }: CTAProps) {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
             viewport={{ once: true }}
-            style={{ y: statsY }}
           >
             {finalStats.map((stat, index) => {
-              const cardY = useTransform(
-                scrollYProgress,
-                [0, 1],
-                [10 + index * 5, -(10 + index * 5)]
-              );
-
               return (
                 <motion.div
                   key={index}
                   className="text-center p-8 bg-card/80 backdrop-blur-sm rounded-lg shadow-xl hover:shadow-2xl transition-all duration-300 border border-border min-h-[200px] flex flex-col justify-center"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  whileHover={{
-                    scale: 1.05,
-                    y: -10,
-                  }}
+                  whileHover={
+                    !isMobile
+                      ? {
+                          y: -10,
+                        }
+                      : {}
+                  }
                   transition={{
-                    delay: 0.5 + index * 0.1,
+                    delay: 0.5 + index * (isMobile ? 0.05 : 0.1),
                     type: "spring" as const,
-                    stiffness: 300,
+                    stiffness: isMobile ? 200 : 300,
+                    duration: isMobile ? 0.4 : 0.6,
                   }}
                   viewport={{ once: true }}
-                  style={{ y: cardY }}
                 >
                   {/* Hover Overlay */}
                   <motion.div

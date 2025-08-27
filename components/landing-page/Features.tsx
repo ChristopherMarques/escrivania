@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useDeviceInfo } from "@/hooks/use-mobile";
+import { motion } from "framer-motion";
 import {
   BarChart3,
   Brain,
@@ -15,8 +16,7 @@ import {
   Smartphone,
   Sparkles,
 } from "lucide-react";
-import { useRef } from "react";
-import { FeatureItem, FeaturesProps } from "./types";
+import { FeatureItem } from "./types";
 
 const features: FeatureItem[] = [
   {
@@ -93,34 +93,16 @@ const features: FeatureItem[] = [
   },
 ];
 
-export function Features({
-  featuresInView,
-  featuresSpring,
-  featuresRotate,
-}: FeaturesProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"],
-  });
-
-  const titleY = useTransform(scrollYProgress, [0, 1], [50, -50]);
-  const subtitleY = useTransform(scrollYProgress, [0, 1], [30, -30]);
-  const backgroundY = useTransform(scrollYProgress, [0, 1], [0, -100]);
-  const cardY = useTransform(scrollYProgress, [0, 1], [0, -50]);
-  const scaleProgress = useTransform(
-    scrollYProgress,
-    [0, 0.3, 0.7, 1],
-    [0.8, 1, 1, 1.05]
-  );
+export function Features() {
+  const { isMobile } = useDeviceInfo();
 
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.3,
+        staggerChildren: isMobile ? 0.03 : 0.1,
+        delayChildren: isMobile ? 0.05 : 0.1,
       },
     },
   };
@@ -128,8 +110,8 @@ export function Features({
   const itemVariants = {
     hidden: {
       opacity: 0,
-      y: 60,
-      scale: 0.8,
+      y: isMobile ? 30 : 60,
+      scale: isMobile ? 0.95 : 0.8,
     },
     visible: {
       opacity: 1,
@@ -137,32 +119,21 @@ export function Features({
       scale: 1,
       transition: {
         type: "spring" as const,
-        stiffness: 100,
-        damping: 12,
+        stiffness: isMobile ? 60 : 100,
+        damping: isMobile ? 20 : 12,
       },
     },
   };
 
   return (
-    <motion.section
-      ref={containerRef}
-      className="py-24 lg:py-32 relative overflow-hidden"
-      style={{
-        y: featuresSpring,
-        scale: scaleProgress,
-      }}
-    >
-      {/* Parallax Background */}
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10"
-        style={{ y: backgroundY }}
-      />
+    <motion.section className="py-24 lg:py-32 relative overflow-hidden">
+      {/* Static Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10" />
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-20">
           <motion.h2
             className="text-4xl lg:text-5xl font-bold mb-6 gradient-text"
-            style={{ y: titleY }}
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -172,7 +143,6 @@ export function Features({
           </motion.h2>
           <motion.p
             className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
-            style={{ y: subtitleY }}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
@@ -196,33 +166,36 @@ export function Features({
               return (
                 <motion.div
                   key={index}
-                  className="group p-8 bg-card/80 backdrop-blur-sm rounded-lg border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl"
+                  className="group p-8 bg-card/80 backdrop-blur-sm rounded-lg border border-border hover:border-primary/50 transition-all duration-150 hover:shadow-xl"
                   variants={itemVariants}
-                  whileHover={{
-                    scale: 1.05,
-                    y: -15,
-                    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-                  }}
-                  whileTap={{ scale: 0.95 }}
-                  style={{
-                    y: cardY,
-                  }}
+                  whileHover={
+                    isMobile
+                      ? {}
+                      : {
+                          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+                        }
+                  }
                 >
                   <motion.div
                     className="flex items-center gap-4 mb-6"
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.6 + index * 0.1 }}
+                    transition={{
+                      delay: isMobile ? 0.2 + index * 0.02 : 0.6 + index * 0.1,
+                    }}
                     viewport={{ once: true }}
                   >
                     <motion.div
-                      className="p-3 gradient-bg rounded-lg group-hover:scale-110 transition-transform duration-300"
-                      initial={{ scale: 0, rotate: -180 }}
+                      className="p-3 gradient-bg rounded-lg transition-transform duration-150"
+                      initial={{ scale: 0, rotate: isMobile ? 0 : -180 }}
                       whileInView={{ scale: 1, rotate: 0 }}
                       transition={{
-                        delay: 0.7 + index * 0.1,
+                        delay: isMobile
+                          ? 0.25 + index * 0.02
+                          : 0.7 + index * 0.1,
                         type: "spring" as const,
-                        stiffness: 200,
+                        stiffness: isMobile ? 100 : 200,
+                        damping: isMobile ? 20 : 15,
                       }}
                       viewport={{ once: true }}
                     >
@@ -230,9 +203,13 @@ export function Features({
                     </motion.div>
                     <motion.h3
                       className="text-xl font-semibold text-foreground group-hover:gradient-text transition-all duration-300"
-                      initial={{ opacity: 0, y: 20 }}
+                      initial={{ opacity: 0, y: isMobile ? 10 : 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.8 + index * 0.1 }}
+                      transition={{
+                        delay: isMobile
+                          ? 0.3 + index * 0.02
+                          : 0.8 + index * 0.1,
+                      }}
                       viewport={{ once: true }}
                     >
                       {feature.title}
@@ -240,9 +217,11 @@ export function Features({
                   </motion.div>
                   <motion.p
                     className="text-muted-foreground leading-relaxed group-hover:text-foreground/80 transition-colors duration-300"
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: isMobile ? 10 : 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.9 + index * 0.1 }}
+                    transition={{
+                      delay: isMobile ? 0.35 + index * 0.02 : 0.9 + index * 0.1,
+                    }}
                     viewport={{ once: true }}
                   >
                     {feature.description}

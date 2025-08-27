@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { BookOpen, FileText, Plus, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface ProjectDashboardProps {
   className?: string;
@@ -57,6 +57,12 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
   const totalChapters = state.chapters.length;
   const totalCharacters = state.characters.length;
 
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace("/");
+    }
+  }, [authLoading, user, router]);
+
   if (authLoading) {
     return (
       <div className="space-y-6">
@@ -65,25 +71,6 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
           <Skeleton className="h-32" />
           <Skeleton className="h-32" />
           <Skeleton className="h-32" />
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <BookOpen className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">
-            Faça login para continuar
-          </h3>
-          <p className="text-muted-foreground mb-4">
-            Você precisa estar logado para acessar seus projetos literários.
-          </p>
-          <Button onClick={() => console.log("Implementar login")}>
-            Fazer Login
-          </Button>
         </div>
       </div>
     );
