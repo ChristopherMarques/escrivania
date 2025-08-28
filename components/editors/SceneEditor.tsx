@@ -17,7 +17,6 @@ import {
   Save,
   Edit3,
   ArrowLeft,
-  Clock,
   FileText,
   BookOpen,
   Users,
@@ -25,6 +24,7 @@ import {
   ChevronRight,
   Target,
 } from "lucide-react";
+import { BookLoader } from "@/components/ui/book-loader";
 import { useProject } from "@/contexts/ProjectContext";
 import type { Scene } from "@/contexts/ProjectContext";
 
@@ -198,7 +198,7 @@ export function SceneEditor({ sceneId, onBack }: SceneEditorProps) {
                 disabled={isSaving || !editedScene.title?.trim()}
               >
                 {isSaving ? (
-                  <Clock className="mr-2 h-4 w-4 animate-spin" />
+                  <BookLoader size="sm" className="mr-2" />
                 ) : (
                   <Save className="mr-2 h-4 w-4" />
                 )}

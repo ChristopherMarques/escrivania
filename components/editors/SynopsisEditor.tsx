@@ -17,12 +17,12 @@ import {
   Save,
   Edit3,
   ArrowLeft,
-  Clock,
   FileText,
   BookOpen,
   Users,
   Layers,
 } from "lucide-react";
+import { BookLoader } from "@/components/ui/book-loader";
 import { useProject } from "@/contexts/ProjectContext";
 import type { Synopsis } from "@/contexts/ProjectContext";
 
@@ -154,7 +154,7 @@ export function SynopsisEditor({ synopsisId, onBack }: SynopsisEditorProps) {
                 disabled={isSaving || !editedSynopsis.title?.trim()}
               >
                 {isSaving ? (
-                  <Clock className="mr-2 h-4 w-4 animate-spin" />
+                  <BookLoader size="sm" className="mr-2" />
                 ) : (
                   <Save className="mr-2 h-4 w-4" />
                 )}

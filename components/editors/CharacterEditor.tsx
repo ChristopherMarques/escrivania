@@ -13,15 +13,8 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import {
-  Save,
-  Edit3,
-  ArrowLeft,
-  Clock,
-  User,
-  BookOpen,
-  FileText,
-} from "lucide-react";
+import { Save, Edit3, ArrowLeft, User, BookOpen, FileText } from "lucide-react";
+import { BookLoader } from "@/components/ui/book-loader";
 import { useProject } from "@/contexts/ProjectContext";
 import type { Character } from "@/contexts/ProjectContext";
 
@@ -147,7 +140,7 @@ export function CharacterEditor({ characterId, onBack }: CharacterEditorProps) {
                 disabled={isSaving || !editedCharacter.name?.trim()}
               >
                 {isSaving ? (
-                  <Clock className="mr-2 h-4 w-4 animate-spin" />
+                  <BookLoader size="sm" className="mr-2" />
                 ) : (
                   <Save className="mr-2 h-4 w-4" />
                 )}

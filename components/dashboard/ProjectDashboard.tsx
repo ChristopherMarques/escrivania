@@ -3,7 +3,7 @@
 import { CreateProjectForm } from "@/components/forms/CreateProjectForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { BookLoader } from "@/components/ui/book-loader";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Project } from "@/contexts/ProjectContext";
 import { useProject } from "@/contexts/ProjectContext";
@@ -65,13 +65,8 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
 
   if (authLoading) {
     return (
-      <div className="space-y-6">
-        <Skeleton className="h-8 w-64" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <BookLoader size="lg" text="Carregando dashboard..." showText={true} />
       </div>
     );
   }

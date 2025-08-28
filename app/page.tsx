@@ -4,6 +4,7 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { FullPageBookLoader } from "@/components/ui/book-loader";
 
 function HomeContent() {
   const { user, loading } = useAuth();
@@ -18,11 +19,7 @@ function HomeContent() {
 
   // Mostrar loading enquanto verifica autenticação
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <FullPageBookLoader text="Verificando autenticação..." />;
   }
 
   // Se não estiver autenticado, mostrar landing page
@@ -31,11 +28,7 @@ function HomeContent() {
   }
 
   // Fallback durante redirecionamento
-  return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-    </div>
-  );
+  return <FullPageBookLoader text="Redirecionando..." />;
 }
 
 export default function Home() {

@@ -17,13 +17,13 @@ import { useProject } from "@/contexts/ProjectContext";
 import {
   ArrowLeft,
   BookOpen,
-  Clock,
   Edit3,
   FileText,
   Plus,
   Save,
   Trash2,
 } from "lucide-react";
+import { BookLoader } from "@/components/ui/book-loader";
 import { useEffect, useState } from "react";
 
 interface ChapterEditorProps {
@@ -79,7 +79,7 @@ export function ChapterEditor({ chapterId, onBack }: ChapterEditorProps) {
     try {
       await createScene({
         title: newSceneTitle,
-        content: {},
+        content: "",
         chapter_id: chapter.id,
         order_index: chapterScenes.length,
       });
@@ -159,7 +159,7 @@ export function ChapterEditor({ chapterId, onBack }: ChapterEditorProps) {
                 disabled={isSaving || !editedChapter.title?.trim()}
               >
                 {isSaving ? (
-                  <Clock className="mr-2 h-4 w-4 animate-spin" />
+                  <BookLoader size="sm" className="mr-2" />
                 ) : (
                   <Save className="mr-2 h-4 w-4" />
                 )}

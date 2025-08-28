@@ -14,6 +14,7 @@ import { NavigationPanel } from "@/components/navigation/navigation-panel";
 import { ViewModeToolbar } from "@/components/navigation/view-mode-toolbar";
 import { CorkboardView } from "@/components/project-structure/corkboard-view";
 import { Button } from "@/components/ui/button";
+import { FullPageBookLoader } from "@/components/ui/book-loader";
 import { useAutoSave, useAutoSaveStatus } from "@/hooks/use-auto-save";
 import { useDeviceInfo } from "@/hooks/use-mobile";
 import {
@@ -158,14 +159,7 @@ const ProjectEditorContent = memo(function ProjectEditorContent() {
 
   // Loading state
   if (isLoadingProject) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Carregando projeto...</p>
-        </div>
-      </div>
-    );
+    return <FullPageBookLoader text="Carregando projeto..." />;
   }
 
   // Error state

@@ -26,7 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useProject } from "@/contexts/ProjectContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2 } from "lucide-react";
+import { BookOpen } from "lucide-react";
 
 const projectSchema = z.object({
   title: z
@@ -71,7 +71,7 @@ export function CreateProjectForm({
     try {
       await createProject({
         title: data.title,
-        description: data.description || undefined,
+        description: data.description || null,
         user_id: user.id,
       });
 
@@ -162,7 +162,7 @@ export function CreateProjectForm({
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <BookOpen className="mr-2 h-4 w-4 animate-pulse" />
                 )}
                 Criar Projeto
               </Button>
