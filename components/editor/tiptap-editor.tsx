@@ -6,7 +6,6 @@ import * as React from "react";
 const { useCallback, useMemo, useEffect, memo } = React;
 
 // --- Tiptap Core Extensions ---
-import { Extension } from "@tiptap/core";
 import CharacterCount from "@tiptap/extension-character-count";
 import { Image } from "@tiptap/extension-image";
 import { TaskItem, TaskList } from "@tiptap/extension-list";
@@ -16,31 +15,21 @@ import { Superscript } from "@tiptap/extension-superscript";
 import { TextAlign } from "@tiptap/extension-text-align";
 import { Typography } from "@tiptap/extension-typography";
 import Underline from "@tiptap/extension-underline";
-import { Selection } from "@tiptap/extensions";
-import { Plugin, PluginKey } from "@tiptap/pm/state";
-import { Decoration, DecorationSet } from "@tiptap/pm/view";
 import { StarterKit } from "@tiptap/starter-kit";
 
-// --- New Extensions ---
-import { Blockquote } from "@tiptap/extension-blockquote";
-import DropCursor from "@tiptap/extension-dropcursor";
-import { Focus } from "@tiptap/extension-focus";
+// --- Additional Extensions ---
+import { Color } from "@tiptap/extension-color";
 import { FontFamily } from "@tiptap/extension-font-family";
 import { FontSize } from "@tiptap/extension-font-size";
-// Removed Gapcursor - using StarterKit version
 import { Highlight } from "@tiptap/extension-highlight";
-import { Mention } from "@tiptap/extension-mention";
-import { Color, TextStyle } from "@tiptap/extension-text-style";
-// History extension removed - using StarterKit's built-in history
+import { TextStyle } from "@tiptap/extension-text-style";
+
+// --- Custom Extensions ---
+import { PageFormat } from "@/lib/extensions/page-format";
 
 // --- Tiptap Node ---
 import { HorizontalRule } from "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension";
 import { ImageUploadNode } from "@/components/tiptap-node/image-upload-node/image-upload-node-extension";
-
-// --- Custom Extensions ---
-// Removed EnhancedEnter and SmartDeletion - using StarterKit defaults
-import { ImageTextFlow } from "@/lib/extensions/image-text-flow";
-import { PageFormat } from "@/lib/extensions/page-format";
 
 // --- Utils ---
 import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils";
@@ -63,63 +52,6 @@ interface TiptapEditorProps {
   locations?: any[];
   readOnly?: boolean;
 }
-
-// Custom Mention extension for @characters and #locations
-const MentionExtension = Extension.create({
-  name: "mention",
-
-  addProseMirrorPlugins() {
-    return [
-      new Plugin({
-        key: new PluginKey("mention"),
-        props: {
-          decorations: (state) => {
-            const decorations: Decoration[] = [];
-            const doc = state.doc;
-
-            doc.descendants((node, pos) => {
-              if (node.isText) {
-                const text = node.text || "";
-
-                // Match @mentions for characters
-                const characterMatches = text.matchAll(/@(\w+)/g);
-                for (const match of characterMatches) {
-                  const start = pos + (match.index || 0);
-                  const end = start + match[0].length;
-                  decorations.push(
-                    Decoration.inline(start, end, {
-                      class:
-                        "mention-character bg-escrivania-purple-100 text-escrivania-purple-700 px-1 rounded cursor-pointer",
-                      "data-mention-type": "character",
-                      "data-mention-name": match[1],
-                    })
-                  );
-                }
-
-                // Match #mentions for locations
-                const locationMatches = text.matchAll(/#(\w+)/g);
-                for (const match of locationMatches) {
-                  const start = pos + (match.index || 0);
-                  const end = start + match[0].length;
-                  decorations.push(
-                    Decoration.inline(start, end, {
-                      class:
-                        "mention-location bg-escrivania-blue-100 text-escrivania-blue-700 px-1 rounded cursor-pointer",
-                      "data-mention-type": "location",
-                      "data-mention-name": match[1],
-                    })
-                  );
-                }
-              }
-            });
-
-            return DecorationSet.create(doc, decorations);
-          },
-        },
-      }),
-    ];
-  },
-});
 
 export const TiptapEditor = memo(function TiptapEditor({
   content,
@@ -160,61 +92,27 @@ export const TiptapEditor = memo(function TiptapEditor({
     () => [
       StarterKit.configure({
         horizontalRule: false,
-        blockquote: false,
-        // Keep default history for undo/redo functionality
-        history: {
-          depth: 100,
-          newGroupDelay: 500,
-        },
-        // Keep default hardBreak for line breaks
-        hardBreak: {
-          keepMarks: false,
-        },
-        paragraph: {
-          HTMLAttributes: {
-            class: "tiptap-paragraph",
-          },
-        },
-        bulletList: {
-          keepMarks: true,
-          keepAttributes: false,
-        },
-        orderedList: {
-          keepMarks: true,
-          keepAttributes: false,
-        },
-        // Enable gapcursor for better navigation
-        gapcursor: true,
       }),
       HorizontalRule,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       TaskList,
       TaskItem.configure({ nested: true }),
-      Highlight.configure({
-        multicolor: true,
-        HTMLAttributes: {
-          class: "highlight",
-        },
-      }),
-      Image.configure({
-        inline: false,
-        allowBase64: true,
-        HTMLAttributes: {
-          class: "tiptap-image",
-        },
-      }),
-      Typography,
-      Superscript,
-      Subscript,
-      Selection,
-      Color,
+      Highlight.configure({ multicolor: true }),
       TextStyle,
+      Color,
       FontFamily.configure({
         types: ["textStyle"],
       }),
       FontSize.configure({
         types: ["textStyle"],
       }),
+      PageFormat.configure({
+        types: ["doc"],
+      }),
+      Image,
+      Typography,
+      Superscript,
+      Subscript,
       CharacterCount,
       Placeholder.configure({
         placeholder,
@@ -228,52 +126,6 @@ export const TiptapEditor = memo(function TiptapEditor({
         upload: handleImageUpload,
         onError: (error) => console.error("Upload failed:", error),
       }),
-      Blockquote.configure({
-        HTMLAttributes: {
-          class: "border-l-4 border-border pl-4 italic text-muted-foreground",
-        },
-      }),
-      // Remove duplicate HardBreak - using StarterKit's version
-      Mention.configure({
-        HTMLAttributes: {
-          class:
-            "mention bg-escrivania-blue-100 text-escrivania-blue-800 px-2 py-1 rounded-full text-sm",
-        },
-        suggestion: {
-          items: ({ query }) => {
-            return [
-              "Protagonist",
-              "Antagonist",
-              "Supporting Character",
-              "Love Interest",
-              "Mentor",
-              "Sidekick",
-            ]
-              .filter((item) =>
-                item.toLowerCase().startsWith(query.toLowerCase())
-              )
-              .slice(0, 5);
-          },
-        },
-      }),
-      DropCursor.configure({
-        color: "oklch(0.75 0.15 200)",
-        width: 2,
-      }),
-      // Remove duplicate Gapcursor - using StarterKit's version
-      Focus.configure({
-        className: "has-focus",
-        mode: "all",
-      }),
-      // Remove EnhancedEnter - using StarterKit's default behavior
-      ImageTextFlow.configure({
-        autoAddParagraphs: false,
-        enableArrowNavigation: false,
-        enableEnterNavigation: false,
-      }),
-      // Remove SmartDeletion - using StarterKit's default behavior
-      MentionExtension,
-      PageFormat,
     ],
     [placeholder]
   );
@@ -287,32 +139,11 @@ export const TiptapEditor = memo(function TiptapEditor({
         autocomplete: "off",
         autocorrect: "off",
         autocapitalize: "off",
-        spellcheck: "true",
         "aria-label":
           "Área principal de conteúdo, comece a digitar para inserir texto.",
-        class: `enhanced-writer-editor ${className} ${
-          deviceInfo.isMobile
-            ? "mobile-editor"
-            : deviceInfo.isTablet
-              ? "tablet-editor"
-              : "desktop-editor"
-        }`,
-      },
-      // Performance optimizations
-      scrollThreshold: 100,
-      scrollMargin: 50,
-      handleKeyDown: (view, event) => {
-        // Let TipTap handle all key events naturally
-        return false;
+        class: `enhanced-writer-editor ${className}`,
       },
     },
-    // Performance optimizations
-    parseOptions: {
-      preserveWhitespace: "full",
-    },
-    enableInputRules: true,
-    enablePasteRules: true,
-    injectCSS: false, // We handle CSS ourselves
     extensions,
     content:
       content && typeof content === "object" && content.type
@@ -447,10 +278,10 @@ export const TiptapEditor = memo(function TiptapEditor({
 
   const statsVisibility = useMemo(() => {
     if (readOnly) return false;
-    if (deviceInfo.isMobile) return false; // Hide stats on mobile
-    if (deviceInfo.isTablet) return false; // Hide stats on tablet
-    return true; // Show stats on notebook, macbook and desktop
-  }, [readOnly, deviceInfo.isMobile, deviceInfo.isTablet]);
+    // Show stats on screens wider than 1024px (tablets in landscape and larger)
+    if (deviceInfo.width < 1024) return false;
+    return true;
+  }, [readOnly, deviceInfo.width]);
 
   if (!editor) {
     return null;
@@ -459,9 +290,8 @@ export const TiptapEditor = memo(function TiptapEditor({
   return (
     <div
       className={cn(
-        "flex flex-col w-full h-full relative",
-        minHeight,
-        "overflow-hidden",
+        "flex flex-col w-full min-h-screen relative",
+        "overflow-auto",
         deviceInfo.isMobile && "text-sm",
         deviceInfo.isTablet && "text-base",
         deviceInfo.isMacbook && "text-base", // Tamanho de texto otimizado para MacBook Pro M1
@@ -511,7 +341,7 @@ export const TiptapEditor = memo(function TiptapEditor({
         {/* Editor Content */}
         <div
           className={cn(
-            "flex-1 overflow-hidden h-full",
+            "flex-1 overflow-auto",
             deviceInfo.isMobile && "p-2",
             deviceInfo.isTablet && "p-3",
             deviceInfo.isMacbook && "p-4", // Padding otimizado para MacBook Pro M1

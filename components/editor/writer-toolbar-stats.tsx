@@ -1,7 +1,7 @@
 "use client";
 
-import { Clock, FileText, Hash } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Clock, FileText, Hash } from "lucide-react";
 
 interface WriterToolbarStatsProps {
   wordCount: number;
