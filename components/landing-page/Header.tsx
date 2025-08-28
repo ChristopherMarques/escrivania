@@ -12,7 +12,7 @@ export function Header({ onSignIn }: HeaderProps) {
   const [isMobile, setIsMobile] = useState(false);
   const { scrollY } = useScroll();
 
-  // Transformações baseadas no scroll - responsivas com animações mágicas
+  // Transformações baseadas no scroll
   const headerHeight = useTransform(
     scrollY,
     [0, 100],
@@ -61,6 +61,30 @@ export function Header({ onSignIn }: HeaderProps) {
     return () => unsubscribe();
   }, [scrollY]);
 
+  // Scroll suave para âncoras
+  const handleAnchorClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string
+  ) => {
+    e.preventDefault();
+    const targetId = href.substring(1);
+    const targetElement = document.getElementById(targetId);
+    if (targetElement) {
+      targetElement.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
+
+  // Voltar ao topo
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
   // Construir className dinamicamente
   let headerClasses =
     "fixed top-0 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 w-full max-w-7xl";
@@ -76,7 +100,6 @@ export function Header({ onSignIn }: HeaderProps) {
     <motion.header
       className={headerClasses}
       style={{
-        height: headerHeight,
         borderRadius: isScrolled ? borderRadius : 0,
         marginTop: isScrolled ? (isMobile ? 8 : 16) : 0,
         paddingLeft: isScrolled ? marginX : 16,
@@ -105,10 +128,11 @@ export function Header({ onSignIn }: HeaderProps) {
       >
         <div className="flex items-center justify-between h-full">
           {/* Logo */}
-          <motion.div
-            className="flex items-center space-x-3"
+          <motion.button
+            className="flex items-center space-x-3 cursor-pointer bg-transparent border-none"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={scrollToTop}
           >
             <motion.div
               className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center shadow-lg"
@@ -146,7 +170,7 @@ export function Header({ onSignIn }: HeaderProps) {
             >
               Escrivania
             </motion.span>
-          </motion.div>
+          </motion.button>
 
           {/* Desktop Navigation */}
           <motion.nav
@@ -157,10 +181,11 @@ export function Header({ onSignIn }: HeaderProps) {
             transition={{ delay: 0.4, duration: 0.5 }}
           >
             {[
-              { name: "Recursos", href: "#features" },
-              { name: "Preços", href: "#pricing" },
+              { name: "Sobre", href: "#sobre" },
+              { name: "Recursos", href: "#recursos" },
+              { name: "Preços", href: "#precos" },
               { name: "Roadmap", href: "#roadmap" },
-              { name: "Contato", href: "#contact" },
+              { name: "Contato", href: "#contato" },
             ].map((item, index) => (
               <motion.a
                 key={item.name}
@@ -172,6 +197,7 @@ export function Header({ onSignIn }: HeaderProps) {
                   y: -2,
                 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={(e) => handleAnchorClick(e, item.href)}
                 initial={{ opacity: 0, y: -20 }}
                 animate={{
                   opacity: 1,
@@ -256,16 +282,20 @@ export function Header({ onSignIn }: HeaderProps) {
             transition={{ duration: 0.3, delay: isMenuOpen ? 0.1 : 0 }}
           >
             {[
-              { name: "Recursos", href: "#features" },
-              { name: "Preços", href: "#pricing" },
+              { name: "Sobre", href: "#sobre" },
+              { name: "Recursos", href: "#recursos" },
+              { name: "Preços", href: "#precos" },
               { name: "Roadmap", href: "#roadmap" },
-              { name: "Contato", href: "#contact" },
+              { name: "Contato", href: "#contato" },
             ].map((item, index) => (
               <motion.a
                 key={item.name}
                 href={item.href}
                 className="block text-muted-foreground hover:text-foreground transition-colors duration-200 font-medium py-2"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={(e) => {
+                  handleAnchorClick(e, item.href);
+                  setIsMenuOpen(false);
+                }}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{
                   opacity: isMenuOpen ? 1 : 0,

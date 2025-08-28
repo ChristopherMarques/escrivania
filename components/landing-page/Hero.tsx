@@ -59,15 +59,20 @@ export function Hero({ onSignIn }: HeroProps) {
   };
   return (
     <motion.section
-      className="relative py-16 sm:py-20 lg:py-40 overflow-hidden"
+      className="relative overflow-hidden flex items-center justify-center"
+      style={{
+        minHeight: isMobile ? "calc(100vh - 80px)" : "calc(100vh - 88px)",
+        paddingTop: isMobile ? "80px" : "88px",
+        paddingBottom: isMobile ? "2rem" : "3rem",
+      }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-background via-card/50 to-background" />
 
-      <div className="container mx-auto px-4 sm:px-6 relative z-10">
-        <div className="max-w-6xl mx-auto">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10 w-full">
+        <div className="max-w-6xl mx-auto flex items-center justify-center min-h-full">
           <motion.div
             className="text-center mb-12 sm:mb-16"
             variants={containerVariants}
