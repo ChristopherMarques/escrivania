@@ -5,7 +5,13 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import type { ViewMode } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, Edit3, Grid3X3, List } from "lucide-react";
+import {
+  ArrowLeft,
+  Edit3,
+  Grid3X3,
+  List,
+  SplitSquareHorizontal,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface ViewModeToolbarProps {
@@ -13,6 +19,8 @@ interface ViewModeToolbarProps {
   onViewModeChange: (mode: ViewMode) => void;
   projectTitle?: string;
   className?: string;
+  isSplitScreenActive?: boolean;
+  onSplitScreenToggle?: () => void;
 }
 
 const VIEW_MODE_OPTIONS = [
@@ -41,6 +49,8 @@ export function ViewModeToolbar({
   onViewModeChange,
   projectTitle,
   className,
+  isSplitScreenActive = false,
+  onSplitScreenToggle,
 }: ViewModeToolbarProps) {
   const router = useRouter();
 
@@ -106,8 +116,24 @@ export function ViewModeToolbar({
         })}
       </div>
 
-      {/* Far Right Section - Theme and Focus Mode */}
+      {/* Far Right Section - Split Screen, Theme and Focus Mode */}
       <div className="flex items-center space-x-2 relative z-10">
+        {onSplitScreenToggle && (
+          <Button
+            variant={isSplitScreenActive ? "default" : "outline"}
+            size="sm"
+            onClick={onSplitScreenToggle}
+            className={cn(
+              "h-8 w-8 p-0 transition-all duration-200 shadow-sm hover:shadow-md rounded-lg",
+              isSplitScreenActive
+                ? "bg-primary text-primary-foreground"
+                : "border-primary text-primary hover:bg-primary/10 hover:border-primary/70"
+            )}
+            title="Tela Dividida"
+          >
+            <SplitSquareHorizontal className="h-4 w-4" />
+          </Button>
+        )}
         <ThemeToggle className="h-8 w-8 border-primary text-primary hover:bg-primary/10 hover:border-primary/70 transition-all duration-200 shadow-sm hover:shadow-md rounded-lg" />
         <FocusModeToggle className="h-8 w-8 border-primary text-primary hover:bg-primary/10 hover:border-primary/70 transition-all duration-200 shadow-sm hover:shadow-md rounded-lg" />
       </div>
