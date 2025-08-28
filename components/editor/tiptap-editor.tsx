@@ -36,11 +36,10 @@ import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils";
 import { cn } from "@/lib/utils";
 
 // --- Components ---
-import { EditorContentWrapper } from "./editor-content-wrapper";
-import { WriterStatsPanel } from "./writer-stats-panel";
-import { WriterToolbarContent } from "./writer-toolbar-content";
 import { Button } from "@/components/ui/button";
-import { ChevronUp, ChevronDown, X, BarChart3 } from "lucide-react";
+import { BarChart3, ChevronDown, ChevronUp, X } from "lucide-react";
+import { EditorContentWrapper } from "./editor-content-wrapper";
+import { WriterToolbarContent } from "./writer-toolbar-content";
 
 // --- Hooks ---
 import { useDeviceInfo } from "@/hooks/use-mobile";
@@ -304,10 +303,10 @@ export const TiptapEditor = memo(function TiptapEditor({
         className
       )}
     >
-      {/* Editor Background - Clean design without borders */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/98 via-white/95 to-white/90 backdrop-blur-sm" />
+      {/* Editor Background - Clean design with dark mode support */}
+      <div className="absolute inset-0 bg-background backdrop-blur-sm" />
       <div
-        className="absolute inset-0 opacity-5"
+        className="absolute inset-0 opacity-5 dark:opacity-10"
         style={{
           background: `linear-gradient(135deg, var(--primary)/0.04 0%, var(--secondary)/0.02 50%, var(--primary)/0.04 100%)`,
         }}
@@ -315,13 +314,13 @@ export const TiptapEditor = memo(function TiptapEditor({
 
       {/* Gradient Blobs for Visual Enhancement */}
       <div
-        className="absolute top-4 right-4 w-32 h-32 rounded-full blur-3xl animate-pulse opacity-20"
+        className="absolute top-4 right-4 w-32 h-32 rounded-full blur-3xl animate-pulse opacity-20 dark:opacity-30"
         style={{
           background: `linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)`,
         }}
       />
       <div
-        className="absolute bottom-8 left-8 w-24 h-24 rounded-full blur-2xl animate-pulse opacity-15"
+        className="absolute bottom-8 left-8 w-24 h-24 rounded-full blur-2xl animate-pulse opacity-15 dark:opacity-25"
         style={{
           background: `linear-gradient(45deg, var(--secondary) 0%, var(--primary) 100%)`,
           animationDelay: "1.5s",
@@ -345,7 +344,7 @@ export const TiptapEditor = memo(function TiptapEditor({
         {/* Editor Content with Scroll */}
         <div
           className={cn(
-            "flex-1 overflow-auto",
+            "flex-1 overflow-auto min-h-0",
             deviceInfo.isMobile && "p-2",
             deviceInfo.isTablet && "p-3",
             deviceInfo.isMacbook && "p-4", // Padding otimizado para MacBook Pro M1
@@ -353,7 +352,9 @@ export const TiptapEditor = memo(function TiptapEditor({
             deviceInfo.isDesktop && "p-6" // Mais espaço em desktops grandes
           )}
         >
-          <EditorContentWrapper editor={editor} />
+          <div className="h-full flex flex-col">
+            <EditorContentWrapper editor={editor} className="flex-1" />
+          </div>
         </div>
       </div>
 

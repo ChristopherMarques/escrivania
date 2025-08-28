@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { FileText, MapPin, Plus, Users, X } from "lucide-react";
+import { FileText, MapPin, Users, X } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
@@ -107,6 +107,13 @@ export function SplitScreenManager({
           </div>
         );
       case "character":
+        if (!referenceContent.data) {
+          return (
+            <div className="p-4 text-red-500">
+              Erro: Dados do personagem não encontrados
+            </div>
+          );
+        }
         return (
           <CharacterSheet
             character={referenceContent.data}
@@ -120,6 +127,13 @@ export function SplitScreenManager({
           />
         );
       case "location":
+        if (!referenceContent.data) {
+          return (
+            <div className="p-4 text-red-500">
+              Erro: Dados do local não encontrados
+            </div>
+          );
+        }
         return (
           <LocationSheet
             location={referenceContent.data}
@@ -132,6 +146,13 @@ export function SplitScreenManager({
           />
         );
       case "scene":
+        if (!referenceContent.data) {
+          return (
+            <div className="p-4 text-red-500">
+              Erro: Dados da cena não encontrados
+            </div>
+          );
+        }
         return (
           <div className="h-full">
             <TiptapEditor
@@ -158,9 +179,11 @@ export function SplitScreenManager({
           <div className="h-full flex flex-col">
             <div className="border-b p-3 bg-muted/30">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium">Editor Principal</h3>
+                <h3 className="text-sm font-medium text-primary">
+                  Editor Principal
+                </h3>
                 <Button variant="ghost" size="sm" onClick={onClose}>
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4 text-primary" />
                 </Button>
               </div>
             </div>
@@ -184,33 +207,9 @@ export function SplitScreenManager({
             <div className="border-b p-3 bg-muted/30">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium">Painel de Referência</h3>
-                  <div className="flex gap-1">
-                    {onCreateCharacter && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={onCreateCharacter}
-                        className="h-7 w-7 p-0"
-                        title="Criar Personagem"
-                      >
-                        <Users className="h-3 w-3" />
-                        <Plus className="h-2 w-2 -ml-1" />
-                      </Button>
-                    )}
-                    {onCreateScene && currentScene?.chapter_id && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onCreateScene!(currentScene.chapter_id)}
-                        className="h-7 w-7 p-0"
-                        title="Criar Cena"
-                      >
-                        <FileText className="h-3 w-3" />
-                        <Plus className="h-2 w-2 -ml-1" />
-                      </Button>
-                    )}
-                  </div>
+                  <h3 className="text-sm font-medium text-primary">
+                    Painel de Referência
+                  </h3>
                 </div>
                 <Select
                   value={selectedReference}

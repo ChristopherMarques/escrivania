@@ -49,7 +49,7 @@ export function SceneHeader({
   return (
     <div
       className={cn(
-        "flex items-center justify-between p-4 bg-gradient-to-r from-white/95 via-white/90 to-white/95 backdrop-blur-sm border-b border-white/60 shadow-sm",
+        "flex items-center justify-between p-4 bg-background backdrop-blur-sm border-b border-border shadow-sm",
         className
       )}
     >

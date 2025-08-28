@@ -441,8 +441,8 @@ export function WriterToolbarContent({
     <TooltipProvider>
       <div
         className={cn(
-          "flex flex-wrap items-center gap-1 p-3 border-b border-primary/30 relative overflow-hidden",
-          "bg-gradient-to-r from-white/80 via-white/60 to-white/80 backdrop-blur-md",
+          "flex flex-wrap items-center gap-1 p-3 border-b border-border relative overflow-hidden",
+          "bg-background backdrop-blur-md",
           "before:absolute before:bg-gradient-to-r before:from-escrivania-purple-500/5 before:via-transparent before:to-escrivania-blue-500/5",
           "shadow-xs",
           className
@@ -457,7 +457,7 @@ export function WriterToolbarContent({
           {/* Main Toolbar */}
           <div className="flex flex-wrap items-center gap-2">
             {/* Page Format */}
-            <div className="flex items-center space-x-1 border-r border-slate-300 pr-2">
+            <div className="flex items-center space-x-1 border-r border-slate-300 dark:border-gray-600 pr-2">
               <PageFormatSelector
                 value={currentPageFormat}
                 onValueChange={handlePageFormatChange}
@@ -466,7 +466,7 @@ export function WriterToolbarContent({
             </div>
 
             {/* Font Controls */}
-            <div className="flex items-center space-x-1 border-r border-slate-300 pr-2">
+            <div className="flex items-center space-x-1 border-r border-slate-300 dark:border-gray-600 pr-2">
               {/* Font Family Selector */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -475,12 +475,13 @@ export function WriterToolbarContent({
                       ?.name || "Inter"}
                   </ToolbarButton>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56 max-h-64 overflow-y-auto">
+                <DropdownMenuContent className="w-56 max-h-64 overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
                   {fontFamilies.map((font) => (
                     <DropdownMenuItem
+                      className="dark:hover:bg-gray-700 dark:focus:bg-gray-700"
                       key={font.value}
                       onClick={() => setFontFamily(font.value)}
-                      className="cursor-pointer"
+                      className="cursor-pointer dark:hover:bg-gray-700 dark:focus:bg-gray-700"
                       style={{ fontFamily: font.value }}
                     >
                       {font.name}
@@ -504,7 +505,7 @@ export function WriterToolbarContent({
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </ToolbarButton>
                 </PopoverTrigger>
-                <PopoverContent className="w-[200px] p-0">
+                <PopoverContent className="w-[200px] p-0 dark:bg-gray-800 dark:border-gray-700">
                   <Command>
                     <CommandInput
                       placeholder="Digite ou selecione tamanho..."
@@ -512,7 +513,7 @@ export function WriterToolbarContent({
                     />
                     <CommandEmpty>
                       <div className="p-2">
-                        <div className="text-sm text-muted-foreground mb-2">
+                        <div className="text-sm text-muted-foreground dark:text-gray-400 mb-2">
                           Tamanho personalizado
                         </div>
                         <div className="flex items-center gap-2">
@@ -587,6 +588,7 @@ export function WriterToolbarContent({
                               setFontSize(size);
                               setFontSizeComboOpen(false);
                             }}
+                            className="cursor-pointer dark:hover:bg-gray-700"
                           >
                             <Check
                               className={cn(
@@ -607,7 +609,7 @@ export function WriterToolbarContent({
             </div>
 
             {/* Color Controls */}
-            <div className="flex items-center space-x-1 border-r border-slate-300 pr-2">
+            <div className="flex items-center space-x-1 border-r border-slate-300 dark:border-gray-600 pr-2">
               {/* Text Color */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -624,9 +626,9 @@ export function WriterToolbarContent({
                     </div>
                   </ToolbarButton>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-80 p-0">
+                <DropdownMenuContent className="w-80 p-0 dark:bg-gray-800 dark:border-gray-700">
                   <div className="p-4">
-                    <DropdownMenuLabel className="text-sm font-medium text-gray-900 mb-3">
+                    <DropdownMenuLabel className="text-sm font-medium text-gray-900 dark:text-gray-200 mb-3">
                       Cor do Texto
                     </DropdownMenuLabel>
 
@@ -634,7 +636,7 @@ export function WriterToolbarContent({
                     <div className="space-y-4">
                       {/* Cores da marca */}
                       <div>
-                        <div className="text-xs font-medium text-gray-600 mb-2">
+                        <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
                           Cores da Marca
                         </div>
                         <div className="grid grid-cols-8 gap-1">
@@ -666,7 +668,7 @@ export function WriterToolbarContent({
 
                       {/* Cores neutras */}
                       <div>
-                        <div className="text-xs font-medium text-gray-600 mb-2">
+                        <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
                           Cores Neutras
                         </div>
                         <div className="grid grid-cols-8 gap-1">
@@ -698,7 +700,7 @@ export function WriterToolbarContent({
 
                       {/* Cores semânticas */}
                       <div>
-                        <div className="text-xs font-medium text-gray-600 mb-2">
+                        <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
                           Cores Semânticas
                         </div>
                         <div className="grid grid-cols-8 gap-1">
@@ -729,8 +731,8 @@ export function WriterToolbarContent({
                       </div>
 
                       {/* Seletor de cor personalizada */}
-                      <div className="pt-2 border-t border-gray-200">
-                        <div className="text-xs font-medium text-gray-600 mb-2">
+                      <div className="pt-2 border-t border-gray-200 dark:border-gray-600">
+                        <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
                           Cor Personalizada
                         </div>
                         <ColorPicker
@@ -760,9 +762,9 @@ export function WriterToolbarContent({
                     </div>
                   </ToolbarButton>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-80 p-0">
+                <DropdownMenuContent className="w-80 p-0 dark:bg-gray-800 dark:border-gray-700">
                   <div className="p-4">
-                    <DropdownMenuLabel className="text-sm font-medium text-gray-900 mb-3">
+                    <DropdownMenuLabel className="text-sm font-medium text-gray-900 dark:text-gray-200 mb-3">
                       Cor de Destaque
                     </DropdownMenuLabel>
 
@@ -800,7 +802,7 @@ export function WriterToolbarContent({
 
                       {/* Cores quentes */}
                       <div>
-                        <div className="text-xs font-medium text-gray-600 mb-2">
+                        <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
                           Tons Quentes
                         </div>
                         <div className="grid grid-cols-8 gap-1">
@@ -830,7 +832,7 @@ export function WriterToolbarContent({
 
                       {/* Cores frias */}
                       <div>
-                        <div className="text-xs font-medium text-gray-600 mb-2">
+                        <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
                           Tons Frios
                         </div>
                         <div className="grid grid-cols-8 gap-1">
@@ -860,7 +862,7 @@ export function WriterToolbarContent({
 
                       {/* Cores neutras */}
                       <div>
-                        <div className="text-xs font-medium text-gray-600 mb-2">
+                        <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
                           Tons Neutros
                         </div>
                         <div className="grid grid-cols-8 gap-1">
@@ -889,9 +891,9 @@ export function WriterToolbarContent({
                       </div>
 
                       {/* Seletor de cor personalizada e ações */}
-                      <div className="pt-2 border-t border-gray-200 space-y-3">
+                      <div className="pt-2 border-t border-gray-200 dark:border-gray-600 space-y-3">
                         <div>
-                          <div className="text-xs font-medium text-gray-600 mb-2">
+                          <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
                             Cor Personalizada
                           </div>
                           <ColorPicker
@@ -915,7 +917,7 @@ export function WriterToolbarContent({
               </DropdownMenu>
             </div>
             {/* Text Formatting */}
-            <div className="flex items-center space-x-1 border-r border-slate-300 pr-2">
+            <div className="flex items-center space-x-1 border-r border-slate-300 dark:border-gray-600 pr-2">
               <ToolbarButton
                 onClick={() => editor.chain().focus().toggleBold().run()}
                 isActive={editor.isActive("bold")}
@@ -950,18 +952,19 @@ export function WriterToolbarContent({
             </div>
 
             {/* Headings */}
-            <div className="flex items-center space-x-1 border-r border-slate-300 pr-2">
+            <div className="flex items-center space-x-1 border-r border-slate-300 dark:border-gray-600 pr-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <ToolbarButton className="justify-between">
                     <Heading1 className="w-4 h-4" />
                   </ToolbarButton>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent>
+                <DropdownMenuContent className="dark:bg-gray-800 dark:border-gray-700">
                   <DropdownMenuItem
                     onClick={() =>
                       editor.chain().focus().toggleHeading({ level: 1 }).run()
                     }
+                    className="cursor-pointer dark:hover:bg-gray-700 dark:focus:bg-gray-700"
                   >
                     <Heading1 className="w-4 h-4 mr-2" />
                     Título 1
@@ -970,6 +973,7 @@ export function WriterToolbarContent({
                     onClick={() =>
                       editor.chain().focus().toggleHeading({ level: 2 }).run()
                     }
+                    className="cursor-pointer dark:hover:bg-gray-700 dark:focus:bg-gray-700"
                   >
                     <Heading2 className="w-4 h-4 mr-2" />
                     Título 2
@@ -978,6 +982,7 @@ export function WriterToolbarContent({
                     onClick={() =>
                       editor.chain().focus().toggleHeading({ level: 3 }).run()
                     }
+                    className="cursor-pointer dark:hover:bg-gray-700 dark:focus:bg-gray-700"
                   >
                     <Heading3 className="w-4 h-4 mr-2" />
                     Título 3
@@ -1075,7 +1080,7 @@ export function WriterToolbarContent({
                     <LinkIcon className="w-4 h-4" />
                   </ToolbarButton>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-80">
+                <DropdownMenuContent className="w-80 dark:bg-gray-800 dark:border-gray-700">
                   <div className="p-3">
                     <div className="flex space-x-2">
                       <Input

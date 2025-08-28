@@ -133,7 +133,7 @@ export function CTA({ onSignIn }: { onSignIn: () => void }) {
                     <stat.icon
                       className={`h-12 w-12 mx-auto mb-4 ${stat.color}`}
                     />
-                    <div className="text-3xl sm:text-4xl lg:text-5xl font-bold gradient-text mb-3 break-words">
+                    <div className="text-3xl sm:text-4xl lg:text-5xl font-bold gradient-text mb-3  w-full">
                       {stat.value}
                     </div>
                     <div className="text-lg sm:text-xl text-muted-foreground font-medium">

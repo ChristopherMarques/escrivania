@@ -31,38 +31,38 @@ const FOCUS_ENVIRONMENTS = [
   {
     id: "minimal",
     name: "Minimalista",
-    bg: "bg-gray-50",
-    accent: "bg-gray-200",
+    bg: "bg-background",
+    accent: "bg-muted",
   },
   {
     id: "forest",
     name: "Floresta",
-    bg: "bg-gradient-to-br from-green-100 to-emerald-50",
-    accent: "bg-green-200",
+    bg: "bg-gradient-to-br from-green-100 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/10",
+    accent: "bg-green-200 dark:bg-green-800/30",
   },
   {
     id: "ocean",
     name: "Oceano",
-    bg: "bg-gradient-to-br from-blue-100 to-cyan-50",
-    accent: "bg-blue-200",
+    bg: "bg-gradient-to-br from-blue-100 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/10",
+    accent: "bg-blue-200 dark:bg-blue-800/30",
   },
   {
     id: "sunset",
     name: "Pôr do Sol",
-    bg: "bg-gradient-to-br from-orange-100 to-pink-50",
-    accent: "bg-orange-200",
+    bg: "bg-gradient-to-br from-orange-100 to-pink-50 dark:from-orange-900/20 dark:to-pink-900/10",
+    accent: "bg-orange-200 dark:bg-orange-800/30",
   },
   {
     id: "night",
     name: "Noite",
-    bg: "bg-gradient-to-br from-slate-800 to-slate-900",
-    accent: "bg-slate-600",
+    bg: "bg-gradient-to-br from-slate-800 to-slate-900 dark:from-slate-900 dark:to-black",
+    accent: "bg-slate-600 dark:bg-slate-700",
   },
   {
     id: "coffee",
     name: "Café",
-    bg: "bg-gradient-to-br from-amber-100 to-yellow-50",
-    accent: "bg-amber-200",
+    bg: "bg-gradient-to-br from-amber-100 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/10",
+    accent: "bg-amber-200 dark:bg-amber-800/30",
   },
 ];
 
@@ -190,7 +190,7 @@ export function FocusModeOverlay({
       className={`fixed inset-0 z-50 ${currentEnv.bg} transition-all duration-500`}
     >
       {/* Top Bar */}
-      <div className="absolute top-0 left-0 right-0 z-10 bg-black/10 backdrop-blur-sm">
+      <div className="absolute top-0 left-0 right-0 z-10 bg-background/10 dark:bg-background/20 backdrop-blur-sm">
         <div className="flex items-center justify-between p-4">
           {/* Left side - Exit button */}
           <div className="flex items-center flex-shrink-0">
@@ -198,7 +198,7 @@ export function FocusModeOverlay({
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="text-gray-600 hover:text-gray-800 bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30"
+              className="text-foreground/70 hover:text-foreground bg-background/20 hover:bg-background/30 backdrop-blur-sm border border-border/30"
             >
               <X className="w-4 h-4 mr-2" />
               Sair do Foco
@@ -208,16 +208,16 @@ export function FocusModeOverlay({
           {/* Center - Timer and Auto-save Status */}
           <div className="flex items-center space-x-4 flex-1 justify-center max-w-2xl mx-4">
             {/* Timer Display */}
-            <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1">
-              <Timer className="w-4 h-4" />
-              <span className="font-mono text-sm">
+            <div className="flex items-center space-x-2 bg-background/20 backdrop-blur-sm rounded-lg px-3 py-1 border border-border/30">
+              <Timer className="w-4 h-4 text-foreground/70" />
+              <span className="font-mono text-sm text-foreground">
                 {formatTime(sessionTimer)}
               </span>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={toggleTimer}
-                className="h-6 px-2 text-xs"
+                className="h-6 px-2 text-xs text-foreground/70 hover:text-foreground"
               >
                 {isTimerActive ? "Pausar" : "Iniciar"}
               </Button>
@@ -225,7 +225,7 @@ export function FocusModeOverlay({
                 variant="ghost"
                 size="sm"
                 onClick={resetTimer}
-                className="h-6 px-2 text-xs"
+                className="h-6 px-2 text-xs text-foreground/70 hover:text-foreground"
               >
                 Reset
               </Button>
@@ -233,7 +233,7 @@ export function FocusModeOverlay({
 
             {/* Auto-save Status */}
             {autoSaveStatus && (
-              <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1">
+              <div className="bg-background/20 backdrop-blur-sm rounded-lg px-3 py-1 border border-border/30">
                 <div
                   className={`text-xs font-medium ${autoSaveStatus.statusColor}`}
                 >
@@ -249,7 +249,7 @@ export function FocusModeOverlay({
               variant="ghost"
               size="sm"
               onClick={() => setShowSettings(!showSettings)}
-              className="text-gray-700 hover:text-gray-900 bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30"
+              className="text-foreground/70 hover:text-foreground bg-background/20 hover:bg-background/30 backdrop-blur-sm border border-border/30"
             >
               <Settings className="w-4 h-4 mr-2" />
               Configurações
@@ -261,14 +261,14 @@ export function FocusModeOverlay({
       {/* Settings Panel */}
       {showSettings && (
         <div className="absolute top-20 right-4 z-20 w-80 lg:w-96 xl:w-[28rem] 2xl:w-[32rem] animate-in slide-in-from-top-2 duration-200">
-          <Card className="bg-white/95 backdrop-blur-md border-white/50 shadow-2xl">
+          <Card className="bg-card/95 backdrop-blur-md border-border/50 shadow-2xl">
             <CardContent className="p-4 lg:p-6 xl:p-8 space-y-4 lg:space-y-6">
               <div>
-                <label className="text-sm lg:text-base xl:text-lg font-semibold mb-2 lg:mb-3 block text-gray-800">
+                <label className="text-sm lg:text-base xl:text-lg font-semibold mb-2 lg:mb-3 block text-foreground">
                   🎨 Ambiente Visual
                 </label>
                 <Select value={environment} onValueChange={setEnvironment}>
-                  <SelectTrigger className="lg:h-12 xl:h-14 lg:text-base xl:text-lg border-2 hover:border-gray-400">
+                  <SelectTrigger className="lg:h-12 xl:h-14 lg:text-base xl:text-lg border-2 hover:border-primary/50">
                     <SelectValue placeholder="Selecione um ambiente" />
                   </SelectTrigger>
                   <SelectContent>
@@ -282,11 +282,11 @@ export function FocusModeOverlay({
               </div>
 
               <div>
-                <label className="text-sm lg:text-base xl:text-lg font-semibold mb-2 lg:mb-3 block text-gray-800">
+                <label className="text-sm lg:text-base xl:text-lg font-semibold mb-2 lg:mb-3 block text-foreground">
                   🔊 Som Ambiente
                 </label>
                 <Select value={ambientSound} onValueChange={setAmbientSound}>
-                  <SelectTrigger className="lg:h-12 xl:h-14 lg:text-base xl:text-lg border-2 hover:border-gray-400">
+                  <SelectTrigger className="lg:h-12 xl:h-14 lg:text-base xl:text-lg border-2 hover:border-primary/50">
                     <SelectValue placeholder="Selecione um som" />
                   </SelectTrigger>
                   <SelectContent>
@@ -304,7 +304,7 @@ export function FocusModeOverlay({
 
               {ambientSound !== "none" && (
                 <div>
-                  <label className="text-sm lg:text-base xl:text-lg font-semibold mb-2 lg:mb-3 block text-gray-800">
+                  <label className="text-sm lg:text-base xl:text-lg font-semibold mb-2 lg:mb-3 block text-foreground">
                     🔉 Volume ({soundVolume[0]}%)
                   </label>
                   <Slider
@@ -318,7 +318,7 @@ export function FocusModeOverlay({
               )}
 
               <div>
-                <label className="text-sm lg:text-base xl:text-lg font-semibold mb-2 lg:mb-3 block text-gray-800">
+                <label className="text-sm lg:text-base xl:text-lg font-semibold mb-2 lg:mb-3 block text-foreground">
                   ⏱️ Duração da Sessão
                 </label>
                 <Select
@@ -327,7 +327,7 @@ export function FocusModeOverlay({
                     setTargetTime(Number.parseInt(value))
                   }
                 >
-                  <SelectTrigger className="lg:h-12 xl:h-14 lg:text-base xl:text-lg border-2 hover:border-gray-400">
+                  <SelectTrigger className="lg:h-12 xl:h-14 lg:text-base xl:text-lg border-2 hover:border-primary/50">
                     <SelectValue placeholder="Selecione a duração" />
                   </SelectTrigger>
                   <SelectContent>
@@ -345,12 +345,12 @@ export function FocusModeOverlay({
       )}
 
       {/* Main Editor Area */}
-      <div className="pt-20 pb-8 px-2 sm:px-4 lg:px-6 h-full flex items-center justify-center">
+      <div className="pt-20 pb-8 px-2 sm:px-4 lg:px-6 h-full flex items-center justify-center relative z-0">
         <div
-          className="w-full max-w-none h-[80vh] min-h-[600px]"
+          className="w-full max-w-none h-[80vh] min-h-[600px] relative z-0"
           style={{ width: "90vw" }}
         >
-          <div className="bg-background/95 backdrop-blur-sm rounded-lg shadow-2xl h-full p-4 sm:p-6 lg:p-8 border border-border/50">
+          <div className="bg-card/95 backdrop-blur-sm rounded-lg shadow-2xl h-full p-4 sm:p-6 lg:p-8 border border-border/50 relative z-0">
             <TiptapEditor
               content={content}
               onChange={onChange}

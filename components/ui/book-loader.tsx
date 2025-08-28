@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import React from "react";
 
 interface BookLoaderProps {
   size?: "sm" | "md" | "lg" | "xl";
@@ -187,7 +187,7 @@ const FullPageBookLoader: React.FC<BookLoaderProps> = ({
   ...props
 }) => {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background backdrop-blur-sm">
       <BookLoader size={size} showText={true} text={text} {...props} />
     </div>
   );

@@ -1,7 +1,5 @@
 "use client";
 
-import { CharacterCreationModal } from "@/components/modals/character-creation-modal";
-import { LocationCreationModal } from "@/components/modals/location-creation-modal";
 import { SceneHeader } from "@/components/editor/scene-header";
 import { TiptapEditor } from "@/components/editor/tiptap-editor";
 import {
@@ -12,6 +10,8 @@ import { FocusModeOverlay } from "@/components/focus-mode/focus-mode-overlay";
 import { MetadataPanel } from "@/components/metadata/metadata-panel";
 import { MobileBottomBar } from "@/components/mobile/mobile-bottom-bar";
 import { MobileNavigation } from "@/components/mobile/mobile-navigation";
+import { CharacterCreationModal } from "@/components/modals/character-creation-modal";
+import { LocationCreationModal } from "@/components/modals/location-creation-modal";
 import { NavigationPanel } from "@/components/navigation/navigation-panel";
 import { ViewModeToolbar } from "@/components/navigation/view-mode-toolbar";
 import { CorkboardView } from "@/components/project-structure/corkboard-view";
@@ -433,12 +433,12 @@ const ProjectEditorInner = memo(function ProjectEditorInner({
               isActive={isSplitScreenActive}
               currentScene={currentScene}
               characters={memoizedCharacters}
-              locations={[]}
+              locations={memoizedLocations}
               scenes={memoizedScenes}
               onSceneChange={handleEditorChange}
               onCreateScene={handleAddScene}
               onCreateCharacter={handleAddCharacter}
-              onClose={() => setIsSplitScreenActive(false)}
+              onClose={handleSplitScreenToggle}
             />
           ) : (
             <div className="flex-1 overflow-hidden min-w-0">

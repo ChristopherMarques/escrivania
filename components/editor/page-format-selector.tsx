@@ -100,14 +100,14 @@ export function PageFormatSelector({
           </SelectValue>
         </div>
       </SelectTrigger>
-      <SelectContent className="w-[280px]">
+      <SelectContent className="w-[280px] dark:bg-gray-800 dark:border-gray-700">
         {pageFormatOptions.map((option) => {
           const Icon = option.icon;
           return (
             <SelectItem
               key={option.value}
               value={option.value}
-              className="cursor-pointer"
+              className="cursor-pointer dark:hover:bg-gray-700 dark:focus:bg-gray-700"
             >
               <div className="flex items-center gap-3 w-full">
                 <Icon className="h-4 w-4 shrink-0 " />
@@ -115,12 +115,12 @@ export function PageFormatSelector({
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-sm">{option.label}</span>
                     {option.dimensions && (
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-muted-foreground dark:text-gray-400">
                         {option.dimensions}
                       </span>
                     )}
                   </div>
-                  <span className="text-xs text-muted-foreground line-clamp-1">
+                  <span className="text-xs text-muted-foreground dark:text-gray-400 line-clamp-1">
                     {option.description}
                   </span>
                 </div>

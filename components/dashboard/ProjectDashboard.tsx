@@ -4,6 +4,7 @@ import { CreateProjectForm } from "@/components/forms/CreateProjectForm";
 import { BookLoader } from "@/components/ui/book-loader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { WritingLoader } from "@/components/ui/writing-loader";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Project } from "@/contexts/ProjectContext";
 import { useProject } from "@/contexts/ProjectContext";
@@ -22,6 +23,7 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [loadingProjectId, setLoadingProjectId] = useState<string | null>(null);
 
   const handleCreateProject = () => {
     setShowCreateForm(true);
@@ -32,6 +34,7 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
   };
 
   const handleSelectProject = (project: Project) => {
+    setLoadingProjectId(project.id);
     setCurrentProject(project);
     router.push(`/project/${project.id}`);
   };
@@ -320,6 +323,16 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
                         >
                           {/* Subtle gradient overlay */}
                           <div className="absolute inset-0 bg-gradient-to-br from-escrivania-purple-500/5 to-escrivania-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                          {/* Loading overlay */}
+                          {loadingProjectId === project.id && (
+                            <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-20">
+                              <WritingLoader
+                                size="md"
+                                text="Abrindo projeto..."
+                              />
+                            </div>
+                          )}
 
                           <CardHeader className="pb-3 relative z-10">
                             <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">

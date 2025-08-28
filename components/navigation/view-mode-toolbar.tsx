@@ -114,7 +114,7 @@ export function ViewModeToolbar({
               "h-8 w-8 p-0 transition-all duration-200 shadow-sm hover:shadow-md rounded-lg",
               isSplitScreenActive
                 ? "bg-primary text-primary-foreground"
-                : "border-primary text-primary hover:bg-primary/10 hover:border-primary/70"
+                : "border-primary text-primary hover:bg-primary hover:border-primary/70"
             )}
             title="Tela Dividida"
           >
