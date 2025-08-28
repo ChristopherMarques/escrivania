@@ -13,11 +13,6 @@ export function Header({ onSignIn }: HeaderProps) {
   const { scrollY } = useScroll();
 
   // Transformações baseadas no scroll
-  const headerHeight = useTransform(
-    scrollY,
-    [0, 100],
-    isMobile ? [80, 64] : [88, 72]
-  );
 
   const borderRadius = useTransform(
     scrollY,

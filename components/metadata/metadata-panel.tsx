@@ -8,7 +8,17 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import type { Tables } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
-import { BarChart3, Edit, FileText, MapPin, Save, User, X } from "lucide-react";
+import {
+  BarChart3,
+  ChevronLeft,
+  ChevronRight,
+  Edit,
+  FileText,
+  MapPin,
+  Save,
+  User,
+  X,
+} from "lucide-react";
 import { memo, useCallback, useMemo, useState } from "react";
 
 // Tipos específicos para o painel de metadados
@@ -34,6 +44,8 @@ interface MetadataPanelProps {
     data: Partial<Tables<"chapters"> | Tables<"scenes"> | Tables<"characters">>
   ) => void;
   className?: string;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 export const MetadataPanel = memo(function MetadataPanel({
@@ -44,6 +56,8 @@ export const MetadataPanel = memo(function MetadataPanel({
   selectedItem,
   onUpdateItem,
   className,
+  isCollapsed = false,
+  onToggleCollapse,
 }: MetadataPanelProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<any>({});
@@ -140,9 +154,50 @@ export const MetadataPanel = memo(function MetadataPanel({
       .filter((word) => word.length > 0).length;
   }, []);
 
+  // Collapsed state
+  if (isCollapsed) {
+    return (
+      <div
+        className={cn(
+          "flex flex-col h-full relative w-12 transition-all duration-300",
+          className
+        )}
+      >
+        {/* Background */}
+        <div className="absolute inset-0 bg-background" />
+        <div className="absolute inset-0 border-l border-border shadow-xl" />
+
+        {/* Collapsed Header */}
+        <div className="relative z-10 p-3 border-b border-border bg-background">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onToggleCollapse}
+            className="h-6 w-6 p-0 text-primary hover:bg-primary/10"
+            title="Expandir painel de metadados"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Collapsed Content */}
+        <div className="relative z-10 flex-1 flex items-center justify-center">
+          <div className="transform -rotate-90 text-xs text-muted-foreground whitespace-nowrap">
+            Metadados
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!selectedItem || !selectedData) {
     return (
-      <div className={cn("flex flex-col h-full relative", className)}>
+      <div
+        className={cn(
+          "flex flex-col h-full relative transition-all duration-300",
+          className
+        )}
+      >
         {/* Background */}
         <div className="absolute inset-0 bg-background" />
         <div className="absolute inset-0 border-l border-border shadow-xl" />
@@ -150,9 +205,22 @@ export const MetadataPanel = memo(function MetadataPanel({
         {/* Content */}
         <div className="relative z-10 flex flex-col h-full">
           <div className="p-4 border-b border-white/30">
-            <div className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-primary" />
-              <h2 className="font-semibold text-primary">Metadados</h2>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-primary" />
+                <h2 className="font-semibold text-primary">Metadados</h2>
+              </div>
+              {onToggleCollapse && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onToggleCollapse}
+                  className="h-6 w-6 p-0 text-primary hover:bg-primary/10"
+                  title="Recolher painel de metadados"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </div>
           <div className="flex-1 flex items-center justify-center text-gray-500">
@@ -167,7 +235,12 @@ export const MetadataPanel = memo(function MetadataPanel({
   }
 
   return (
-    <div className={cn("flex flex-col h-full relative", className)}>
+    <div
+      className={cn(
+        "flex flex-col h-full relative transition-all duration-300",
+        className
+      )}
+    >
       {/* Background */}
       <div className="absolute inset-0 bg-background" />
       <div className="absolute inset-0 border-l border-border shadow-xl" />
@@ -176,40 +249,53 @@ export const MetadataPanel = memo(function MetadataPanel({
       <div className="relative z-10 flex flex-col h-full">
         {/* Header */}
         <div className="p-4 border-b border-border bg-background">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-primary">
               {getIcon}
               <h2 className="font-semibold ">Metadados</h2>
             </div>
-            {!isEditing ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleEdit}
-                className="h-8 w-8 p-0 text-primary"
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
-            ) : (
-              <div className="flex gap-1">
+            <div className="flex items-center gap-1">
+              {!isEditing ? (
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={handleSave}
-                  className="h-8 w-8 p-0 text-green-600 hover:bg-green-100"
+                  onClick={handleEdit}
+                  className="h-8 w-8 p-0 text-primary"
                 >
-                  <Save className="h-4 w-4" />
+                  <Edit className="h-4 w-4" />
                 </Button>
+              ) : (
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleSave}
+                    className="h-8 w-8 p-0 text-green-600 hover:bg-green-100"
+                  >
+                    <Save className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCancel}
+                    className="h-8 w-8 p-0 text-red-600 hover:bg-red-100"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+              {onToggleCollapse && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={handleCancel}
-                  className="h-8 w-8 p-0 text-red-600 hover:bg-red-100"
+                  onClick={onToggleCollapse}
+                  className="h-8 w-8 p-0 text-primary hover:bg-primary/10"
+                  title="Recolher painel de metadados"
                 >
-                  <X className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4" />
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
 

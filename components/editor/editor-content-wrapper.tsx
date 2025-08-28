@@ -77,7 +77,7 @@ const EditorContentWrapperComponent = ({
   return (
     <div
       className={cn(
-        "w-full h-full flex-1 relative cursor-text bg-transparent",
+        "w-full flex-1 relative cursor-text bg-transparent",
         "transition-all duration-300 ease-in-out",
         "hover:bg-white/20 rounded-lg",
         deviceInfo.isMobile && "text-sm leading-relaxed p-4",
@@ -97,7 +97,7 @@ const EditorContentWrapperComponent = ({
       <EditorContent
         editor={editor}
         className={cn(
-          "w-full h-full min-h-full",
+          "w-full h-full",
           "prose prose-lg max-w-none",
           "focus:outline-none",
           "[&_.ProseMirror]:min-h-full",

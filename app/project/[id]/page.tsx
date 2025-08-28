@@ -13,8 +13,9 @@ import { MobileNavigation } from "@/components/mobile/mobile-navigation";
 import { NavigationPanel } from "@/components/navigation/navigation-panel";
 import { ViewModeToolbar } from "@/components/navigation/view-mode-toolbar";
 import { CorkboardView } from "@/components/project-structure/corkboard-view";
-import { Button } from "@/components/ui/button";
+import { SplitScreenManager } from "@/components/split-screen/split-screen-manager";
 import { FullPageBookLoader } from "@/components/ui/book-loader";
+import { Button } from "@/components/ui/button";
 import { useAutoSave, useAutoSaveStatus } from "@/hooks/use-auto-save";
 import { useDeviceInfo } from "@/hooks/use-mobile";
 import {
@@ -53,6 +54,8 @@ const ProjectEditorContent = memo(function ProjectEditorContent() {
 
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isNavCollapsed, setIsNavCollapsed] = useState(false);
+  const [isMetadataCollapsed, setIsMetadataCollapsed] = useState(false);
+  const [isSplitScreenActive, setIsSplitScreenActive] = useState(false);
 
   // Memoized data with proper fallbacks
   const memoizedChapters = useMemo(() => chapters || [], [chapters]);
@@ -96,6 +99,10 @@ const ProjectEditorContent = memo(function ProjectEditorContent() {
     },
     [setSelectedItem]
   );
+
+  const handleSplitScreenToggle = useCallback(() => {
+    setIsSplitScreenActive((prev) => !prev);
+  }, []);
 
   const { selectedItem, viewMode } = state;
   const currentScene = getCurrentScene();
@@ -228,6 +235,10 @@ const ProjectEditorContent = memo(function ProjectEditorContent() {
         autoSaveStatus={autoSaveStatus}
         isNavCollapsed={isNavCollapsed}
         toggleNavigation={toggleNavigation}
+        isMetadataCollapsed={isMetadataCollapsed}
+        setIsMetadataCollapsed={setIsMetadataCollapsed}
+        isSplitScreenActive={isSplitScreenActive}
+        handleSplitScreenToggle={handleSplitScreenToggle}
       />
     </FocusModeManager>
   );
@@ -271,6 +282,10 @@ const ProjectEditorInner = memo(function ProjectEditorInner({
   autoSaveStatus,
   isNavCollapsed,
   toggleNavigation,
+  isMetadataCollapsed,
+  setIsMetadataCollapsed,
+  isSplitScreenActive,
+  handleSplitScreenToggle,
 }: any) {
   const { isFocusMode, exitFocusMode, toggleFocusMode } = useFocusMode();
 
@@ -380,75 +395,93 @@ const ProjectEditorInner = memo(function ProjectEditorInner({
             viewMode={viewMode}
             onViewModeChange={(mode) => setViewMode(mode as ViewMode)}
             projectTitle={project?.title}
+            isSplitScreenActive={isSplitScreenActive}
+            onSplitScreenToggle={handleSplitScreenToggle}
           />
         )}
 
         {/* Content based on view mode */}
         <div className="flex-1 flex overflow-hidden min-h-0">
-          <div className="flex-1 overflow-hidden min-w-0">
-            {viewMode === "writing" ? (
-              selectedItem?.type === "scene" && currentScene ? (
-                <div className="h-full flex flex-col">
-                  {/* Scene Header with Auto-save status and New Scene button */}
-                  <SceneHeader
-                    sceneTitle={currentScene.title}
-                    autoSaveStatus={autoSaveStatus}
-                    onNewScene={() => {
-                      const chapterId = currentScene.chapter_id;
-                      if (chapterId) {
-                        handleAddScene(chapterId);
-                      }
-                    }}
-                  />
-                  <TiptapEditor
-                    content={currentScene.content || {}}
-                    onChange={handleEditorChange}
-                    placeholder="Comece a escrever sua cena..."
-                    className="flex-1 border-0"
-                    characters={memoizedCharacters}
-                    locations={[]}
-                  />
+          {isSplitScreenActive ? (
+            <SplitScreenManager
+              isActive={isSplitScreenActive}
+              currentScene={currentScene}
+              characters={memoizedCharacters}
+              locations={[]}
+              scenes={memoizedScenes}
+              onSceneChange={handleEditorChange}
+              onCreateScene={handleAddScene}
+              onCreateCharacter={handleAddCharacter}
+              onClose={() => setIsSplitScreenActive(false)}
+            />
+          ) : (
+            <div className="flex-1 overflow-hidden min-w-0">
+              {viewMode === "writing" ? (
+                selectedItem?.type === "scene" && currentScene ? (
+                  <div className="h-full flex flex-col">
+                    {/* Scene Header with Auto-save status and New Scene button */}
+                    <SceneHeader
+                      sceneTitle={currentScene.title}
+                      autoSaveStatus={autoSaveStatus}
+                      onNewScene={() => {
+                        const chapterId = currentScene.chapter_id;
+                        if (chapterId) {
+                          handleAddScene(chapterId);
+                        }
+                      }}
+                    />
+                    <TiptapEditor
+                      content={currentScene.content || {}}
+                      onChange={handleEditorChange}
+                      placeholder="Comece a escrever sua cena..."
+                      className="flex-1 border-0"
+                      characters={memoizedCharacters}
+                      locations={[]}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex h-full items-center justify-center">
+                    <div className="text-center text-muted-foreground">
+                      <FileText className="h-12 w-12 mx-auto mb-4" />
+                      <p>Selecione uma cena para começar a escrever</p>
+                    </div>
+                  </div>
+                )
+              ) : viewMode === "corkboard" ? (
+                <CorkboardView
+                  chapters={memoizedChapters}
+                  scenes={memoizedScenes}
+                  selectedChapterId={
+                    selectedItem?.type === "chapter"
+                      ? selectedItem.id
+                      : undefined
+                  }
+                  onSceneSelect={handleSceneSelect}
+                  onSceneUpdate={updateScene}
+                  onSceneCreate={handleAddScene}
+                  onSceneDelete={async (sceneId) => {
+                    // TODO: Implement scene deletion
+                    console.log("Delete scene:", sceneId);
+                  }}
+                  className="h-full"
+                />
+              ) : viewMode === "outliner" ? (
+                <div className="flex h-full items-center justify-center">
+                  <div className="text-center text-muted-foreground">
+                    <List className="h-12 w-12 mx-auto mb-4" />
+                    <p>Modo Estrutura em desenvolvimento</p>
+                  </div>
                 </div>
               ) : (
                 <div className="flex h-full items-center justify-center">
                   <div className="text-center text-muted-foreground">
-                    <FileText className="h-12 w-12 mx-auto mb-4" />
-                    <p>Selecione uma cena para começar a escrever</p>
+                    <Grid3X3 className="h-12 w-12 mx-auto mb-4" />
+                    <p>Selecione um modo de visualização</p>
                   </div>
                 </div>
-              )
-            ) : viewMode === "corkboard" ? (
-              <CorkboardView
-                chapters={memoizedChapters}
-                scenes={memoizedScenes}
-                selectedChapterId={
-                  selectedItem?.type === "chapter" ? selectedItem.id : undefined
-                }
-                onSceneSelect={handleSceneSelect}
-                onSceneUpdate={updateScene}
-                onSceneCreate={handleAddScene}
-                onSceneDelete={async (sceneId) => {
-                  // TODO: Implement scene deletion
-                  console.log("Delete scene:", sceneId);
-                }}
-                className="h-full"
-              />
-            ) : viewMode === "outliner" ? (
-              <div className="flex h-full items-center justify-center">
-                <div className="text-center text-muted-foreground">
-                  <List className="h-12 w-12 mx-auto mb-4" />
-                  <p>Modo Estrutura em desenvolvimento</p>
-                </div>
-              </div>
-            ) : (
-              <div className="flex h-full items-center justify-center">
-                <div className="text-center text-muted-foreground">
-                  <Grid3X3 className="h-12 w-12 mx-auto mb-4" />
-                  <p>Selecione um modo de visualização</p>
-                </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
           {/* Metadata Panel */}
           {(selectedItem?.type === "character" ||
@@ -469,7 +502,17 @@ const ProjectEditorInner = memo(function ProjectEditorInner({
                   await updateChapter(id, data);
                 }
               }}
-              className={`${deviceInfo.isMacbook ? "w-64" : "w-80"}`}
+              isCollapsed={isMetadataCollapsed}
+              onToggleCollapse={() =>
+                setIsMetadataCollapsed(!isMetadataCollapsed)
+              }
+              className={`transition-all duration-300 ${
+                isMetadataCollapsed
+                  ? "w-12"
+                  : deviceInfo.isMacbook
+                    ? "w-64"
+                    : "w-80"
+              }`}
             />
           )}
         </div>

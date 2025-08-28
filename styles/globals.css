@@ -121,3 +121,38 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* TipTap Editor Selection Styles */
+.ProseMirror {
+  outline: none;
+}
+
+.ProseMirror ::selection {
+  background: oklch(0.75 0.15 200 / 0.3);
+  color: inherit;
+}
+
+.ProseMirror ::-moz-selection {
+  background: oklch(0.75 0.15 200 / 0.3);
+  color: inherit;
+}
+
+/* Dark mode selection */
+.dark .ProseMirror ::selection {
+  background: oklch(0.6 0.2 220 / 0.4);
+  color: inherit;
+}
+
+.dark .ProseMirror ::-moz-selection {
+  background: oklch(0.6 0.2 220 / 0.4);
+  color: inherit;
+}
+
+/* Enhanced selection visibility for focused editor */
+.ProseMirror.ProseMirror-focused ::selection {
+  background: oklch(0.7 0.2 210 / 0.4);
+}
+
+.dark .ProseMirror.ProseMirror-focused ::selection {
+  background: oklch(0.55 0.25 230 / 0.5);
+}
