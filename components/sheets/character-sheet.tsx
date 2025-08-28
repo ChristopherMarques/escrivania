@@ -1,18 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { TiptapEditor } from "@/components/editor/tiptap-editor";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
   CardContent,
@@ -20,9 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { TiptapEditor } from "@/components/editor/tiptap-editor";
 import {
   Dialog,
   DialogContent,
@@ -31,19 +19,31 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import type { ICharacter } from "@/lib/types";
+import {
+  Crown,
+  Heart,
+  Plus,
+  Shield,
+  Sword,
+  Target,
+  Trash2,
+  UserMinus,
   Users,
   Wand2,
-  Plus,
-  Trash2,
-  Heart,
-  Sword,
-  Crown,
-  Shield,
-  Target,
-  UserMinus,
 } from "lucide-react";
-import type { ICharacter } from "@/lib/types";
+import { useState } from "react";
 
 interface CharacterSheetProps {
   character: ICharacter;
@@ -526,7 +526,7 @@ export function CharacterSheet({
         open={isAddRelationshipOpen}
         onOpenChange={setIsAddRelationshipOpen}
       >
-        <DialogContent className="sm:max-w-[425px] bg-white/90 backdrop-blur-xl border-white/20">
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Adicionar Relacionamento</DialogTitle>
             <DialogDescription>

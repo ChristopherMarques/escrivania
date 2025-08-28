@@ -1,5 +1,7 @@
 "use client";
 
+import { CharacterCreationModal } from "@/components/modals/character-creation-modal";
+import { LocationCreationModal } from "@/components/modals/location-creation-modal";
 import { SceneHeader } from "@/components/editor/scene-header";
 import { TiptapEditor } from "@/components/editor/tiptap-editor";
 import {
@@ -37,6 +39,7 @@ const ProjectEditorContent = memo(function ProjectEditorContent() {
     chapters,
     scenes,
     characters,
+    locations,
     isLoadingProject,
     projectError,
     getCurrentScene,
@@ -46,9 +49,11 @@ const ProjectEditorContent = memo(function ProjectEditorContent() {
     createChapter,
     createScene,
     createCharacter,
+    createLocation,
     updateScene,
     updateCharacter,
     updateChapter,
+    updateLocation,
   } = useIntegratedProject();
   const deviceInfo = useDeviceInfo();
 
@@ -56,11 +61,14 @@ const ProjectEditorContent = memo(function ProjectEditorContent() {
   const [isNavCollapsed, setIsNavCollapsed] = useState(false);
   const [isMetadataCollapsed, setIsMetadataCollapsed] = useState(false);
   const [isSplitScreenActive, setIsSplitScreenActive] = useState(false);
+  const [isCharacterModalOpen, setIsCharacterModalOpen] = useState(false);
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
 
   // Memoized data with proper fallbacks
   const memoizedChapters = useMemo(() => chapters || [], [chapters]);
   const memoizedScenes = useMemo(() => scenes || [], [scenes]);
   const memoizedCharacters = useMemo(() => characters || [], [characters]);
+  const memoizedLocations = useMemo(() => locations || [], [locations]);
 
   // Memoized handlers
   const handleItemSelect = useCallback(
@@ -85,9 +93,13 @@ const ProjectEditorContent = memo(function ProjectEditorContent() {
     [createScene]
   );
 
-  const handleAddCharacter = useCallback(async () => {
-    await createCharacter("Novo Personagem");
-  }, [createCharacter]);
+  const handleAddCharacter = useCallback(() => {
+    setIsCharacterModalOpen(true);
+  }, []);
+
+  const handleAddLocation = useCallback(() => {
+    setIsLocationModalOpen(true);
+  }, []);
 
   const toggleNavigation = useCallback(() => {
     setIsNavCollapsed((prev) => !prev);
@@ -218,17 +230,19 @@ const ProjectEditorContent = memo(function ProjectEditorContent() {
         updateCharacter={updateCharacter}
         updateChapter={updateChapter}
         deviceInfo={deviceInfo}
-        viewMode={viewMode}
-        selectedItem={selectedItem}
+        viewMode={state.viewMode}
+        selectedItem={state.selectedItem}
         currentScene={currentScene}
         handleEditorChange={handleEditorChange}
         memoizedChapters={memoizedChapters}
         memoizedScenes={memoizedScenes}
         memoizedCharacters={memoizedCharacters}
+        memoizedLocations={memoizedLocations}
         handleItemSelect={handleItemSelect}
         handleAddChapter={handleAddChapter}
         handleAddScene={handleAddScene}
         handleAddCharacter={handleAddCharacter}
+        handleAddLocation={handleAddLocation}
         isMobileNavOpen={isMobileNavOpen}
         setIsMobileNavOpen={setIsMobileNavOpen}
         handleSceneSelect={handleSceneSelect}
@@ -239,6 +253,10 @@ const ProjectEditorContent = memo(function ProjectEditorContent() {
         setIsMetadataCollapsed={setIsMetadataCollapsed}
         isSplitScreenActive={isSplitScreenActive}
         handleSplitScreenToggle={handleSplitScreenToggle}
+        isCharacterModalOpen={isCharacterModalOpen}
+        setIsCharacterModalOpen={setIsCharacterModalOpen}
+        isLocationModalOpen={isLocationModalOpen}
+        setIsLocationModalOpen={setIsLocationModalOpen}
       />
     </FocusModeManager>
   );
@@ -272,10 +290,12 @@ const ProjectEditorInner = memo(function ProjectEditorInner({
   memoizedChapters,
   memoizedScenes,
   memoizedCharacters,
+  memoizedLocations,
   handleItemSelect,
   handleAddChapter,
   handleAddScene,
   handleAddCharacter,
+  handleAddLocation,
   isMobileNavOpen,
   setIsMobileNavOpen,
   handleSceneSelect,
@@ -286,6 +306,10 @@ const ProjectEditorInner = memo(function ProjectEditorInner({
   setIsMetadataCollapsed,
   isSplitScreenActive,
   handleSplitScreenToggle,
+  isCharacterModalOpen,
+  setIsCharacterModalOpen,
+  isLocationModalOpen,
+  setIsLocationModalOpen,
 }: any) {
   const { isFocusMode, exitFocusMode, toggleFocusMode } = useFocusMode();
 
@@ -315,12 +339,13 @@ const ProjectEditorInner = memo(function ProjectEditorInner({
           chapters={memoizedChapters}
           scenes={memoizedScenes}
           characters={memoizedCharacters}
+          locations={memoizedLocations}
           selectedItem={selectedItem}
           onItemSelect={handleItemSelect}
           onAddChapter={handleAddChapter}
           onAddScene={handleAddScene}
           onAddCharacter={handleAddCharacter}
-          onAddLocation={() => {}}
+          onAddLocation={handleAddLocation}
           expandedChapters={state.expandedChapters}
           onToggleChapter={toggleChapter}
         />
@@ -340,12 +365,13 @@ const ProjectEditorInner = memo(function ProjectEditorInner({
               chapters={memoizedChapters}
               scenes={memoizedScenes}
               characters={memoizedCharacters}
+              locations={memoizedLocations}
               selectedItem={selectedItem}
               onItemSelect={handleItemSelect}
               onAddChapter={handleAddChapter}
               onAddScene={handleAddScene}
               onAddCharacter={handleAddCharacter}
-              onAddLocation={() => {}}
+              onAddLocation={handleAddLocation}
               expandedChapters={state.expandedChapters}
               onToggleChapter={toggleChapter}
             />
@@ -486,12 +512,14 @@ const ProjectEditorInner = memo(function ProjectEditorInner({
           {/* Metadata Panel */}
           {(selectedItem?.type === "character" ||
             selectedItem?.type === "scene" ||
-            selectedItem?.type === "chapter") && (
+            selectedItem?.type === "chapter" ||
+            selectedItem?.type === "location") && (
             <MetadataPanel
               project={project}
               chapters={memoizedChapters}
               scenes={memoizedScenes}
               characters={memoizedCharacters}
+              locations={memoizedLocations}
               selectedItem={selectedItem}
               onUpdateItem={async (type: string, id: string, data: any) => {
                 if (type === "character") {
@@ -500,6 +528,8 @@ const ProjectEditorInner = memo(function ProjectEditorInner({
                   await updateScene(id, data);
                 } else if (type === "chapter") {
                   await updateChapter(id, data);
+                } else if (type === "location") {
+                  await updateLocation(id, data);
                 }
               }}
               isCollapsed={isMetadataCollapsed}
@@ -528,6 +558,18 @@ const ProjectEditorInner = memo(function ProjectEditorInner({
           showWritingActions={viewMode === "writing" && !!currentScene}
         />
       )}
+
+      {/* Character Creation Modal */}
+      <CharacterCreationModal
+        isOpen={isCharacterModalOpen}
+        onClose={() => setIsCharacterModalOpen(false)}
+      />
+
+      {/* Location Creation Modal */}
+      <LocationCreationModal
+        isOpen={isLocationModalOpen}
+        onClose={() => setIsLocationModalOpen(false)}
+      />
     </div>
   );
 });

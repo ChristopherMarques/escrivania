@@ -48,6 +48,14 @@ CREATE TABLE IF NOT EXISTS characters (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name VARCHAR(255) NOT NULL,
   description TEXT,
+  role VARCHAR(255),
+  avatar_url TEXT,
+  archetype VARCHAR(255),
+  motivation JSONB DEFAULT '{}',
+  conflict TEXT,
+  appearance JSONB DEFAULT '{}',
+  biography TEXT,
+  relationships JSONB DEFAULT '[]',
   project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -63,6 +71,19 @@ CREATE TABLE IF NOT EXISTS synopses (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Locations table
+CREATE TABLE IF NOT EXISTS locations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  location_type VARCHAR(100), -- e.g., 'cidade', 'casa', 'floresta', 'escola', etc.
+  atmosphere TEXT, -- descrição do ambiente/atmosfera
+  important_details TEXT, -- detalhes importantes para a história
+  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_projects_user_id ON projects(user_id);
 CREATE INDEX IF NOT EXISTS idx_chapters_project_id ON chapters(project_id);
@@ -70,7 +91,14 @@ CREATE INDEX IF NOT EXISTS idx_chapters_order ON chapters(project_id, order_inde
 CREATE INDEX IF NOT EXISTS idx_scenes_chapter_id ON scenes(chapter_id);
 CREATE INDEX IF NOT EXISTS idx_scenes_order ON scenes(chapter_id, order_index);
 CREATE INDEX IF NOT EXISTS idx_characters_project_id ON characters(project_id);
+CREATE INDEX IF NOT EXISTS idx_characters_role ON characters(role);
+CREATE INDEX IF NOT EXISTS idx_characters_archetype ON characters(archetype);
+CREATE INDEX IF NOT EXISTS idx_characters_motivation ON characters USING GIN (motivation);
+CREATE INDEX IF NOT EXISTS idx_characters_appearance ON characters USING GIN (appearance);
+CREATE INDEX IF NOT EXISTS idx_characters_relationships ON characters USING GIN (relationships);
 CREATE INDEX IF NOT EXISTS idx_synopses_project_id ON synopses(project_id);
+CREATE INDEX IF NOT EXISTS idx_locations_project_id ON locations(project_id);
+CREATE INDEX IF NOT EXISTS idx_locations_type ON locations(project_id, location_type);
 
 -- Enable Row Level Security (RLS)
 -- Temporariamente desabilitando RLS para users até integrar Better Auth com Supabase
@@ -81,6 +109,7 @@ ALTER TABLE chapters ENABLE ROW LEVEL SECURITY;
 ALTER TABLE scenes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE characters ENABLE ROW LEVEL SECURITY;
 ALTER TABLE synopses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE locations ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for users (temporariamente comentadas)
 -- CREATE POLICY "Users can view own profile" ON users
@@ -281,3 +310,53 @@ CREATE TRIGGER update_characters_updated_at BEFORE UPDATE ON characters
 
 CREATE TRIGGER update_synopses_updated_at BEFORE UPDATE ON synopses
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_locations_updated_at BEFORE UPDATE ON locations
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- RLS Policies for locations
+CREATE POLICY "Users can view locations from own projects" ON locations
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM projects 
+      WHERE projects.id = locations.project_id 
+      AND projects.user_id = auth.uid()::text
+    )
+  );
+
+CREATE POLICY "Users can insert locations in own projects" ON locations
+  FOR INSERT WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM projects 
+      WHERE projects.id = locations.project_id 
+      AND projects.user_id = auth.uid()::text
+    )
+  );
+
+CREATE POLICY "Users can update locations in own projects" ON locations
+  FOR UPDATE USING (
+    EXISTS (
+      SELECT 1 FROM projects 
+      WHERE projects.id = locations.project_id 
+      AND projects.user_id = auth.uid()::text
+    )
+  );
+
+CREATE POLICY "Users can delete locations from own projects" ON locations
+  FOR DELETE USING (
+    EXISTS (
+      SELECT 1 FROM projects 
+      WHERE projects.id = locations.project_id 
+      AND projects.user_id = auth.uid()::text
+    )
+  );
+
+-- Table comments and field documentation
+COMMENT ON COLUMN characters.role IS 'Character role in the story (e.g., protagonist, antagonist, supporting)';
+COMMENT ON COLUMN characters.avatar_url IS 'URL for character portrait/avatar image';
+COMMENT ON COLUMN characters.archetype IS 'Character archetype (e.g., Hero, Mentor, Shadow)';
+COMMENT ON COLUMN characters.motivation IS 'Character motivations as JSON object with internal and external fields';
+COMMENT ON COLUMN characters.conflict IS 'Main conflict or challenge the character faces';
+COMMENT ON COLUMN characters.appearance IS 'Character appearance details as JSON object with physical, clothing, and mannerisms fields';
+COMMENT ON COLUMN characters.biography IS 'Character background and biography';
+COMMENT ON COLUMN characters.relationships IS 'Character relationships as JSON array of objects with characterId, type, and description';

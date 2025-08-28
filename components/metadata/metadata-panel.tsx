@@ -30,6 +30,7 @@ type SelectedData =
   | Tables<"chapters">
   | SceneWithChapter
   | Tables<"characters">
+  | any
   | null;
 
 interface MetadataPanelProps {
@@ -37,11 +38,14 @@ interface MetadataPanelProps {
   chapters: Tables<"chapters">[] | undefined;
   scenes: Tables<"scenes">[] | undefined;
   characters: Tables<"characters">[] | undefined;
+  locations?: any[] | undefined;
   selectedItem: { type: string; id: string } | null;
   onUpdateItem?: (
     type: string,
     id: string,
-    data: Partial<Tables<"chapters"> | Tables<"scenes"> | Tables<"characters">>
+    data: Partial<
+      Tables<"chapters"> | Tables<"scenes"> | Tables<"characters"> | any
+    >
   ) => void;
   className?: string;
   isCollapsed?: boolean;
@@ -53,6 +57,7 @@ export const MetadataPanel = memo(function MetadataPanel({
   chapters = [],
   scenes = [],
   characters = [],
+  locations = [],
   selectedItem,
   onUpdateItem,
   className,
@@ -81,12 +86,11 @@ export const MetadataPanel = memo(function MetadataPanel({
       case "character":
         return characters.find((ch) => ch.id === id) || null;
       case "location":
-        // Locations will be implemented later
-        return null;
+        return locations.find((loc) => loc.id === id) || null;
       default:
         return null;
     }
-  }, [selectedItem, chapters, scenes, characters]);
+  }, [selectedItem, chapters, scenes, characters, locations]);
 
   const handleEdit = useCallback(() => {
     if (selectedData) {
@@ -445,7 +449,16 @@ export const MetadataPanel = memo(function MetadataPanel({
               </Card>
             )}
 
-            {/* Location removido - tabela não existe no schema do Supabase */}
+            {selectedItem.type === "location" && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm">Detalhes do Local</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {/* Campos específicos para locais podem ser adicionados aqui */}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Tags/Status removidos - propriedades não existem no schema do Supabase */}
           </div>

@@ -324,7 +324,7 @@ export function LocationSheet({
 
       {/* Add Pin Dialog */}
       <Dialog open={isAddPinOpen} onOpenChange={setIsAddPinOpen}>
-        <DialogContent className="sm:max-w-[425px] bg-white/90 backdrop-blur-xl border-white/20">
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Adicionar Marcador</DialogTitle>
             <DialogDescription>
