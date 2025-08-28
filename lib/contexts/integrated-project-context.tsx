@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/contexts/AuthContext";
 import {
   useChapters,
   useCreateChapter,
@@ -13,6 +14,13 @@ import {
   useDeleteCharacter,
   useUpdateCharacter,
 } from "@/hooks/use-characters";
+import {
+  useCreateLocation,
+  useDeleteLocation,
+  useLocations,
+  useUpdateLocation,
+  type Location,
+} from "@/hooks/use-locations";
 import { useProject } from "@/hooks/use-projects";
 import {
   useCreateScene,
@@ -27,15 +35,14 @@ import {
   useSynopses,
   useUpdateSynopsis,
 } from "@/hooks/use-synopses";
-import { useAuth } from "@/contexts/AuthContext";
 import type { Tables } from "@/lib/supabase";
 import type React from "react";
 import {
   createContext,
-  useContext,
-  useState,
-  useMemo,
   useCallback,
+  useContext,
+  useMemo,
+  useState,
 } from "react";
 import type { ISelectedItem, ViewMode } from "../types";
 
@@ -49,12 +56,13 @@ interface IntegratedProjectContextType {
   // State
   state: IntegratedProjectState;
 
-  // Data from React Query
+  // Data
   project: Tables<"projects"> | undefined;
   chapters: Tables<"chapters">[] | undefined;
   scenes: Tables<"scenes">[] | undefined;
   characters: Tables<"characters">[] | undefined;
   synopses: Tables<"synopses">[] | undefined;
+  locations: Location[] | undefined;
 
   // Loading states
   isLoadingProject: boolean;
@@ -62,14 +70,16 @@ interface IntegratedProjectContextType {
   isLoadingScenes: boolean;
   isLoadingCharacters: boolean;
   isLoadingSynopses: boolean;
+  isLoadingLocations: boolean;
 
   // Error states
   projectError: Error | null;
 
-  // Current items (memoized)
+  // Current item getters
   getCurrentScene: () => Tables<"scenes"> | undefined;
   getCurrentCharacter: () => Tables<"characters"> | undefined;
   getCurrentChapter: () => Tables<"chapters"> | undefined;
+  getCurrentLocation: () => Location | undefined;
 
   // Actions (memoized)
   setSelectedItem: (item: ISelectedItem) => void;
@@ -115,6 +125,17 @@ interface IntegratedProjectContextType {
     data: Partial<Tables<"synopses">>
   ) => Promise<void>;
   deleteSynopsis: (id: string) => Promise<void>;
+
+  // Location CRUD operations
+  createLocation: (
+    name: string,
+    description?: string,
+    locationType?: string,
+    atmosphere?: string,
+    importantDetails?: string
+  ) => Promise<void>;
+  updateLocation: (id: string, data: Partial<Location>) => Promise<void>;
+  deleteLocation: (id: string) => Promise<void>;
 }
 
 const IntegratedProjectContext = createContext<
@@ -164,6 +185,11 @@ export function IntegratedProjectProvider({
     user?.id || ""
   );
 
+  const { data: locations = [], isLoading: isLoadingLocations } = useLocations(
+    projectId,
+    user?.id || ""
+  );
+
   // Mutation hooks
   const createChapterMutation = useCreateChapter();
   const updateChapterMutation = useUpdateChapter();
@@ -183,6 +209,10 @@ export function IntegratedProjectProvider({
   const updateSynopsisMutation = useUpdateSynopsis();
   const deleteSynopsisMutation = useDeleteSynopsis();
 
+  const createLocationMutation = useCreateLocation();
+  const updateLocationMutation = useUpdateLocation();
+  const deleteLocationMutation = useDeleteLocation();
+
   // Memoized current item getters
   const getCurrentScene = useCallback(() => {
     if (state.selectedItem?.type !== "scene" || !scenes) return undefined;
@@ -201,6 +231,11 @@ export function IntegratedProjectProvider({
     if (state.selectedItem?.type !== "chapter" || !chapters) return undefined;
     return chapters.find((chapter) => chapter.id === state.selectedItem?.id);
   }, [state.selectedItem, chapters]);
+
+  const getCurrentLocation = useCallback(() => {
+    if (state.selectedItem?.type !== "location" || !locations) return undefined;
+    return locations.find((location) => location.id === state.selectedItem?.id);
+  }, [state.selectedItem, locations]);
 
   // Memoized state actions
   const setSelectedItem = useCallback((item: ISelectedItem) => {
@@ -377,6 +412,52 @@ export function IntegratedProjectProvider({
     [user?.id, deleteSynopsisMutation]
   );
 
+  // Location CRUD operations
+  const createLocation = useCallback(
+    async (
+      name: string,
+      description?: string,
+      locationType?: string,
+      atmosphere?: string,
+      importantDetails?: string
+    ) => {
+      if (!user?.id) return;
+      await createLocationMutation.mutateAsync({
+        name,
+        description,
+        locationType,
+        atmosphere,
+        importantDetails,
+        projectId,
+        userId: user.id,
+      });
+    },
+    [user?.id, projectId, createLocationMutation]
+  );
+
+  const updateLocation = useCallback(
+    async (id: string, data: Partial<Location>) => {
+      if (!user?.id) return;
+      await updateLocationMutation.mutateAsync({
+        locationId: id,
+        locationData: { ...data, userId: user.id },
+      });
+    },
+    [user?.id, updateLocationMutation]
+  );
+
+  const deleteLocation = useCallback(
+    async (id: string) => {
+      if (!user?.id) return;
+      await deleteLocationMutation.mutateAsync({
+        locationId: id,
+        userId: user.id,
+        projectId,
+      });
+    },
+    [user?.id, projectId, deleteLocationMutation]
+  );
+
   // Memoized context value to prevent unnecessary re-renders
   const contextValue = useMemo(
     () => ({
@@ -386,15 +467,18 @@ export function IntegratedProjectProvider({
       scenes,
       characters,
       synopses,
+      locations,
       isLoadingProject,
       isLoadingChapters,
       isLoadingScenes,
       isLoadingCharacters,
       isLoadingSynopses,
+      isLoadingLocations,
       projectError,
       getCurrentScene,
       getCurrentCharacter,
       getCurrentChapter,
+      getCurrentLocation,
       setSelectedItem,
       setViewMode,
       toggleChapter,
@@ -412,6 +496,9 @@ export function IntegratedProjectProvider({
       createSynopsis,
       updateSynopsis,
       deleteSynopsis,
+      createLocation,
+      updateLocation,
+      deleteLocation,
     }),
     [
       state,
@@ -420,15 +507,18 @@ export function IntegratedProjectProvider({
       scenes,
       characters,
       synopses,
+      locations,
       isLoadingProject,
       isLoadingChapters,
       isLoadingScenes,
       isLoadingCharacters,
       isLoadingSynopses,
+      isLoadingLocations,
       projectError,
       getCurrentScene,
       getCurrentCharacter,
       getCurrentChapter,
+      getCurrentLocation,
       setSelectedItem,
       setViewMode,
       toggleChapter,
@@ -446,6 +536,9 @@ export function IntegratedProjectProvider({
       createSynopsis,
       updateSynopsis,
       deleteSynopsis,
+      createLocation,
+      updateLocation,
+      deleteLocation,
     ]
   );
 

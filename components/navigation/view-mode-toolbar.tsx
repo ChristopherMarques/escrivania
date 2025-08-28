@@ -47,7 +47,6 @@ const VIEW_MODE_OPTIONS = [
 export function ViewModeToolbar({
   viewMode,
   onViewModeChange,
-  projectTitle,
   className,
   isSplitScreenActive = false,
   onSplitScreenToggle,
@@ -78,18 +77,6 @@ export function ViewModeToolbar({
           Voltar
         </Button>
       </div>
-
-      {/* Center Section - Project Title */}
-      {projectTitle && (
-        <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-          <div className="flex items-center space-x-2 bg-background border border-border px-4 py-2 rounded-full shadow-sm">
-            <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-            <h1 className="text-base font-semibold text-primary truncate max-w-md">
-              {projectTitle}
-            </h1>
-          </div>
-        </div>
-      )}
 
       {/* Right Section - View Mode Toggles */}
       <div className="flex items-center space-x-1 bg-background rounded-lg p-1 border border-border shadow-sm relative z-10">

@@ -1,5 +1,7 @@
 "use client";
 
+import { CharacterCreationModal } from "@/components/modals/character-creation-modal";
+import { LocationCreationModal } from "@/components/modals/location-creation-modal";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,6 +14,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useProject } from "@/contexts/ProjectContext";
+import { useIntegratedProject } from "@/lib/contexts/integrated-project-context";
 import { cn } from "@/lib/utils";
 import {
   Book,
@@ -23,6 +26,7 @@ import {
   Folder,
   FolderOpen,
   Home,
+  MapPin,
   Plus,
   Settings,
   User,
@@ -36,10 +40,13 @@ interface ProjectSidebarProps {
 
 export function ProjectSidebar({ className, onNavigate }: ProjectSidebarProps) {
   const { state, setCurrentProject } = useProject();
+  const { locations } = useIntegratedProject();
   const [expandedChapters, setExpandedChapters] = useState<Set<string>>(
     new Set()
   );
   const [activeSection, setActiveSection] = useState<string>("dashboard");
+  const [isCharacterModalOpen, setIsCharacterModalOpen] = useState(false);
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
 
   const currentProject = state.currentProject;
   const projectChapters = currentProject
@@ -47,6 +54,9 @@ export function ProjectSidebar({ className, onNavigate }: ProjectSidebarProps) {
     : [];
   const projectCharacters = currentProject
     ? state.characters.filter((c) => c.project_id === currentProject.id)
+    : [];
+  const projectLocations = currentProject
+    ? locations.filter((l) => l.projectId === currentProject.id)
     : [];
   const projectSynopses = currentProject
     ? state.synopses.filter((s) => s.project_id === currentProject.id)
@@ -135,11 +145,18 @@ export function ProjectSidebar({ className, onNavigate }: ProjectSidebarProps) {
                       Capítulo
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => handleNavigation("create-character")}
+                      onClick={() => setIsCharacterModalOpen(true)}
                       className="cursor-pointer"
                     >
                       <User className="mr-2 h-3 w-3 text-blue-500" />
                       Personagem
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setIsLocationModalOpen(true)}
+                      className="cursor-pointer"
+                    >
+                      <MapPin className="mr-2 h-3 w-3 text-purple-500" />
+                      Local
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleNavigation("create-synopsis")}
@@ -318,6 +335,50 @@ export function ProjectSidebar({ className, onNavigate }: ProjectSidebarProps) {
 
           <Separator className="mb-4" />
 
+          {/* Locais */}
+          <div className="mb-4">
+            <div className="flex items-center mb-2">
+              <MapPin className="h-3 w-3 mr-1 text-muted-foreground" />
+              <h4 className="text-sm font-medium text-muted-foreground">
+                Locais
+              </h4>
+            </div>
+
+            <div className="space-y-1">
+              {projectLocations.length === 0 ? (
+                <div className="text-xs text-muted-foreground px-2 py-1">
+                  Nenhum local criado
+                </div>
+              ) : (
+                projectLocations.slice(0, 5).map((location) => (
+                  <Button
+                    key={location.id}
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start px-2 h-8 text-xs"
+                    onClick={() => handleNavigation("location", location.id)}
+                  >
+                    <MapPin className="mr-2 h-3 w-3 text-purple-500" />
+                    <span className="truncate">{location.name}</span>
+                  </Button>
+                ))
+              )}
+
+              {projectLocations.length > 5 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start px-2 h-8 text-xs"
+                  onClick={() => handleNavigation("locations")}
+                >
+                  Ver todos ({projectLocations.length})
+                </Button>
+              )}
+            </div>
+          </div>
+
+          <Separator className="mb-4" />
+
           {/* Sinopses */}
           <div className="mb-4">
             <div className="flex items-center mb-2">
@@ -350,6 +411,25 @@ export function ProjectSidebar({ className, onNavigate }: ProjectSidebarProps) {
           </div>
         </div>
       </ScrollArea>
+
+      {/* Modais de Criação */}
+      <CharacterCreationModal
+        isOpen={isCharacterModalOpen}
+        onClose={() => setIsCharacterModalOpen(false)}
+        onSuccess={(character) => {
+          // Opcional: navegar para o personagem criado
+          handleNavigation("character", character.id);
+        }}
+      />
+
+      <LocationCreationModal
+        isOpen={isLocationModalOpen}
+        onClose={() => setIsLocationModalOpen(false)}
+        onSuccess={(location) => {
+          // Opcional: navegar para o local criado
+          handleNavigation("location", location.id);
+        }}
+      />
     </div>
   );
 }

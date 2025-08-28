@@ -38,6 +38,7 @@ interface NavigationPanelProps {
   chapters: Tables<"chapters">[] | undefined;
   scenes: Tables<"scenes">[] | undefined;
   characters: Tables<"characters">[] | undefined;
+  locations?: any[] | undefined;
   selectedItem: { type: string; id: string } | null;
   onItemSelect: (item: { type: string; id: string }) => void;
   onAddChapter: () => void;
@@ -54,6 +55,7 @@ export const NavigationPanel = memo(function NavigationPanel({
   chapters = [],
   scenes = [],
   characters = [],
+  locations = [],
   selectedItem,
   onItemSelect,
   onAddChapter,
@@ -80,6 +82,11 @@ export const NavigationPanel = memo(function NavigationPanel({
   const sortedCharacters = useMemo(
     () => characters.sort((a, b) => a.name.localeCompare(b.name)),
     [characters]
+  );
+
+  const sortedLocations = useMemo(
+    () => locations.sort((a, b) => a.name.localeCompare(b.name)),
+    [locations]
   );
 
   const scenesByChapter = useMemo(() => {
@@ -301,21 +308,33 @@ export const NavigationPanel = memo(function NavigationPanel({
                   <MapPin className="h-4 w-4 mr-2 text-primary" />
                   <h3 className="text-md font-semibold text-primary">Locais</h3>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onAddLocation}
-                  className="h-6 w-6 p-0 border border-primary/20 text-primary hover:bg-primary/10 hover:border-primary/40 transition-all duration-200"
-                >
-                  <Plus className="h-3 w-3 text-primary" />
-                </Button>
               </div>
 
               <div className="space-y-1">
-                {/* Locations will be implemented later */}
-                <div className="text-sm text-gray-500 italic px-2">
-                  Em breve...
-                </div>
+                {sortedLocations.map((location) => (
+                  <Button
+                    key={location.id}
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      "w-full justify-start h-8 px-2 text-sm transition-all duration-200",
+                      isSelected("location", location.id)
+                        ? "bg-primary/10 text-primary border border-primary/20 shadow-sm"
+                        : "hover:bg-primary/5 border border-transparent hover:border-primary/20"
+                    )}
+                    onClick={() =>
+                      onItemSelect({ type: "location", id: location.id })
+                    }
+                  >
+                    <MapPin className="h-3 w-3 mr-2 text-primary" />
+                    <span className="truncate">{location.name}</span>
+                  </Button>
+                ))}
+                {sortedLocations.length === 0 && (
+                  <div className="text-sm text-gray-500 italic px-2">
+                    Nenhum local criado ainda
+                  </div>
+                )}
               </div>
             </div>
           </div>

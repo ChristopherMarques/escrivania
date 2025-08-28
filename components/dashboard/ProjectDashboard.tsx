@@ -1,15 +1,15 @@
 "use client";
 
 import { CreateProjectForm } from "@/components/forms/CreateProjectForm";
+import { BookLoader } from "@/components/ui/book-loader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookLoader } from "@/components/ui/book-loader";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Project } from "@/contexts/ProjectContext";
 import { useProject } from "@/contexts/ProjectContext";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { BookOpen, FileText, Plus, Sparkles } from "lucide-react";
+import { BookOpen, FileText, MapPin, Plus, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -46,16 +46,20 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
     const projectCharacters = state.characters.filter(
       (c) => c.project_id === projectId
     );
+    const projectLocations =
+      state.locations?.filter((l) => l.project_id === projectId) || [];
 
     return {
       chapters: projectChapters.length,
       scenes: projectScenes.length,
       characters: projectCharacters.length,
+      locations: projectLocations.length,
     };
   };
 
   const totalChapters = state.chapters.length;
   const totalCharacters = state.characters.length;
+  const totalLocations = state.locations?.length || 0;
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -144,7 +148,7 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
 
             {/* Statistics Cards */}
             <motion.div
-              className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
@@ -213,7 +217,7 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
                         className="p-3 gradient-bg rounded-xl"
                         whileHover={{ rotate: 10 }}
                       >
-                        <Sparkles className="h-6 w-6 text-white" />
+                        <Users className="h-6 w-6 text-white" />
                       </motion.div>
                       <div>
                         <p className="text-3xl font-bold gradient-text">
@@ -221,6 +225,32 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
                         </p>
                         <p className="text-sm text-muted-foreground font-medium">
                           Personagens
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+              <motion.div
+                whileHover={{ y: -3, scale: 1.02 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Card className="border-border/50 bg-card/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300 group relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-escrivania-purple-500/10 to-escrivania-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <CardContent className="p-6 relative z-10">
+                    <div className="flex items-center space-x-4">
+                      <motion.div
+                        className="p-3 gradient-bg rounded-xl"
+                        whileHover={{ rotate: 10 }}
+                      >
+                        <MapPin className="h-6 w-6 text-white" />
+                      </motion.div>
+                      <div>
+                        <p className="text-3xl font-bold gradient-text">
+                          {totalLocations}
+                        </p>
+                        <p className="text-sm text-muted-foreground font-medium">
+                          Locais
                         </p>
                       </div>
                     </div>
@@ -308,7 +338,7 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
                             )}
                           </CardHeader>
                           <CardContent className="space-y-4 relative z-10">
-                            <div className="flex justify-between text-sm">
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
                               <div className="text-center">
                                 <p className="font-bold text-lg gradient-text">
                                   {stats.chapters}
@@ -331,6 +361,14 @@ export function ProjectDashboard({ className }: ProjectDashboardProps) {
                                 </p>
                                 <p className="text-muted-foreground text-xs">
                                   Personagens
+                                </p>
+                              </div>
+                              <div className="text-center">
+                                <p className="font-bold text-lg gradient-text">
+                                  {stats.locations}
+                                </p>
+                                <p className="text-muted-foreground text-xs">
+                                  Locais
                                 </p>
                               </div>
                             </div>

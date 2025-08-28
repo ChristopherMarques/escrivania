@@ -1,7 +1,6 @@
 "use client";
 
 import { PageFormatSelector } from "@/components/editor/page-format-selector";
-import type { PageSize } from "@/lib/extensions/page-format";
 import { Button } from "@/components/ui/button";
 import { ColorPicker } from "@/components/ui/color-picker";
 import {
@@ -17,7 +16,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -32,6 +30,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import type { PageSize } from "@/lib/extensions/page-format";
 import { cn } from "@/lib/utils";
 import { Editor } from "@tiptap/react";
 import {
