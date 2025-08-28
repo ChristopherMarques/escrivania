@@ -451,9 +451,11 @@ export function CharacterForm({
                   </Label>
                   <Input
                     id="motivation"
-                    value={formData.motivation || ""}
+                    value={formData.motivation?.internal || ""}
                     onChange={(e) =>
-                      updateFormData({ motivation: e.target.value })
+                      updateFormData({
+                        motivation: { internal: e.target.value },
+                      })
                     }
                     placeholder="Ex: Proteger sua família"
                     className="mt-2 bg-white/70 border-gray-200 focus:border-escrivania-purple-300"
