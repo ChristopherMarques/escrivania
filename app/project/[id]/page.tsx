@@ -13,8 +13,8 @@ import { MobileNavigation } from "@/components/mobile/mobile-navigation";
 import { NavigationPanel } from "@/components/navigation/navigation-panel";
 import { ViewModeToolbar } from "@/components/navigation/view-mode-toolbar";
 import { CorkboardView } from "@/components/project-structure/corkboard-view";
-import { Button } from "@/components/ui/button";
 import { FullPageBookLoader } from "@/components/ui/book-loader";
+import { Button } from "@/components/ui/button";
 import { useAutoSave, useAutoSaveStatus } from "@/hooks/use-auto-save";
 import { useDeviceInfo } from "@/hooks/use-mobile";
 import {
@@ -53,6 +53,7 @@ const ProjectEditorContent = memo(function ProjectEditorContent() {
 
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isNavCollapsed, setIsNavCollapsed] = useState(false);
+  const [isMetadataCollapsed, setIsMetadataCollapsed] = useState(false);
 
   // Memoized data with proper fallbacks
   const memoizedChapters = useMemo(() => chapters || [], [chapters]);
@@ -228,6 +229,8 @@ const ProjectEditorContent = memo(function ProjectEditorContent() {
         autoSaveStatus={autoSaveStatus}
         isNavCollapsed={isNavCollapsed}
         toggleNavigation={toggleNavigation}
+        isMetadataCollapsed={isMetadataCollapsed}
+        setIsMetadataCollapsed={setIsMetadataCollapsed}
       />
     </FocusModeManager>
   );
@@ -271,6 +274,8 @@ const ProjectEditorInner = memo(function ProjectEditorInner({
   autoSaveStatus,
   isNavCollapsed,
   toggleNavigation,
+  isMetadataCollapsed,
+  setIsMetadataCollapsed,
 }: any) {
   const { isFocusMode, exitFocusMode, toggleFocusMode } = useFocusMode();
 
@@ -469,7 +474,17 @@ const ProjectEditorInner = memo(function ProjectEditorInner({
                   await updateChapter(id, data);
                 }
               }}
-              className={`${deviceInfo.isMacbook ? "w-64" : "w-80"}`}
+              isCollapsed={isMetadataCollapsed}
+              onToggleCollapse={() =>
+                setIsMetadataCollapsed(!isMetadataCollapsed)
+              }
+              className={`transition-all duration-300 ${
+                isMetadataCollapsed
+                  ? "w-12"
+                  : deviceInfo.isMacbook
+                    ? "w-64"
+                    : "w-80"
+              }`}
             />
           )}
         </div>

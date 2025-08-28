@@ -97,10 +97,10 @@ const EditorContentWrapperComponent = ({
       <EditorContent
         editor={editor}
         className={cn(
-          "w-full min-h-screen",
+          "w-full h-full",
           "prose prose-lg max-w-none",
           "focus:outline-none",
-          "[&_.ProseMirror]:min-h-screen",
+          "[&_.ProseMirror]:min-h-full",
           "[&_.ProseMirror]:p-0",
           "[&_.ProseMirror]:outline-none",
           "[&_.ProseMirror]:border-none",

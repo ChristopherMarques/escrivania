@@ -75,8 +75,8 @@ export function WriterToolbarContent({
   className,
 }: WriterToolbarContentProps) {
   const [linkUrl, setLinkUrl] = useState("");
-  const [highlightColor, setHighlightColor] = useState("#ffff00");
-  const [textColor, setTextColor] = useState("#000000");
+  const [highlightColor, setHighlightColor] = useState("#fef3c7");
+  const [textColor, setTextColor] = useState("#1f2937");
   const [customFontSize, setCustomFontSize] = useState("");
   const [currentFontFamily, setCurrentFontFamily] = useState("Inter");
   const [currentFontSize, setCurrentFontSize] = useState("16px");
@@ -355,6 +355,43 @@ export function WriterToolbarContent({
     [editor]
   );
 
+  // Paletas de cores predefinidas para texto
+  const textColorPalette = useMemo(
+    () => [
+      { name: "Preto", value: "#1f2937", category: "neutral" },
+      { name: "Cinza Escuro", value: "#374151", category: "neutral" },
+      { name: "Cinza", value: "#6b7280", category: "neutral" },
+      { name: "Branco", value: "#ffffff", category: "neutral" },
+      { name: "Escrivania Roxo", value: "#9192FA", category: "brand" },
+      { name: "Escrivania Azul", value: "#60A5FA", category: "brand" },
+      { name: "Vermelho", value: "#dc2626", category: "semantic" },
+      { name: "Laranja", value: "#ea580c", category: "semantic" },
+      { name: "Âmbar", value: "#d97706", category: "semantic" },
+      { name: "Verde", value: "#16a34a", category: "semantic" },
+      { name: "Azul", value: "#2563eb", category: "semantic" },
+      { name: "Índigo", value: "#4f46e5", category: "semantic" },
+      { name: "Roxo", value: "#9333ea", category: "semantic" },
+      { name: "Rosa", value: "#e11d48", category: "semantic" },
+    ],
+    []
+  );
+
+  // Paletas de cores predefinidas para destaque
+  const highlightColorPalette = useMemo(
+    () => [
+      { name: "Amarelo Suave", value: "#fef3c7", category: "warm" },
+      { name: "Verde Suave", value: "#d1fae5", category: "warm" },
+      { name: "Azul Suave", value: "#dbeafe", category: "cool" },
+      { name: "Rosa Suave", value: "#fce7f3", category: "warm" },
+      { name: "Roxo Suave", value: "#e9d5ff", category: "cool" },
+      { name: "Laranja Suave", value: "#fed7aa", category: "warm" },
+      { name: "Escrivania Roxo Suave", value: "#e0e7ff", category: "brand" },
+      { name: "Escrivania Azul Suave", value: "#dbeafe", category: "brand" },
+      { name: "Cinza Suave", value: "#f3f4f6", category: "neutral" },
+    ],
+    []
+  );
+
   const removeHighlight = useCallback(() => {
     if (!editor) return;
     editor.chain().focus().unsetHighlight().run();
@@ -570,39 +607,310 @@ export function WriterToolbarContent({
               </Popover>
             </div>
 
-            {/* Text Color Controls */}
+            {/* Color Controls */}
             <div className="flex items-center space-x-1 border-r border-slate-300 pr-2">
-              <ColorPicker
-                value={textColor}
-                onChange={handleSetTextColor}
-                className="w-8 h-8"
-              />
-            </div>
-
-            {/* Highlight Controls */}
-            <div className="flex items-center space-x-1 border-r border-slate-300 pr-2">
+              {/* Text Color */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <ToolbarButton className="justify-between">
-                    <Highlighter className="w-4 h-4" />
+                  <ToolbarButton
+                    className="px-2 py-1 gap-1"
+                    tooltip="Cor do texto"
+                  >
+                    <div className="flex items-center gap-1">
+                      <div
+                        className="w-4 h-4 rounded border border-gray-300 shadow-sm"
+                        style={{ backgroundColor: textColor }}
+                      />
+                      <span className="text-xs hidden sm:inline">A</span>
+                    </div>
                   </ToolbarButton>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-64">
-                  <DropdownMenuLabel>Cor de Destaque</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <div className="p-3 space-y-2">
-                    <ColorPicker
-                      value={highlightColor}
-                      onChange={setHighlight}
-                      className="w-full"
-                    />
-                    <ToolbarButton
-                      onClick={removeHighlight}
-                      className="w-full"
-                      tooltip="Remover destaque do texto"
-                    >
-                      Remover Destaque
-                    </ToolbarButton>
+                <DropdownMenuContent className="w-80 p-0">
+                  <div className="p-4">
+                    <DropdownMenuLabel className="text-sm font-medium text-gray-900 mb-3">
+                      Cor do Texto
+                    </DropdownMenuLabel>
+
+                    {/* Paleta de cores organizadas por categoria */}
+                    <div className="space-y-4">
+                      {/* Cores da marca */}
+                      <div>
+                        <div className="text-xs font-medium text-gray-600 mb-2">
+                          Cores da Marca
+                        </div>
+                        <div className="grid grid-cols-8 gap-1">
+                          {textColorPalette
+                            .filter((color) => color.category === "brand")
+                            .map((color) => (
+                              <Tooltip key={color.value}>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    className={cn(
+                                      "w-6 h-6 rounded border-2 cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-md",
+                                      textColor === color.value
+                                        ? "border-escrivania-purple-500 ring-2 ring-escrivania-purple-200"
+                                        : "border-gray-200 hover:border-gray-300"
+                                    )}
+                                    style={{ backgroundColor: color.value }}
+                                    onClick={() =>
+                                      handleSetTextColor(color.value)
+                                    }
+                                  />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{color.name}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            ))}
+                        </div>
+                      </div>
+
+                      {/* Cores neutras */}
+                      <div>
+                        <div className="text-xs font-medium text-gray-600 mb-2">
+                          Cores Neutras
+                        </div>
+                        <div className="grid grid-cols-8 gap-1">
+                          {textColorPalette
+                            .filter((color) => color.category === "neutral")
+                            .map((color) => (
+                              <Tooltip key={color.value}>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    className={cn(
+                                      "w-6 h-6 rounded border-2 cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-md",
+                                      textColor === color.value
+                                        ? "border-escrivania-purple-500 ring-2 ring-escrivania-purple-200"
+                                        : "border-gray-200 hover:border-gray-300"
+                                    )}
+                                    style={{ backgroundColor: color.value }}
+                                    onClick={() =>
+                                      handleSetTextColor(color.value)
+                                    }
+                                  />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{color.name}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            ))}
+                        </div>
+                      </div>
+
+                      {/* Cores semânticas */}
+                      <div>
+                        <div className="text-xs font-medium text-gray-600 mb-2">
+                          Cores Semânticas
+                        </div>
+                        <div className="grid grid-cols-8 gap-1">
+                          {textColorPalette
+                            .filter((color) => color.category === "semantic")
+                            .map((color) => (
+                              <Tooltip key={color.value}>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    className={cn(
+                                      "w-6 h-6 rounded border-2 cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-md",
+                                      textColor === color.value
+                                        ? "border-escrivania-purple-500 ring-2 ring-escrivania-purple-200"
+                                        : "border-gray-200 hover:border-gray-300"
+                                    )}
+                                    style={{ backgroundColor: color.value }}
+                                    onClick={() =>
+                                      handleSetTextColor(color.value)
+                                    }
+                                  />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{color.name}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            ))}
+                        </div>
+                      </div>
+
+                      {/* Seletor de cor personalizada */}
+                      <div className="pt-2 border-t border-gray-200">
+                        <div className="text-xs font-medium text-gray-600 mb-2">
+                          Cor Personalizada
+                        </div>
+                        <ColorPicker
+                          value={textColor}
+                          onChange={handleSetTextColor}
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Highlight Color */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <ToolbarButton
+                    className="px-2 py-1 gap-1"
+                    tooltip="Cor de destaque"
+                  >
+                    <div className="flex items-center gap-1">
+                      <Highlighter className="w-4 h-4" />
+                      <div
+                        className="w-3 h-3 rounded border border-gray-300 shadow-sm"
+                        style={{ backgroundColor: highlightColor }}
+                      />
+                    </div>
+                  </ToolbarButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-80 p-0">
+                  <div className="p-4">
+                    <DropdownMenuLabel className="text-sm font-medium text-gray-900 mb-3">
+                      Cor de Destaque
+                    </DropdownMenuLabel>
+
+                    {/* Paleta de cores de destaque organizadas */}
+                    <div className="space-y-4">
+                      {/* Cores da marca para destaque */}
+                      <div>
+                        <div className="text-xs font-medium text-gray-600 mb-2">
+                          Cores da Marca
+                        </div>
+                        <div className="grid grid-cols-8 gap-1">
+                          {highlightColorPalette
+                            .filter((color) => color.category === "brand")
+                            .map((color) => (
+                              <Tooltip key={color.value}>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    className={cn(
+                                      "w-6 h-6 rounded border-2 cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-md",
+                                      highlightColor === color.value
+                                        ? "border-escrivania-purple-500 ring-2 ring-escrivania-purple-200"
+                                        : "border-gray-200 hover:border-gray-300"
+                                    )}
+                                    style={{ backgroundColor: color.value }}
+                                    onClick={() => setHighlight(color.value)}
+                                  />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{color.name}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            ))}
+                        </div>
+                      </div>
+
+                      {/* Cores quentes */}
+                      <div>
+                        <div className="text-xs font-medium text-gray-600 mb-2">
+                          Tons Quentes
+                        </div>
+                        <div className="grid grid-cols-8 gap-1">
+                          {highlightColorPalette
+                            .filter((color) => color.category === "warm")
+                            .map((color) => (
+                              <Tooltip key={color.value}>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    className={cn(
+                                      "w-6 h-6 rounded border-2 cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-md",
+                                      highlightColor === color.value
+                                        ? "border-escrivania-purple-500 ring-2 ring-escrivania-purple-200"
+                                        : "border-gray-200 hover:border-gray-300"
+                                    )}
+                                    style={{ backgroundColor: color.value }}
+                                    onClick={() => setHighlight(color.value)}
+                                  />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{color.name}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            ))}
+                        </div>
+                      </div>
+
+                      {/* Cores frias */}
+                      <div>
+                        <div className="text-xs font-medium text-gray-600 mb-2">
+                          Tons Frios
+                        </div>
+                        <div className="grid grid-cols-8 gap-1">
+                          {highlightColorPalette
+                            .filter((color) => color.category === "cool")
+                            .map((color) => (
+                              <Tooltip key={color.value}>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    className={cn(
+                                      "w-6 h-6 rounded border-2 cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-md",
+                                      highlightColor === color.value
+                                        ? "border-escrivania-purple-500 ring-2 ring-escrivania-purple-200"
+                                        : "border-gray-200 hover:border-gray-300"
+                                    )}
+                                    style={{ backgroundColor: color.value }}
+                                    onClick={() => setHighlight(color.value)}
+                                  />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{color.name}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            ))}
+                        </div>
+                      </div>
+
+                      {/* Cores neutras */}
+                      <div>
+                        <div className="text-xs font-medium text-gray-600 mb-2">
+                          Tons Neutros
+                        </div>
+                        <div className="grid grid-cols-8 gap-1">
+                          {highlightColorPalette
+                            .filter((color) => color.category === "neutral")
+                            .map((color) => (
+                              <Tooltip key={color.value}>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    className={cn(
+                                      "w-6 h-6 rounded border-2 cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-md",
+                                      highlightColor === color.value
+                                        ? "border-escrivania-purple-500 ring-2 ring-escrivania-purple-200"
+                                        : "border-gray-200 hover:border-gray-300"
+                                    )}
+                                    style={{ backgroundColor: color.value }}
+                                    onClick={() => setHighlight(color.value)}
+                                  />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{color.name}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            ))}
+                        </div>
+                      </div>
+
+                      {/* Seletor de cor personalizada e ações */}
+                      <div className="pt-2 border-t border-gray-200 space-y-3">
+                        <div>
+                          <div className="text-xs font-medium text-gray-600 mb-2">
+                            Cor Personalizada
+                          </div>
+                          <ColorPicker
+                            value={highlightColor}
+                            onChange={setHighlight}
+                            className="w-full"
+                          />
+                        </div>
+
+                        <ToolbarButton
+                          onClick={removeHighlight}
+                          className="w-full bg-red-50 hover:bg-red-100 text-red-700 border-red-200"
+                          tooltip="Remover destaque do texto"
+                        >
+                          Remover Destaque
+                        </ToolbarButton>
+                      </div>
+                    </div>
                   </div>
                 </DropdownMenuContent>
               </DropdownMenu>

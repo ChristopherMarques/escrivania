@@ -39,6 +39,8 @@ import { cn } from "@/lib/utils";
 import { EditorContentWrapper } from "./editor-content-wrapper";
 import { WriterStatsPanel } from "./writer-stats-panel";
 import { WriterToolbarContent } from "./writer-toolbar-content";
+import { Button } from "@/components/ui/button";
+import { ChevronUp, ChevronDown, X, BarChart3 } from "lucide-react";
 
 // --- Hooks ---
 import { useDeviceInfo } from "@/hooks/use-mobile";
@@ -86,6 +88,9 @@ export const TiptapEditor = memo(function TiptapEditor({
   const [writingGoal, setWritingGoal] = React.useState(500); // Meta de palavras
   const [sessionStartTime] = React.useState(Date.now());
   const [sessionWordCount, setSessionWordCount] = React.useState(0);
+  const [statsViewMode, setStatsViewMode] = React.useState<
+    "hidden" | "compact" | "expanded"
+  >("compact");
 
   // Memoize extensions for better performance
   const extensions = useMemo(
@@ -290,8 +295,7 @@ export const TiptapEditor = memo(function TiptapEditor({
   return (
     <div
       className={cn(
-        "flex flex-col w-full min-h-screen relative",
-        "overflow-auto",
+        "flex flex-col w-full h-screen relative",
         deviceInfo.isMobile && "text-sm",
         deviceInfo.isTablet && "text-base",
         deviceInfo.isMacbook && "text-base", // Tamanho de texto otimizado para MacBook Pro M1
@@ -338,7 +342,7 @@ export const TiptapEditor = memo(function TiptapEditor({
           </div>
         )}
 
-        {/* Editor Content */}
+        {/* Editor Content with Scroll */}
         <div
           className={cn(
             "flex-1 overflow-auto",
@@ -351,23 +355,186 @@ export const TiptapEditor = memo(function TiptapEditor({
         >
           <EditorContentWrapper editor={editor} />
         </div>
-
-        {/* Stats Panel - Hidden on mobile/tablet and read-only mode */}
-        {statsVisibility && (
-          <div className="flex-shrink-0">
-            <WriterStatsPanel
-              wordCount={wordCount}
-              characterCount={characterCount}
-              readingTime={readingTime}
-              writingGoal={writingGoal}
-              sessionWordCount={sessionWordCount}
-              sessionDuration={sessionDuration}
-              wordsPerMinute={wordsPerMinute}
-              goalProgress={goalProgress}
-            />
-          </div>
-        )}
       </div>
+
+      {/* Floating Stats Panel - Multiple view modes */}
+      {statsVisibility && statsViewMode !== "hidden" && (
+        <div
+          className={cn(
+            "fixed z-50 transition-all duration-300",
+            statsViewMode === "compact"
+              ? "bottom-4 right-4 w-auto"
+              : "bottom-0 left-0 right-0 p-4"
+          )}
+        >
+          {statsViewMode === "compact" ? (
+            // Compact Mode - Small floating widget
+            <div className="bg-background/95 backdrop-blur-md border border-primary/20 rounded-xl shadow-xl p-3 hover:shadow-2xl transition-all duration-300 group">
+              <div className="flex items-center gap-3">
+                <div className="text-center">
+                  <div className="text-lg font-bold text-primary">
+                    {wordCount}
+                  </div>
+                  <div className="text-xs text-muted-foreground">Palavras</div>
+                </div>
+                <div className="w-px h-8 bg-border"></div>
+                <div className="text-center">
+                  <div className="text-lg font-bold text-primary">
+                    {Math.round((wordCount / writingGoal) * 100)}%
+                  </div>
+                  <div className="text-xs text-muted-foreground">Meta</div>
+                </div>
+                <div className="w-px h-8 bg-border"></div>
+                <div className="text-center">
+                  <div className="text-lg font-bold text-primary">
+                    {readingTime}
+                  </div>
+                  <div className="text-xs text-muted-foreground">Min</div>
+                </div>
+
+                {/* Toggle buttons */}
+                <div className="flex flex-col gap-1 ml-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setStatsViewMode("expanded")}
+                    className="h-6 w-6 p-0 text-primary hover:bg-primary/10"
+                    title="Expandir estatísticas"
+                  >
+                    <ChevronUp className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setStatsViewMode("hidden")}
+                    className="h-6 w-6 p-0 text-muted-foreground hover:bg-muted"
+                    title="Ocultar estatísticas"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            // Expanded Mode - Full width panel
+            <div className="max-w-7xl mx-auto">
+              <div className="bg-background/95 backdrop-blur-md border border-primary/20 rounded-2xl shadow-2xl p-6 transition-all duration-300 hover:shadow-3xl hover:border-primary/40">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-primary">
+                    Estatísticas de Escrita
+                  </h3>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setStatsViewMode("compact")}
+                      className="h-8 w-8 p-0 text-primary hover:bg-primary/10"
+                      title="Modo compacto"
+                    >
+                      <ChevronDown className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setStatsViewMode("hidden")}
+                      className="h-8 w-8 p-0 text-muted-foreground hover:bg-muted"
+                      title="Ocultar estatísticas"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-6 gap-6">
+                  {/* Palavras */}
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary mb-1">
+                      {wordCount}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Palavras
+                    </div>
+                  </div>
+
+                  {/* Meta */}
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary mb-1">
+                      {Math.round((wordCount / writingGoal) * 100)}%
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Meta ({writingGoal})
+                    </div>
+                    <div className="w-full bg-muted rounded-full h-2 mt-2">
+                      <div
+                        className="bg-primary h-2 rounded-full transition-all duration-500 ease-out"
+                        style={{
+                          width: `${Math.min((wordCount / writingGoal) * 100, 100)}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Tempo de leitura */}
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary mb-1">
+                      {readingTime}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Min. Leitura
+                    </div>
+                  </div>
+
+                  {/* Palavras por minuto */}
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary mb-1">
+                      {wordsPerMinute}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Palavras/Min
+                    </div>
+                  </div>
+
+                  {/* Duração da sessão */}
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary mb-1">
+                      {sessionDuration}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Min. Sessão
+                    </div>
+                  </div>
+
+                  {/* Caracteres */}
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary mb-1">
+                      {characterCount}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Caracteres
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Show Stats Button when hidden */}
+      {statsVisibility && statsViewMode === "hidden" && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setStatsViewMode("compact")}
+            className="bg-background/95 backdrop-blur-md border-primary/20 hover:border-primary/40 text-primary shadow-lg"
+            title="Mostrar estatísticas"
+          >
+            <BarChart3 className="h-4 w-4 mr-2" />
+            Estatísticas
+          </Button>
+        </div>
+      )}
     </div>
   );
 });
