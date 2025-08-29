@@ -336,7 +336,7 @@ export function ValueProposition() {
                     {collaborativeFeatures.map((feature, index) => (
                       <motion.div
                         key={index}
-                        className="flex items-center gap-3 p-3 bg-background/50 rounded-lg"
+                        className="flex items-center text-center gap-3 p-3 bg-background/50 rounded-lg"
                         variants={{
                           hidden: {
                             opacity: 0,
