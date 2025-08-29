@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Feather, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { ThemeToggle } from "../ui/theme-toggle";
 import { HeaderProps } from "./types";
 
 export function Header({ onSignIn }: HeaderProps) {
@@ -216,11 +217,24 @@ export function Header({ onSignIn }: HeaderProps) {
 
           {/* Desktop CTA */}
           <motion.div
-            className="hidden md:flex items-center"
+            className="hidden md:flex items-center space-x-4"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.6, duration: 0.5 }}
           >
+            {/* Theme Toggle with elegant styling */}
+            <motion.div
+              className="relative"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.7, duration: 0.4 }}
+            >
+              <ThemeToggle className="p-2 rounded-full bg-background/20 backdrop-blur-sm border border-border/30 hover:bg-background/30 hover:border-border/50 transition-all duration-200 shadow-sm hover:shadow-md" />
+            </motion.div>
+
+            {/* CTA Button */}
             <motion.div
               style={{ scale: bubbleScale }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -236,7 +250,7 @@ export function Header({ onSignIn }: HeaderProps) {
 
           {/* Mobile Menu Button */}
           <motion.button
-            className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors duration-200"
+            className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors duration-200 text-primary"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -265,10 +279,10 @@ export function Header({ onSignIn }: HeaderProps) {
           <motion.div
             className="py-4 space-y-4 border-t border-border/20 mt-4 bg-background/95 backdrop-blur-xl rounded-lg mx-2 px-4"
             style={{
-              background: "rgba(255, 255, 255, 0.95)",
+              background: "var(--background)",
               backdropFilter: "blur(20px) saturate(180%)",
               WebkitBackdropFilter: "blur(20px) saturate(180%)",
-              border: "1px solid rgba(255, 255, 255, 0.3)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
             }}
             initial={false}
             animate={{
@@ -306,7 +320,7 @@ export function Header({ onSignIn }: HeaderProps) {
             ))}
 
             <motion.div
-              className="flex flex-col space-y-3 pt-4"
+              className="flex flex-col space-y-4 pt-4 border-t border-border/20 mt-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{
                 opacity: isMenuOpen ? 1 : 0,
@@ -317,9 +331,37 @@ export function Header({ onSignIn }: HeaderProps) {
                 delay: isMenuOpen ? 0.6 : 0,
               }}
             >
+              {/* Theme Toggle for Mobile */}
+              <motion.div
+                className="flex items-center justify-between"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{
+                  opacity: isMenuOpen ? 1 : 0,
+                  x: isMenuOpen ? 0 : -20,
+                }}
+                transition={{
+                  duration: 0.3,
+                  delay: isMenuOpen ? 0.7 : 0,
+                }}
+              >
+                <span className="text-sm font-medium text-muted-foreground">
+                  Tema
+                </span>
+                <ThemeToggle className="p-2 rounded-full bg-background/30 backdrop-blur-sm border border-border/30 hover:bg-background/40 hover:border-border/50 transition-all duration-200" />
+              </motion.div>
+
+              {/* CTA Button for Mobile */}
               <motion.div
                 style={{ scale: bubbleScale }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{
+                  opacity: isMenuOpen ? 1 : 0,
+                  y: isMenuOpen ? 0 : 20,
+                }}
+                transition={{
+                  duration: 0.3,
+                  delay: isMenuOpen ? 0.8 : 0,
+                }}
               >
                 <Button
                   onClick={() => {
